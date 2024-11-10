@@ -10,7 +10,7 @@ export const ErrorHandler = (err: IErrorItem | any, req: Request, res: Response,
   console.error(err);
 
   res.status(statusCode).json({
-    error: statusCode,
+    status: statusCode,
     message: message,
   });
 };
