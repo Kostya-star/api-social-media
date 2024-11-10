@@ -1,54 +1,47 @@
 import { APP_ROUTES } from '../../src/settings/routing';
 import { req } from '../helper';
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
-import { ICreateBlogPayload } from '../../src/types/blogs/createBlogBody';
 import { mockDB } from '../../src/mockDB/index';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
-import { blogToCreate } from './common';
+import { blogToCreate, createTestBlog, deleteTestBlog } from './common';
+
+let testBlogId: string | null;
 
 describe('BLOGS CREATE request', () => {
-  // beforeAll(async () => {
-  //   // Set up the test data with a POST request
-  //   const response = await request(app)
-  //     .post('/blogs')
-  //     .send({ title: 'Test Blog', content: 'Content for testing' });
-
-  //   testBlogId = response.body.id;
-  //   expect(response.status).toBe(201);
-  // });
-
-  // afterAll(async () => {
-  //   // Clean up by deleting the test data
-  //   if (testBlogId) {
-  //     await request(app).delete(`/blogs/${testBlogId}`);
-  //   }
-  // });
+  afterEach(async () => {
+    if (testBlogId) {
+      await deleteTestBlog(testBlogId, true);
+      testBlogId = null;
+    }
+  });
 
   // TODO - delte testBlog from DB
   test('status check with auth = 201', async () => {
-    const res = await req
-      .post(APP_ROUTES.BLOGS)
-      .set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`)
-      .send(blogToCreate)
-      .expect('Content-Type', /json/)
-      .expect(HTTP_STATUS_CODES.SUCCESS_201);
+    const blog = await createTestBlog(true);
+    testBlogId = blog.body.id;
+
+    console.log(blog.headers);
+    console.log(blog.header);
+    expect(blog.headers['content-type']).toMatch(/json/);
+    expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
   });
-  test('status check with NO auth', async () => {
-    await req.post(APP_ROUTES.BLOGS).send(blogToCreate).expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  test('status check with NO auth = 401', async () => {
+    const blog = await createTestBlog(false);
+    testBlogId = blog.body.id;
+
+    expect(blog.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('response check', async () => {
-    const res = await req
-      .post(APP_ROUTES.BLOGS)
-      .send(blogToCreate)
-      .set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`)
-      .expect(HTTP_STATUS_CODES.SUCCESS_201);
+    const blog = await createTestBlog(true);
+    testBlogId = blog.body.id;
 
-    expect(res.body).toMatchObject(blogToCreate);
+    expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
+    expect(blog.body).toMatchObject(blogToCreate);
     expect(mockDB.blogs.length).toBeGreaterThan(0);
-    expect(res.body).toHaveProperty('id');
-    expect(res.body).toHaveProperty('name');
-    expect(res.body).toHaveProperty('description');
-    expect(res.body).toHaveProperty('websiteUrl');
+    expect(blog.body).toHaveProperty('id');
+    expect(blog.body).toHaveProperty('name');
+    expect(blog.body).toHaveProperty('description');
+    expect(blog.body).toHaveProperty('websiteUrl');
   });
 
   describe('CHECK VALIDATION', () => {
@@ -71,7 +64,7 @@ describe('BLOGS CREATE request', () => {
     checkWrongValidation('description too long', 'post', APP_ROUTES.BLOGS, { ...blogToCreate, description: 'a'.repeat(501) }, [
       { field: 'description', message: BlogsErrorsList.DESCRIPTION_EXCEEDED_LENGTH },
     ]);
-    
+
     checkWrongValidation('websiteUrl not specified', 'post', APP_ROUTES.BLOGS, { ...blogToCreate, websiteUrl: '' }, [
       { field: 'websiteUrl', message: BlogsErrorsList.URL_EMPTY },
     ]);

@@ -1,38 +1,43 @@
-import { APP_ROUTES } from '../../src/settings/routing';
-import { req } from '../helper';
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
-import { blogToCreate, createTestBlog } from './common';
+import { createTestBlog, deleteTestBlog, getTestBlogById } from './common';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { IErrorItem } from '../../src/types/error-item';
-describe('BLOGS GET POST BY ID request', () => {
-  let testBlogId: string;
+describe('BLOGS GET BY ID request', () => {
+  let testBlogId: string | null = null;
 
   beforeAll(async () => {
-    testBlogId = await createTestBlog();
-    console.log('testBlogId:', testBlogId);
+    const blog = await createTestBlog(true);
+    testBlogId = blog.body.id
   });
 
-  // TODO - delte testBlog from DB
+  afterAll(async () => {
+    // Clean up by deleting the test data
+    if (testBlogId) {
+      await deleteTestBlog(testBlogId, true);
+      testBlogId = null;
+    }
+  });
 
-  // afterAll(async () => {
-  //   // Clean up by deleting the test data
-  //   if (testBlogId) {
-  // await deleteTestBlog
-  //   }
-  // });
   test('status check', async () => {
-    await req.get(`${APP_ROUTES.BLOGS}/${testBlogId}`).expect(HTTP_STATUS_CODES.SUCCESS_200);
+    const blog = await getTestBlogById(testBlogId!);
+
+    expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
   });
   test('status check with wrong blogId', async () => {
-    const res = await req.get(`${APP_ROUTES.BLOGS}/123456hbgfdfdasfaopjadodviuseffne`).expect(HTTP_STATUS_CODES.NOT_FOUND_404);
+    const blog = await getTestBlogById('123456hbgfdfdasfaopjadodviuseffne');
+    expect(blog.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
+
     const error: IErrorItem = { status: HTTP_STATUS_CODES.NOT_FOUND_404, message: BlogsErrorsList.NOT_FOUND };
-    expect(res.body).toEqual(error);
+    expect(blog.body).toEqual(error);
   });
   test('response check', async () => {
-    const res = await req.get(`${APP_ROUTES.BLOGS}/${testBlogId}`).expect(HTTP_STATUS_CODES.SUCCESS_200);
-    expect(res.body).toHaveProperty('id');
-    expect(res.body).toHaveProperty('name');
-    expect(res.body).toHaveProperty('description');
-    expect(res.body).toHaveProperty('websiteUrl');
+    const blog = await getTestBlogById(testBlogId!);
+
+    expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
+
+    expect(blog.body).toHaveProperty('id');
+    expect(blog.body).toHaveProperty('name');
+    expect(blog.body).toHaveProperty('description');
+    expect(blog.body).toHaveProperty('websiteUrl');
   });
 });
