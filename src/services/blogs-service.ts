@@ -42,8 +42,23 @@ const createBlog = (blog: ICreateBlogPayload): IBlog => {
   }
 };
 
+const deleteBlog = (blogId: string): void => {
+  const blogToDelete = mockDB.blogs.find(b => b.id === blogId);
+
+  if (!blogToDelete) {
+    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
+
+  try {
+    mockDB.blogs = mockDB.blogs.filter(b => b.id !== blogId);
+  } catch (err) {
+    throw err;
+  }
+};
+
 export default {
   getAllBlogs,
   getBlogById,
   createBlog,
+  deleteBlog
 };

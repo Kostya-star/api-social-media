@@ -36,8 +36,21 @@ const createBlog = (req: Request<any, any, ICreateBlogPayload>, res: Response, n
   }
 };
 
+const deleteBlog = (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
+  const blogId = req.params.blogId;
+
+  try {
+    BlogsService.deleteBlog(blogId);
+
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   getAllBlogs,
   getBlogById,
-  createBlog
+  createBlog,
+  deleteBlog
 };

@@ -8,3 +8,4 @@ export const blogsRoutes = Router();
 blogsRoutes.get('/', blogsControllers.getAllBlogs);
 blogsRoutes.get('/:blogId', blogsControllers.getBlogById); // to do tests!!!
 blogsRoutes.post('/', checkAuth, validateCreateBlogPayload, blogsControllers.createBlog); // to do tests!!!
+blogsRoutes.delete('/:blogId', checkAuth, blogsControllers.deleteBlog); // to do tests!!!
