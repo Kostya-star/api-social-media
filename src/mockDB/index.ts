@@ -9,7 +9,7 @@ interface MockDB {
 export const mockDB: MockDB = {
   blogs: [
     // {
-    //   id: 'sdsdsd',
+    //   id: '1',
     //   name: 'ssdds',
     //   description: 'dsdsd',
     //   websiteUrl: 'dsdsd',

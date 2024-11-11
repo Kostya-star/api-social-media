@@ -3,7 +3,7 @@ import { req } from '../helper';
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
 import { mockDB } from '../../src/mockDB/index';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
-import { blogToCreate, createTestBlog, deleteTestBlog } from './common';
+import { blogToCreate, checkWrongValidation, createTestBlog, deleteTestBlog } from './common';
 
 let testBlogId: string | null;
 
@@ -15,13 +15,10 @@ describe('BLOGS CREATE request', () => {
     }
   });
 
-  // TODO - delte testBlog from DB
   test('status check with auth = 201', async () => {
     const blog = await createTestBlog(true);
     testBlogId = blog.body.id;
 
-    console.log(blog.headers);
-    console.log(blog.header);
     expect(blog.headers['content-type']).toMatch(/json/);
     expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
   });
@@ -45,6 +42,13 @@ describe('BLOGS CREATE request', () => {
   });
 
   describe('CHECK VALIDATION', () => {
+    afterEach(async () => {
+      if (testBlogId) {
+        await deleteTestBlog(testBlogId, true);
+        testBlogId = null;
+      }
+    });
+
     checkWrongValidation('name not specified', 'post', APP_ROUTES.BLOGS, { ...blogToCreate, name: '' }, [
       { field: 'name', message: BlogsErrorsList.NAME_EMPTY },
     ]);
@@ -76,22 +80,3 @@ describe('BLOGS CREATE request', () => {
     ]);
   });
 });
-
-function checkWrongValidation(
-  caseName: string,
-  requestType: 'post' | 'put',
-  requestUrl: string,
-  payload: Record<string, any>,
-  errorsMessagesArr: { field: string; message: any }[]
-) {
-  test(caseName, async () => {
-    const res = await req[requestType](requestUrl)
-      .send(payload)
-      .set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`)
-      .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
-
-    expect(res.body).toEqual({
-      errorsMessages: errorsMessagesArr,
-    });
-  });
-}

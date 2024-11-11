@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import blogsControllers from '@/controllers/blogs';
 import { checkAuth } from '@/middlewares/checkAuth';
-import { validateCreateBlogPayload } from '@/middlewares/blogs/validate-create-blog-payload';
+import { validateBlogFields } from '@/middlewares/blogs/validate-blog-fields';
 
 export const blogsRoutes = Router();
 
 blogsRoutes.get('/', blogsControllers.getAllBlogs);
-blogsRoutes.get('/:blogId', blogsControllers.getBlogById); // to do tests!!!
-blogsRoutes.post('/', checkAuth, validateCreateBlogPayload, blogsControllers.createBlog); // to do tests!!!
-blogsRoutes.delete('/:blogId', checkAuth, blogsControllers.deleteBlog); // to do tests!!!
+blogsRoutes.get('/:blogId', blogsControllers.getBlogById);
+blogsRoutes.post('/', checkAuth, validateBlogFields, blogsControllers.createBlog);
+blogsRoutes.put('/:blogId', checkAuth, validateBlogFields, blogsControllers.updateBlog);
+blogsRoutes.delete('/:blogId', checkAuth, blogsControllers.deleteBlog);

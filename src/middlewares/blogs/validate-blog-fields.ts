@@ -5,7 +5,7 @@ import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { DESCRIPTION_MAX_SYMBOLS, WEBSITE_URL_REGEX, NAME_MAX_SYMBOLS, URL_MAX_SYMBOLS } from '@/const/blogs/blogs';
 import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
 
-export const validateCreateBlogPayload = [
+export const validateBlogFields = [
   body('name')
     .isString()
     .withMessage(BlogsErrorsList.NAME_WRONG_FORMAT)

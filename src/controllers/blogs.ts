@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import BlogsService from '@/services/blogs-service';
 import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
+import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 
 const getAllBlogs = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -36,6 +37,19 @@ const createBlog = (req: Request<any, any, ICreateBlogPayload>, res: Response, n
   }
 };
 
+const updateBlog = (req: Request<{ blogId: string }, any, IUpdateBlogPayload>, res: Response, next: NextFunction) => {
+  const blogId = req.params.blogId;
+  const newBlog = req.body;
+
+  try {
+    BlogsService.updateBlog(blogId, newBlog);
+
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
 const deleteBlog = (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
   const blogId = req.params.blogId;
 
@@ -52,5 +66,6 @@ export default {
   getAllBlogs,
   getBlogById,
   createBlog,
+  updateBlog,
   deleteBlog
 };
