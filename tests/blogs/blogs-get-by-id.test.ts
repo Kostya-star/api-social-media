@@ -1,12 +1,12 @@
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
-import { createTestBlog, deleteTestBlog, getTestBlogById } from './helpers';
+import { createTestBlog, deleteTestBlog, getCreateBlogPayload, getTestBlogById } from './helpers';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { IErrorItem } from '../../src/types/error-item';
 describe('BLOGS GET BY ID request', () => {
   let testBlogId: string | null = null;
 
   beforeAll(async () => {
-    const blog = await createTestBlog(true);
+    const blog = await createTestBlog(getCreateBlogPayload({}), true);
     testBlogId = blog.body.id;
   });
 

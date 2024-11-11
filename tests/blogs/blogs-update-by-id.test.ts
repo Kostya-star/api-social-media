@@ -1,28 +1,36 @@
-import { APP_ROUTES } from '../../src/settings/routing';
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
-import { checkWrongValidation, createTestBlog, deleteTestBlog, getTestBlogById, updateBlogBody, updateTestBlog } from './helpers';
+import { createTestBlog, deleteTestBlog, getCreateBlogPayload, getTestBlogById, updateTestBlog } from './helpers';
 import { IErrorItem } from '../../src/types/error-item';
+import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
 
 let testBlogId: string | null;
 
 describe('BLOGS UPDATE BY ID request', () => {
-  beforeEach(async () => await _beforeEach());
+  beforeEach(async () => {
+    const res = await createTestBlog(getCreateBlogPayload({}), true);
+    testBlogId = res.body.id;
+  });
 
-  afterEach(async () => await _afterEach());
+  afterEach(async () => {
+    if (testBlogId) {
+      await deleteTestBlog(testBlogId, true);
+      testBlogId = null;
+    }
+  });
 
   test('status check with auth = 204', async () => {
-    const blog = await updateTestBlog(testBlogId!, true);
+    const blog = await updateTestBlog(testBlogId!, getUpdateBlogPayload({}), true);
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
   });
   test('status check with NO auth = 401', async () => {
-    const blog = await updateTestBlog(testBlogId!, false);
+    const blog = await updateTestBlog(testBlogId!, getUpdateBlogPayload({}), false);
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('status check = 404', async () => {
-    const blog = await updateTestBlog('qwefgdfvl,mjohn812ne32r829rf', true);
+    const blog = await updateTestBlog('qwefgdfvl,mjohn812ne32r829rf', getUpdateBlogPayload({}), true);
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
 
@@ -30,65 +38,121 @@ describe('BLOGS UPDATE BY ID request', () => {
     expect(blog.body).toEqual(error);
   });
   test('response check', async () => {
-    const blog = await updateTestBlog(testBlogId!, true);
+    const blog = await updateTestBlog(testBlogId!, getUpdateBlogPayload({}), true);
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
 
     const updatedBlog = await getTestBlogById(testBlogId!);
 
-    expect(updatedBlog.body).toMatchObject(updateBlogBody);
-    expect(updatedBlog.body).toHaveProperty('name', updateBlogBody.name);
-    expect(updatedBlog.body).toHaveProperty('description', updateBlogBody.description);
-    expect(updatedBlog.body).toHaveProperty('websiteUrl', updateBlogBody.websiteUrl);
-  });
-
-  describe('CHECK VALIDATION', () => {
-    beforeEach(async () => await _beforeEach());
-
-    afterEach(async () => await _afterEach());
-
-    const updateBlogReqUrl = `${APP_ROUTES.BLOGS}/${testBlogId}`;
-
-    checkWrongValidation('name not specified', 'put', updateBlogReqUrl, { ...updateBlogBody, name: '' }, [
-      { field: 'name', message: BlogsErrorsList.NAME_EMPTY },
-    ]);
-    checkWrongValidation('name wrong format', 'put', updateBlogReqUrl, { ...updateBlogBody, name: 55 }, [
-      { field: 'name', message: BlogsErrorsList.NAME_WRONG_FORMAT },
-    ]);
-    checkWrongValidation('name too long', 'put', updateBlogReqUrl, { ...updateBlogBody, name: 'a'.repeat(20) }, [
-      { field: 'name', message: BlogsErrorsList.NAME_EXCEEDED_LENGTH },
-    ]);
-
-    checkWrongValidation('description not specified', 'put', updateBlogReqUrl, { ...updateBlogBody, description: '' }, [
-      { field: 'description', message: BlogsErrorsList.DESCRIPTION_EMPTY },
-    ]);
-    checkWrongValidation('description wrong format', 'put', updateBlogReqUrl, { ...updateBlogBody, description: null }, [
-      { field: 'description', message: BlogsErrorsList.DESCRIPTION_WRONG_FORMAT },
-    ]);
-    checkWrongValidation('description too long', 'put', updateBlogReqUrl, { ...updateBlogBody, description: 'a'.repeat(501) }, [
-      { field: 'description', message: BlogsErrorsList.DESCRIPTION_EXCEEDED_LENGTH },
-    ]);
-
-    checkWrongValidation('websiteUrl not specified', 'put', updateBlogReqUrl, { ...updateBlogBody, websiteUrl: '' }, [
-      { field: 'websiteUrl', message: BlogsErrorsList.URL_EMPTY },
-    ]);
-    checkWrongValidation('websiteUrl wrong format', 'put', updateBlogReqUrl, { ...updateBlogBody, websiteUrl: 221 }, [
-      { field: 'websiteUrl', message: BlogsErrorsList.URL_WRONG_FORMAT },
-    ]);
-    checkWrongValidation('websiteUrl invalid', 'put', updateBlogReqUrl, { ...updateBlogBody, websiteUrl: 'edfsfddsf' }, [
-      { field: 'websiteUrl', message: BlogsErrorsList.URL_INVALID },
-    ]);
+    expect(updatedBlog.body).toMatchObject(getUpdateBlogPayload({}));
+    expect(updatedBlog.body).toHaveProperty('name', getUpdateBlogPayload({}).name);
+    expect(updatedBlog.body).toHaveProperty('description', getUpdateBlogPayload({}).description);
+    expect(updatedBlog.body).toHaveProperty('websiteUrl', getUpdateBlogPayload({}).websiteUrl);
   });
 });
 
-async function _beforeEach() {
-  const res = await createTestBlog(true);
-  testBlogId = res.body.id;
+describe('CHECK VALIDATION for BLOGS update /put request', () => {
+  beforeEach(async () => {
+    const res = await createTestBlog(getCreateBlogPayload({}), true);
+    testBlogId = res.body.id;
+  });
+
+  afterEach(async () => {
+    if (testBlogId) {
+      await deleteTestBlog(testBlogId, true);
+      testBlogId = null;
+    }
+  });
+
+  const tests = [
+    {
+      name: 'Should return 400 if name is not specified',
+      payload: getUpdateBlogPayload({ name: '' }),
+      expectedField: 'name',
+      expectedMessage: BlogsErrorsList.NAME_EMPTY,
+    },
+    {
+      name: 'Should return 400 if name is in wrong format',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ name: 55 }),
+      expectedField: 'name',
+      expectedMessage: BlogsErrorsList.NAME_WRONG_FORMAT,
+    },
+    {
+      name: 'Should return 400 if name exceeds max length',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ name: 'a'.repeat(20) }),
+      expectedField: 'name',
+      expectedMessage: BlogsErrorsList.NAME_EXCEEDED_LENGTH,
+    },
+    {
+      name: 'Should return 400 if description is not specified',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ description: '' }),
+      expectedField: 'description',
+      expectedMessage: BlogsErrorsList.DESCRIPTION_EMPTY,
+    },
+    {
+      name: 'Should return 400 if description is in wrong format',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ description: null }),
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ description: null }),
+      expectedField: 'description',
+      expectedMessage: BlogsErrorsList.DESCRIPTION_WRONG_FORMAT,
+    },
+    {
+      name: 'Should return 400 if description exceeds max length',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ description: 'a'.repeat(501) }),
+      expectedField: 'description',
+      expectedMessage: BlogsErrorsList.DESCRIPTION_EXCEEDED_LENGTH,
+    },
+    {
+      name: 'Should return 400 if websiteUrl is not specified',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ websiteUrl: '' }),
+      expectedField: 'websiteUrl',
+      expectedMessage: BlogsErrorsList.URL_EMPTY,
+    },
+    {
+      name: 'Should return 400 if websiteUrl is in wrong format',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ websiteUrl: 221 }),
+      expectedField: 'websiteUrl',
+      expectedMessage: BlogsErrorsList.URL_WRONG_FORMAT,
+    },
+    {
+      name: 'Should return 400 if websiteUrl is invalid',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ websiteUrl: 'edfsfddsf' }),
+      expectedField: 'websiteUrl',
+      expectedMessage: BlogsErrorsList.URL_INVALID,
+    },
+  ];
+
+  tests.forEach(({ name, payload, expectedField, expectedMessage }) => {
+    test(name, async () => {
+      const blog = await updateTestBlog(testBlogId!, payload, true)
+      expect(blog.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
+      expect(blog.body.errorsMessages).toContainEqual({
+        field: expectedField,
+        message: expectedMessage,
+      });
+    });
+  });
+});
+
+
+function getUpdateBlogPayload({
+  name = 'updated name',
+  description = 'updated description',
+  websiteUrl = 'https://example-domain.com/blog-updated/456/',
+}: Partial<IUpdateBlogPayload>): IUpdateBlogPayload {
+  return {
+    name,
+    description,
+    websiteUrl,
+  };
 }
 
-async function _afterEach() {
-  if (testBlogId) {
-    await deleteTestBlog(testBlogId, true);
-    testBlogId = null;
-  }
-}

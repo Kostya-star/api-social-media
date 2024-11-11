@@ -4,17 +4,17 @@ import { ICreateBlogPayload } from '../../src/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
 import { req } from '../helper';
 
-export const blogToCreate: ICreateBlogPayload = {
-  name: 'new blog',
-  description: 'new blog description',
-  websiteUrl: 'https://example-domain.com/blog-post/123/',
-};
-
-export const updateBlogBody: IUpdateBlogPayload = {
-  name: 'updated name',
-  description: 'updated description',
-  websiteUrl: 'https://example-domain.com/blog-updated/456/',
-};
+export function getCreateBlogPayload({
+  name = 'new blog',
+  description = 'new blog description',
+  websiteUrl = 'https://example-domain.com/blog-post/123/',
+}: Partial<ICreateBlogPayload>): ICreateBlogPayload {
+  return {
+    name,
+    description,
+    websiteUrl,
+  };
+}
 
 export async function getAllBlogs() {
   const request = req.get(APP_ROUTES.BLOGS);
@@ -26,7 +26,7 @@ export async function getTestBlogById(blogId: string) {
   return await request;
 }
 
-export async function createTestBlog(isAuth: boolean) {
+export async function createTestBlog(blogToCreate: ICreateBlogPayload, isAuth: boolean) {
   const request = req.post(APP_ROUTES.BLOGS).send(blogToCreate);
 
   if (isAuth) {
@@ -37,7 +37,7 @@ export async function createTestBlog(isAuth: boolean) {
   return res;
 }
 
-export async function updateTestBlog(blogId: string, isAuth: boolean) {
+export async function updateTestBlog(blogId: string, updateBlogBody: IUpdateBlogPayload, isAuth: boolean) {
   const request = req.put(`${APP_ROUTES.BLOGS}/${blogId}`).send(updateBlogBody);
 
   if (isAuth) {
@@ -56,23 +56,4 @@ export async function deleteTestBlog(blogId: string, isAuth: boolean) {
   }
 
   return await request;
-}
-
-export function checkWrongValidation(
-  caseName: string,
-  requestType: 'post' | 'put',
-  requestUrl: string,
-  payload: Record<string, any>,
-  errorsMessagesArr: { field: string; message: any }[]
-) {
-  test(caseName, async () => {
-    const res = await req[requestType](requestUrl)
-      .send(payload)
-      .set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`)
-      .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
-
-    expect(res.body).toEqual({
-      errorsMessages: errorsMessagesArr,
-    });
-  });
 }
