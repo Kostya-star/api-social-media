@@ -10,10 +10,19 @@ export const mockDB: MockDB = {
   blogs: [
     // {
     //   id: '1',
-    //   name: 'ssdds',
+    //   name: 'blogName',
     //   description: 'dsdsd',
     //   websiteUrl: 'dsdsd',
     // },
   ],
-  posts: [],
+  posts: [
+    // {
+    //   id: '1',
+    //   title: 'sdsds',
+    //   shortDescription: 'dsdsd',
+    //   content: 'sdsds',
+    //   blogId: '1',
+    //   blogName: 'blogName',
+    // },
+  ],
 };

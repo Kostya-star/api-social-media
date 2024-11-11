@@ -3,7 +3,7 @@ import { req } from '../helper';
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
 import { mockDB } from '../../src/mockDB/index';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
-import { blogToCreate, checkWrongValidation, createTestBlog, deleteTestBlog } from './common';
+import { blogToCreate, checkWrongValidation, createTestBlog, deleteTestBlog } from './helpers';
 
 let testBlogId: string | null;
 

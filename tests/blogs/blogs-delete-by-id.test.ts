@@ -1,5 +1,5 @@
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
-import { createTestBlog, deleteTestBlog, getTestBlogById } from './common';
+import { createTestBlog, deleteTestBlog, getTestBlogById } from './helpers';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { IErrorItem } from '../../src/types/error-item';
 

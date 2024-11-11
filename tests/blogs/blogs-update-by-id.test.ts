@@ -1,8 +1,7 @@
 import { APP_ROUTES } from '../../src/settings/routing';
-import { req } from '../helper';
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
-import { checkWrongValidation, createTestBlog, deleteTestBlog, getTestBlogById, updateBlogBody, updateTestBlog } from './common';
+import { checkWrongValidation, createTestBlog, deleteTestBlog, getTestBlogById, updateBlogBody, updateTestBlog } from './helpers';
 import { IErrorItem } from '../../src/types/error-item';
 
 let testBlogId: string | null;
@@ -48,8 +47,8 @@ describe('BLOGS UPDATE BY ID request', () => {
 
     afterEach(async () => await _afterEach());
 
-    const updateBlogReqUrl = `${APP_ROUTES.BLOGS}/${testBlogId}`
-  
+    const updateBlogReqUrl = `${APP_ROUTES.BLOGS}/${testBlogId}`;
+
     checkWrongValidation('name not specified', 'put', updateBlogReqUrl, { ...updateBlogBody, name: '' }, [
       { field: 'name', message: BlogsErrorsList.NAME_EMPTY },
     ]);
