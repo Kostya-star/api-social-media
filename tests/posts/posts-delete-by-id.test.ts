@@ -14,8 +14,10 @@ describe('POSTS DELETE BY ID request', () => {
   });
 
   afterAll(async () => {
-    await deleteTestBlog(testBlogId!, true);
-    testBlogId = null;
+    if(testBlogId) {
+      await deleteTestBlog(testBlogId, true);
+      testBlogId = null;
+    }
   });
   
   beforeEach(async () => {
@@ -25,7 +27,7 @@ describe('POSTS DELETE BY ID request', () => {
   
   afterEach(async () => {
     if(testPostId) {
-      await deleteTestPost(testPostId!, true);
+      await deleteTestPost(testPostId, true);
       testPostId = null;
     }
   });
@@ -49,7 +51,7 @@ describe('POSTS DELETE BY ID request', () => {
   });
   test('successful deletion. post is deleted from DB and cant be found anymore', async () => {
     const res =  await deleteTestPost(testPostId!, true);
-    
+    testPostId = null;
     expect(res.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
     
     const post = await getTestPostById(testPostId!);

@@ -2,7 +2,6 @@ import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
 import { mockDB } from '../../src/mockDB/index';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from './helpers';
-import { ICreateBlogPayload } from '../../src/types/blogs/createBlogBody';
 
 let testBlogId: string | null;
 
@@ -58,6 +57,12 @@ describe('BLOGS CREATE Validation Tests', () => {
       expectedMessage: BlogsErrorsList.NAME_EMPTY,
     },
     {
+      name: 'Should return 400 if name is not trimmed',
+      payload: getCreateBlogPayload({ name: '    ' }),
+      expectedField: 'name',
+      expectedMessage: BlogsErrorsList.NAME_EMPTY,
+    },
+    {
       name: 'Should return 400 if name is in wrong format',
       // @ts-ignore
       payload: getCreateBlogPayload({ name: 55 }),
@@ -75,6 +80,13 @@ describe('BLOGS CREATE Validation Tests', () => {
       name: 'Should return 400 if description is not specified',
       // @ts-ignore
       payload: getCreateBlogPayload({ description: '' }),
+      expectedField: 'description',
+      expectedMessage: BlogsErrorsList.DESCRIPTION_EMPTY,
+    },
+    {
+      name: 'Should return 400 if description is not trimmed',
+      // @ts-ignore
+      payload: getCreateBlogPayload({ description: '   ' }),
       expectedField: 'description',
       expectedMessage: BlogsErrorsList.DESCRIPTION_EMPTY,
     },
@@ -100,6 +112,13 @@ describe('BLOGS CREATE Validation Tests', () => {
       expectedMessage: BlogsErrorsList.URL_EMPTY,
     },
     {
+      name: 'Should return 400 if websiteUrl is not trimmed',
+      // @ts-ignore
+      payload: getCreateBlogPayload({ websiteUrl: '   ' }),
+      expectedField: 'websiteUrl',
+      expectedMessage: BlogsErrorsList.URL_EMPTY,
+    },
+    {
       name: 'Should return 400 if websiteUrl is in wrong format',
       // @ts-ignore
       payload: getCreateBlogPayload({ websiteUrl: 234 }),
@@ -117,9 +136,10 @@ describe('BLOGS CREATE Validation Tests', () => {
 
   tests.forEach(({ name, payload, expectedField, expectedMessage }) => {
     test(name, async () => {
-      const response = await createTestBlog(payload, true);
-      expect(response.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
-      expect(response.body.errorsMessages).toContainEqual({
+      const blog = await createTestBlog(payload, true);
+      testBlogId = blog.body.id;
+      expect(blog.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
+      expect(blog.body.errorsMessages).toContainEqual({
         field: expectedField,
         message: expectedMessage,
       });

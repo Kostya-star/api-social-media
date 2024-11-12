@@ -16,8 +16,10 @@ describe('POSTS UPDATE BY ID request', () => {
   });
 
   afterAll(async () => {
-    await deleteTestBlog(testBlogId!, true);
-    testBlogId = null;
+    if (testBlogId) {
+      await deleteTestBlog(testBlogId, true);
+      testBlogId = null;
+    }
   });
   
   beforeEach(async () => {
@@ -26,8 +28,10 @@ describe('POSTS UPDATE BY ID request', () => {
   });
   
   afterEach(async () => {
-    await deleteTestPost(testPostId!, true);
-    testPostId = null;
+    if (testPostId) {
+      await deleteTestPost(testPostId!, true);
+      testPostId = null;
+    }
   });
 
   test('status check with auth = 204', async () => {
@@ -70,8 +74,10 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
   });
 
   afterAll(async () => {
-    await deleteTestBlog(testBlogId!, true);
-    testBlogId = null;
+    if (testBlogId) {
+      await deleteTestBlog(testBlogId, true);
+      testBlogId = null;
+    }
   });
 
   beforeEach(async () => {
@@ -80,14 +86,22 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
   });
 
   afterEach(async () => {
-    await deleteTestPost(testPostId!, true);
-    testPostId = null;
+    if (testPostId) {
+      await deleteTestPost(testPostId, true);
+      testPostId = null;
+    }
   });
 
   const tests = [
     {
       name: 'Should return 400 if title is missing',
       payload: getUpdatePostPayload({ title: '' }),
+      expectedField: 'title',
+      expectedMessage: PostsErrorsList.TITLE_EMPTY,
+    },
+    {
+      name: 'Should return 400 if title is not trimmed',
+      payload: getUpdatePostPayload({ title: '   ' }),
       expectedField: 'title',
       expectedMessage: PostsErrorsList.TITLE_EMPTY,
     },
@@ -111,6 +125,12 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
       expectedMessage: PostsErrorsList.SHORT_DESCRIPTION_EMPTY,
     },
     {
+      name: 'Should return 400 if shortDescription is not trimmed',
+      payload: getUpdatePostPayload({ shortDescription: '   ' }),
+      expectedField: 'shortDescription',
+      expectedMessage: PostsErrorsList.SHORT_DESCRIPTION_EMPTY,
+    },
+    {
       name: 'Should return 400 if shortDescription is not a string',
       // @ts-ignore
       payload: getUpdatePostPayload({ shortDescription: null }),
@@ -124,6 +144,12 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
       expectedMessage: PostsErrorsList.CONTENT_EMPTY,
     },
     {
+      name: 'Should return 400 if content is not trimmed',
+      payload: getUpdatePostPayload({ content: '    ' }),
+      expectedField: 'content',
+      expectedMessage: PostsErrorsList.CONTENT_EMPTY,
+    },
+    {
       name: 'Should return 400 if content exceeds max length',
       payload: getUpdatePostPayload({ content: 'a'.repeat(CONTENT_MAX_LENGTH + 1) }),
       expectedField: 'content',
@@ -132,6 +158,12 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
     {
       name: 'Should return 400 if blogId is not specified',
       payload: getUpdatePostPayload({ blogId: '' }),
+      expectedField: 'blogId',
+      expectedMessage: PostsErrorsList.BLOG_ID_EMPTY,
+    },
+    {
+      name: 'Should return 400 if blogId is not not trimmed',
+      payload: getUpdatePostPayload({ blogId: '   ' }),
       expectedField: 'blogId',
       expectedMessage: PostsErrorsList.BLOG_ID_EMPTY,
     },

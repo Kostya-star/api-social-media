@@ -19,6 +19,17 @@ describe('TESTING DELETE ROUTE testing/all-data', () => {
     testPostId = post.body.id;
   });
 
+  afterAll(async () => {
+    if (testBlogId) {
+      await deleteTestBlog(testBlogId, true)
+      testBlogId = null;
+    }
+    if (testPostId) {
+      await deleteTestPost(testPostId, true)
+      testPostId = null;
+    }
+  })
+
   test('should delete all data in DB', async () => {
     const res = await req.delete(APP_ROUTES.TESTING);
     expect(res.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);

@@ -72,6 +72,12 @@ describe('CHECK VALIDATION for BLOGS update /put request', () => {
       expectedMessage: BlogsErrorsList.NAME_EMPTY,
     },
     {
+      name: 'Should return 400 if name is not trimmed',
+      payload: getUpdateBlogPayload({ name: '   ' }),
+      expectedField: 'name',
+      expectedMessage: BlogsErrorsList.NAME_EMPTY,
+    },
+    {
       name: 'Should return 400 if name is in wrong format',
       // @ts-ignore
       payload: getUpdateBlogPayload({ name: 55 }),
@@ -89,6 +95,13 @@ describe('CHECK VALIDATION for BLOGS update /put request', () => {
       name: 'Should return 400 if description is not specified',
       // @ts-ignore
       payload: getUpdateBlogPayload({ description: '' }),
+      expectedField: 'description',
+      expectedMessage: BlogsErrorsList.DESCRIPTION_EMPTY,
+    },
+    {
+      name: 'Should return 400 if description is not trimmed',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ description: '   ' }),
       expectedField: 'description',
       expectedMessage: BlogsErrorsList.DESCRIPTION_EMPTY,
     },
@@ -112,6 +125,13 @@ describe('CHECK VALIDATION for BLOGS update /put request', () => {
       name: 'Should return 400 if websiteUrl is not specified',
       // @ts-ignore
       payload: getUpdateBlogPayload({ websiteUrl: '' }),
+      expectedField: 'websiteUrl',
+      expectedMessage: BlogsErrorsList.URL_EMPTY,
+    },
+    {
+      name: 'Should return 400 if websiteUrl is not trimmed',
+      // @ts-ignore
+      payload: getUpdateBlogPayload({ websiteUrl: '   ' }),
       expectedField: 'websiteUrl',
       expectedMessage: BlogsErrorsList.URL_EMPTY,
     },

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import postsControllers from '@/controllers/posts';
 import { checkAuth } from '@/middlewares/checkAuth';
-import { validatePostFields } from '@/middlewares/blogs/validate-post-fields';
+import { validatePostFields } from '@/middlewares/posts/validate-post-fields';
 
 export const postsRoutes = Router();
 

@@ -16,9 +16,8 @@ describe('POSTS GET BY ID request', () => {
   });
 
   afterAll(async () => {
-    // Clean up by deleting the test data
-    await deleteTestBlog(testBlogId!, true);
-    await deleteTestPost(testPostId!, true);
+    if (testBlogId) await deleteTestBlog(testBlogId, true);
+    if (testPostId) await deleteTestPost(testPostId, true);
   });
 
   test('status check', async () => {

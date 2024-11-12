@@ -15,8 +15,10 @@ describe('POSTS CREATE request', () => {
   });
 
   afterAll(async () => {
-    await deleteTestBlog(testBlogId!, true);
-    testBlogId = null;
+    if(testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
+      testBlogId = null;
+    }
   });
 
   afterEach(async () => {
@@ -63,7 +65,10 @@ describe('POST /posts - Validation Tests', () => {
   });
 
   afterAll(async () => {
-    if (testBlogId) await deleteTestBlog(testBlogId, true);
+    if (testBlogId) {
+      await deleteTestBlog(testBlogId, true);
+      testBlogId = null;
+    } 
   });
 
   afterEach(async () => {
@@ -77,6 +82,12 @@ describe('POST /posts - Validation Tests', () => {
     {
       name: 'Should return 400 if title is missing',
       payload: getCreatePostPayload(testBlogId!)({ title: '' }),
+      expectedField: 'title',
+      expectedMessage: PostsErrorsList.TITLE_EMPTY,
+    },
+    {
+      name: 'Should return 400 if title is not trimmed',
+      payload: getCreatePostPayload(testBlogId!)({ title: '   ' }),
       expectedField: 'title',
       expectedMessage: PostsErrorsList.TITLE_EMPTY,
     },
@@ -102,6 +113,13 @@ describe('POST /posts - Validation Tests', () => {
       expectedMessage: PostsErrorsList.SHORT_DESCRIPTION_EMPTY,
     },
     {
+      name: 'Should return 400 if shortDescription is not trimmed',
+      // @ts-ignore
+      payload: getCreatePostPayload(testBlogId!)({ shortDescription: '    ' }),
+      expectedField: 'shortDescription',
+      expectedMessage: PostsErrorsList.SHORT_DESCRIPTION_EMPTY,
+    },
+    {
       name: 'Should return 400 if shortDescription is not a string',
       // @ts-ignore
       payload: getCreatePostPayload(testBlogId!)({ shortDescription: null }),
@@ -116,6 +134,13 @@ describe('POST /posts - Validation Tests', () => {
       expectedMessage: PostsErrorsList.CONTENT_EMPTY,
     },
     {
+      name: 'Should return 400 if content is not trimmed',
+      // @ts-ignore
+      payload: getCreatePostPayload(testBlogId!)({ content: '   ' }),
+      expectedField: 'content',
+      expectedMessage: PostsErrorsList.CONTENT_EMPTY,
+    },
+    {
       name: 'Should return 400 if content exceeds max length',
       // @ts-ignore
       payload: getCreatePostPayload(testBlogId!)({ content: 'a'.repeat(CONTENT_MAX_LENGTH + 1) }),
@@ -126,6 +151,13 @@ describe('POST /posts - Validation Tests', () => {
       name: 'Should return 400 if blogId is not specified',
       // @ts-ignore
       payload: getCreatePostPayload(testBlogId!)({ blogId: '' }),
+      expectedField: 'blogId',
+      expectedMessage: PostsErrorsList.BLOG_ID_EMPTY,
+    },
+    {
+      name: 'Should return 400 if blogId is not trimmed',
+      // @ts-ignore
+      payload: getCreatePostPayload(testBlogId!)({ blogId: '   ' }),
       expectedField: 'blogId',
       expectedMessage: PostsErrorsList.BLOG_ID_EMPTY,
     },
