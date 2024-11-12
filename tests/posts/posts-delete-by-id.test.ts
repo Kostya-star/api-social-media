@@ -14,10 +14,10 @@ describe('POSTS DELETE BY ID request', () => {
   });
 
   afterAll(async () => {
-    if(testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if(testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
   
   beforeEach(async () => {
@@ -26,15 +26,14 @@ describe('POSTS DELETE BY ID request', () => {
   });
   
   afterEach(async () => {
-    if(testPostId) {
-      await deleteTestPost(testPostId, true);
+    // if(testPostId) {
+      await deleteTestPost(testPostId!, true);
       testPostId = null;
-    }
+    // }
   });
 
   test('status check. should be 204', async () => {
     const res = await deleteTestPost(testPostId!, true);
-    testPostId = null;
     expect(res.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
   });
   test('status check. should be 401', async () => {
@@ -51,12 +50,10 @@ describe('POSTS DELETE BY ID request', () => {
   });
   test('successful deletion. post is deleted from DB and cant be found anymore', async () => {
     const res =  await deleteTestPost(testPostId!, true);
-    testPostId = null;
     expect(res.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
     
     const post = await getTestPostById(testPostId!);
     const error: IErrorItem = { status: HTTP_STATUS_CODES.NOT_FOUND_404, message: PostsErrorsList.NOT_FOUND };
     expect(post.body).toEqual(error);
-    testPostId = null;
   });
 });

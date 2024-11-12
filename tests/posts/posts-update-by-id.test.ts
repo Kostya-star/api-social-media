@@ -16,10 +16,10 @@ describe('POSTS UPDATE BY ID request', () => {
   });
 
   afterAll(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
   
   beforeEach(async () => {
@@ -28,10 +28,10 @@ describe('POSTS UPDATE BY ID request', () => {
   });
   
   afterEach(async () => {
-    if (testPostId) {
+    // if (testPostId) {
       await deleteTestPost(testPostId!, true);
       testPostId = null;
-    }
+    // }
   });
 
   test('status check with auth = 204', async () => {
@@ -74,10 +74,10 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
   });
 
   afterAll(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
 
   beforeEach(async () => {
@@ -86,10 +86,10 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
   });
 
   afterEach(async () => {
-    if (testPostId) {
-      await deleteTestPost(testPostId, true);
+    // if (testPostId) {
+      await deleteTestPost(testPostId!, true);
       testPostId = null;
-    }
+    // }
   });
 
   const tests = [

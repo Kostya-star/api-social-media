@@ -12,25 +12,22 @@ describe('BLOGS DELETE BY ID request', () => {
   });
 
   afterEach(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
   test('status check. should be 204', async () => {
     const res = await deleteTestBlog(testBlogId!, true);
-    testBlogId = null;
     expect(res.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
   });
   test('status check. should be 401', async () => {
     const res = await deleteTestBlog(testBlogId!, false);
-    testBlogId = null;
 
     expect(res.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('status check. should be 404 coz no blog found', async () => {
     const res = await deleteTestBlog('12345678utygewxr2e12e12211221qw', true);
-    testBlogId = null;
 
     expect(res.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
     const error: IErrorItem = { status: HTTP_STATUS_CODES.NOT_FOUND_404, message: BlogsErrorsList.NOT_FOUND };
@@ -38,7 +35,6 @@ describe('BLOGS DELETE BY ID request', () => {
   });
   test('successful deletion. blog is deleted from DB and cant be found anymore', async () => {
     const res = await deleteTestBlog(testBlogId!, true);
-    testBlogId = null;
 
     expect(res.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
 

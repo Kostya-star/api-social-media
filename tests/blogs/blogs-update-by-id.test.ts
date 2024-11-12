@@ -13,10 +13,10 @@ describe('BLOGS UPDATE BY ID request', () => {
   });
 
   afterEach(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
 
   test('status check with auth = 204', async () => {
@@ -58,10 +58,10 @@ describe('CHECK VALIDATION for BLOGS update /put request', () => {
   });
 
   afterEach(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
 
   const tests = [

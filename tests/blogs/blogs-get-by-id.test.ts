@@ -12,10 +12,10 @@ describe('BLOGS GET BY ID request', () => {
 
   afterAll(async () => {
     // Clean up by deleting the test data
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
 
   test('status check', async () => {

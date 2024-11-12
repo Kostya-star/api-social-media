@@ -20,14 +20,14 @@ describe('TESTING DELETE ROUTE testing/all-data', () => {
   });
 
   afterAll(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true)
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true)
       testBlogId = null;
-    }
-    if (testPostId) {
-      await deleteTestPost(testPostId, true)
+    // }
+    // if (testPostId) {
+      await deleteTestPost(testPostId!, true)
       testPostId = null;
-    }
+    // }
   })
 
   test('should delete all data in DB', async () => {
@@ -53,8 +53,5 @@ describe('TESTING DELETE ROUTE testing/all-data', () => {
     expect(notFoundPost.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
     const postError: IErrorItem = { status: HTTP_STATUS_CODES.NOT_FOUND_404, message: PostsErrorsList.NOT_FOUND };
     expect(notFoundPost.body).toEqual(postError);
-
-    testBlogId = null;
-    testPostId = null;
   });
 });

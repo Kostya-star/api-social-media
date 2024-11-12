@@ -7,10 +7,10 @@ let testBlogId: string | null;
 
 describe('BLOGS CREATE request', () => {
   afterEach(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
 
   test('status check with auth = 201', async () => {
@@ -43,10 +43,8 @@ describe('BLOGS CREATE request', () => {
 // Validation
 describe('BLOGS CREATE Validation Tests', () => {
   afterEach(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
   });
 
   const tests = [

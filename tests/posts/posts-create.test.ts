@@ -15,17 +15,17 @@ describe('POSTS CREATE request', () => {
   });
 
   afterAll(async () => {
-    if(testBlogId) {
+    // if(testBlogId) {
       await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    }
+    // }
   });
 
   afterEach(async () => {
-    if (testPostId) {
-      await deleteTestPost(testPostId, true);
+    // if (testPostId) {
+      await deleteTestPost(testPostId!, true);
       testPostId = null;
-    }
+    // }
   });
 
   test('status check with auth = 201', async () => {
@@ -65,17 +65,17 @@ describe('POST /posts - Validation Tests', () => {
   });
 
   afterAll(async () => {
-    if (testBlogId) {
-      await deleteTestBlog(testBlogId, true);
+    // if (testBlogId) {
+      await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    } 
+    // } 
   });
 
   afterEach(async () => {
-    if (testPostId) {
-      await deleteTestPost(testPostId, true);
+    // if (testPostId) {
+      await deleteTestPost(testPostId!, true);
       testPostId = null;
-    }
+    // }
   });
 
   const tests = [
