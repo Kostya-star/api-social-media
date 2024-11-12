@@ -6,6 +6,7 @@
   "scripts": {
     "watch:ts": "tsc -w",
     "watch:js": "nodemon --inspect build/index.js",
+    "serveo:start": "ssh -R 80:localhost:8000 serveo.net",
     "jest": "jest -i"
   },
   "keywords": [],
