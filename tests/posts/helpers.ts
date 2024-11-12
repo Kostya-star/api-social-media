@@ -1,8 +1,8 @@
-import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
 import { APP_ROUTES } from '../../src/settings/routing';
 import { ICreatePostBody } from '../../src/types/posts/createPostBody';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
 import { req } from '../helper';
+import { IUpdatePostBody } from '../../src/types/posts/updatePostBody';
 
 export const getCreatePostPayload =
   (testBlogId: string) =>
@@ -41,19 +41,19 @@ export async function createTestPost(payload: ICreatePostBody, isAuth: boolean) 
   return res;
 }
 
-// export async function updateTestBlog(blogId: string, isAuth: boolean) {
-//   const request = req.put(`${APP_ROUTES.BLOGS}/${blogId}`).send(updateBlogBody);
+export async function updateTestPost(postId: string, updateBlogBody: IUpdatePostBody, isAuth: boolean) {
+  const request = req.put(`${APP_ROUTES.POSTS}/${postId}`).send(updateBlogBody);
 
-//   if (isAuth) {
-//     request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
-//   }
+  if (isAuth) {
+    request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
+  }
 
-//   const res = await request;
-//   return res;
-// }
+  const res = await request;
+  return res;
+}
 
 export async function deleteTestPost(postId: string, isAuth: boolean) {
-  const request = req.delete(`${APP_ROUTES.BLOGS}/${postId}`);
+  const request = req.delete(`${APP_ROUTES.POSTS}/${postId}`);
 
   if (isAuth) {
     request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
