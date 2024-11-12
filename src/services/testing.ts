@@ -1,9 +1,9 @@
-import { mockDB } from '@/mockDB';
+// import { mockDB } from '@/DB';
 
 const deleteAllData = (): void => {
   try {
-    mockDB.blogs = [];
-    mockDB.posts = [];
+    // mockDB.blogs = [];
+    // mockDB.posts = [];
   } catch (err) {
     throw err;
   }

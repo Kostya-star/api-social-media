@@ -1,5 +1,5 @@
 import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
-import { mockDB } from '../../src/mockDB/index';
+// import { mockDB } from '../../src/mockDB/index';
 import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from '../blogs/helpers';
 import { createTestPost, deleteTestPost, getCreatePostPayload } from './helpers';
 import { PostsErrorsList } from '../../src/errors/posts-errors';
@@ -47,7 +47,7 @@ describe('POSTS CREATE request', () => {
 
     expect(post.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
     expect(post.body).toMatchObject(getCreatePostPayload(testBlogId!)({ blogId: testBlogId! }));
-    expect(mockDB.posts.length).toBeGreaterThan(0);
+    // expect(mockDB.posts.length).toBeGreaterThan(0);
     expect(post.body).toHaveProperty('id');
     expect(post.body).toHaveProperty('title');
     expect(post.body).toHaveProperty('shortDescription');

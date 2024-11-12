@@ -4,9 +4,9 @@ import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 
-const getAllBlogs = (req: Request, res: Response, next: NextFunction) => {
+const getAllBlogs = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const blogs = BlogsService.getAllBlogs();
+    const blogs = await BlogsService.getAllBlogs();
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blogs);
   } catch (err) {
@@ -14,22 +14,22 @@ const getAllBlogs = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getBlogById = (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
-  const { blogId } = req.params; 
-  try {
-    const blog = BlogsService.getBlogById(blogId);
+// const getBlogById = (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
+//   const { blogId } = req.params; 
+//   try {
+//     const blog = BlogsService.getBlogById(blogId);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blog);
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blog);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
-const createBlog = (req: Request<any, any, ICreateBlogPayload>, res: Response, next: NextFunction) => {
+const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Response, next: NextFunction) => {
   const newBlog = req.body;
 
   try {
-    const blog = BlogsService.createBlog(newBlog);
+    const blog = await BlogsService.createBlog(newBlog);
 
     res.status(HTTP_STATUS_CODES.SUCCESS_201).json(blog);
   } catch (err) {
@@ -37,35 +37,35 @@ const createBlog = (req: Request<any, any, ICreateBlogPayload>, res: Response, n
   }
 };
 
-const updateBlog = (req: Request<{ blogId: string }, any, IUpdateBlogPayload>, res: Response, next: NextFunction) => {
-  const blogId = req.params.blogId;
-  const newBlog = req.body;
+// const updateBlog = (req: Request<{ blogId: string }, any, IUpdateBlogPayload>, res: Response, next: NextFunction) => {
+//   const blogId = req.params.blogId;
+//   const newBlog = req.body;
 
-  try {
-    BlogsService.updateBlog(blogId, newBlog);
+//   try {
+//     BlogsService.updateBlog(blogId, newBlog);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
-const deleteBlog = (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
-  const blogId = req.params.blogId;
+// const deleteBlog = (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
+//   const blogId = req.params.blogId;
 
-  try {
-    BlogsService.deleteBlog(blogId);
+//   try {
+//     BlogsService.deleteBlog(blogId);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 export default {
   getAllBlogs,
-  getBlogById,
+  // getBlogById,
   createBlog,
-  updateBlog,
-  deleteBlog
+  // updateBlog,
+  // deleteBlog
 };
