@@ -1,9 +1,9 @@
-// import { mockDB } from '@/DB';
+import { blogsCollection, postsCollection } from '@/DB';
 
-const deleteAllData = (): void => {
+const deleteAllData = async (): Promise<void> => {
   try {
-    // mockDB.blogs = [];
-    // mockDB.posts = [];
+    await blogsCollection.deleteMany({});
+    await postsCollection.deleteMany({});
   } catch (err) {
     throw err;
   }

@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
+import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { getAllPosts } from './helpers';
 
 describe('POSTS GET ALL request', () => {

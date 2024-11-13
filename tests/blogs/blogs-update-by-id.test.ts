@@ -1,15 +1,16 @@
-import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
+import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { createTestBlog, deleteTestBlog, getCreateBlogPayload, getTestBlogById, updateTestBlog } from './helpers';
 import { IErrorItem } from '../../src/types/error-item';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
+import { ObjectId } from 'mongodb';
 
-let testBlogId: string | null;
+let testBlogId: ObjectId | null;
 
 describe('BLOGS UPDATE BY ID request', () => {
   beforeEach(async () => {
     const res = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = res.body.id;
+    testBlogId = res.body._id;
   });
 
   afterEach(async () => {
@@ -30,6 +31,7 @@ describe('BLOGS UPDATE BY ID request', () => {
     expect(blog.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('status check = 404', async () => {
+    //@ts-ignore
     const blog = await updateTestBlog('qwefgdfvl,mjohn812ne32r829rf', getUpdateBlogPayload({}), true);
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -54,7 +56,7 @@ describe('BLOGS UPDATE BY ID request', () => {
 describe('CHECK VALIDATION for BLOGS update /put request', () => {
   beforeEach(async () => {
     const res = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = res.body.id;
+    testBlogId = res.body._id;
   });
 
   afterEach(async () => {

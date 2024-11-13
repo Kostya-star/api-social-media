@@ -1,86 +1,96 @@
-// import { mockDB } from '@/mockDB';
-// import { ErrorService } from './error-service';
-// import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
-// import { v4 as uuidv4 } from 'uuid';
-// import { IPost } from '@/types/posts/post';
-// import { PostsErrorsList } from '@/errors/posts-errors';
-// import { ICreatePostBody } from '@/types/posts/createPostBody';
-// import { IUpdatePostBody } from '@/types/posts/updatePostBody';
+import { ErrorService } from './error-service';
+import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
+import { IPost } from '@/types/posts/post';
+import { PostsErrorsList } from '@/errors/posts-errors';
+import { ICreatePostBody } from '@/types/posts/createPostBody';
+import { IUpdatePostBody } from '@/types/posts/updatePostBody';
+import { blogsCollection, postsCollection } from '@/DB';
+import { ObjectId } from 'mongodb';
 
-// const getAllPosts = (): IPost[] => {
-//   try {
-//     return mockDB.posts;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
+const getAllPosts = async (): Promise<IPost[]> => {
+  try {
+    const posts = await postsCollection.find({}).toArray();
+    return posts;
+  } catch (err) {
+    throw err;
+  }
+};
 
-// const getPostById = (postId: string): IPost => {
-//   try {
-//     const post = mockDB.posts.find((p) => p.id === postId);
+const getPostById = async (postId: ObjectId): Promise<IPost> => {
+  try {
+    if (!ObjectId.isValid(postId)) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-//     if (!post) {
-//       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-//     }
+    const post = await postsCollection.findOne({ _id: new ObjectId(postId) });
 
-//     return post;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
+    if (!post) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-// const createPost = (post: ICreatePostBody): IPost => {
-//   const blogName = mockDB.blogs.find(b => b.id === post.blogId)!.name;
+    return post;
+  } catch (err) {
+    throw err;
+  }
+};
 
-//   const newPost: IPost = {
-//     ...post,
-//     blogName,
-//     id: uuidv4(),
-//   };
+const createPost = async (post: ICreatePostBody): Promise<IPost> => {
+  // no errors should occur here coz all is checked in the validation middleware for this request
+  const blogName = (await blogsCollection.findOne({ _id: new ObjectId(post.blogId) }))!.name;
 
-//   try {
-//     mockDB.posts.push(newPost);
-//     return newPost;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
+  const newPost: IPost = {
+    ...post,
+    blogName,
+  };
 
-// const updatePost = (postId: string, newPost: IUpdatePostBody): void => {
-//   const postToUpdate = mockDB.posts.find((p) => p.id === postId);
+  try {
+    const res = await postsCollection.insertOne(newPost);
+    return { ...newPost, _id: res.insertedId };
+  } catch (err) {
+    throw err;
+  }
+};
 
-//   if (!postToUpdate) {
-//     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-//   }
+const updatePost = async (postId: ObjectId, newPost: IUpdatePostBody): Promise<void> => {
+  try {
+    if (!ObjectId.isValid(postId)) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-//   try {
-//     postToUpdate.title = newPost.title;
-//     postToUpdate.shortDescription = newPost.shortDescription;
-//     postToUpdate.content = newPost.content;
-//     postToUpdate.blogId = newPost.blogId;
-//   } catch (err) {
-//     throw err;
-//   }
-// };
+    const postToUpdate = await postsCollection.findOne({ _id: new ObjectId(postId) });
 
-// const deletePost = (postId: string): void => {
-//   const postToDelete = mockDB.posts.find((p) => p.id === postId);
+    if (!postToUpdate) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-//   if (!postToDelete) {
-//     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-//   }
+    await postsCollection.updateOne({ _id: new ObjectId(postId) }, { $set: newPost });
+  } catch (err) {
+    throw err;
+  }
+};
 
-//   try {
-//     mockDB.posts = mockDB.posts.filter((p) => p.id !== postId);
-//   } catch (err) {
-//     throw err;
-//   }
-// };
+const deletePost = async (postId: ObjectId): Promise<void> => {
+  try {
+    if (!ObjectId.isValid(postId)) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-// export default {
-//   getAllPosts,
-//   getPostById,
-//   createPost,
-//   updatePost,
-//   deletePost,
-// };
+    const postToDelete = await postsCollection.findOne({ _id: new ObjectId(postId) });
+
+    if (!postToDelete) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    await postsCollection.deleteOne({ _id: new ObjectId(postId) });
+  } catch (err) {
+    throw err;
+  }
+};
+
+export default {
+  getAllPosts,
+  getPostById,
+  createPost,
+  updatePost,
+  deletePost,
+};

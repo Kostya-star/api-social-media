@@ -1,42 +1,42 @@
-import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
-import { mockDB } from '../../src/mockDB/index';
+import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
-import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from './helpers';
+import { createTestBlog, deleteTestBlog, getAllBlogs, getCreateBlogPayload } from './helpers';
+import { MongoClient, ObjectId } from 'mongodb';
 
-let testBlogId: string | null;
+let testBlogId: ObjectId | null;
 
 describe('BLOGS CREATE request', () => {
   afterEach(async () => {
-    // if (testBlogId) {
       await deleteTestBlog(testBlogId!, true);
       testBlogId = null;
-    // }
   });
 
   test('status check with auth = 201', async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body.id;
+    testBlogId = blog.body._id;
 
     expect(blog.headers['content-type']).toMatch(/json/);
     expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
   });
   test('status check with NO auth = 401', async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), false);
-    testBlogId = blog.body.id;
+    testBlogId = blog.body._id;
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('response check', async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body.id;
+    testBlogId = blog.body._id;
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
     expect(blog.body).toMatchObject(getCreateBlogPayload({}));
-    expect(mockDB.blogs.length).toBeGreaterThan(0);
-    expect(blog.body).toHaveProperty('id');
+    expect(blog.body).toHaveProperty('_id');
     expect(blog.body).toHaveProperty('name');
     expect(blog.body).toHaveProperty('description');
     expect(blog.body).toHaveProperty('websiteUrl');
+
+    const res = await getAllBlogs();
+    expect(res.body.length).toBeGreaterThan(0);
   });
 });
 
@@ -135,7 +135,7 @@ describe('BLOGS CREATE Validation Tests', () => {
   tests.forEach(({ name, payload, expectedField, expectedMessage }) => {
     test(name, async () => {
       const blog = await createTestBlog(payload, true);
-      testBlogId = blog.body.id;
+      testBlogId = blog.body._id;
       expect(blog.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
       expect(blog.body.errorsMessages).toContainEqual({
         field: expectedField,

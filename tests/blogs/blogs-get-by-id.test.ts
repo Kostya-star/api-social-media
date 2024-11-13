@@ -1,21 +1,19 @@
-import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
+import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { createTestBlog, deleteTestBlog, getCreateBlogPayload, getTestBlogById } from './helpers';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { IErrorItem } from '../../src/types/error-item';
+import { ObjectId } from 'mongodb';
 describe('BLOGS GET BY ID request', () => {
-  let testBlogId: string | null = null;
+  let testBlogId: ObjectId | null = null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body.id;
+    testBlogId = blog.body._id;
   });
 
   afterAll(async () => {
-    // Clean up by deleting the test data
-    // if (testBlogId) {
-      await deleteTestBlog(testBlogId!, true);
-      testBlogId = null;
-    // }
+    await deleteTestBlog(testBlogId!, true);
+    testBlogId = null;
   });
 
   test('status check', async () => {
@@ -24,6 +22,7 @@ describe('BLOGS GET BY ID request', () => {
     expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
   });
   test('status check with wrong blogId', async () => {
+    // @ts-ignore
     const blog = await getTestBlogById('123456hbgfdfdasfaopjadodviuseffne');
     expect(blog.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
 
@@ -35,7 +34,7 @@ describe('BLOGS GET BY ID request', () => {
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
 
-    expect(blog.body).toHaveProperty('id');
+    expect(blog.body).toHaveProperty('_id');
     expect(blog.body).toHaveProperty('name');
     expect(blog.body).toHaveProperty('description');
     expect(blog.body).toHaveProperty('websiteUrl');

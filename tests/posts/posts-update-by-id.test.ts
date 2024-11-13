@@ -1,18 +1,19 @@
-import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
+import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from '../blogs/helpers';
 import { IErrorItem } from '../../src/types/error-item';
 import { createTestPost, deleteTestPost, getCreatePostPayload, getTestPostById, updateTestPost } from './helpers';
 import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { IUpdatePostBody } from '../../src/types/posts/updatePostBody';
 import { CONTENT_MAX_LENGTH, TITLE_MAX_LENGTH } from '../../src/const/posts/posts';
+import { ObjectId } from 'mongodb';
 
-let testBlogId: string | null;
-let testPostId: string | null;
+let testBlogId: ObjectId | null;
+let testPostId: ObjectId | null;
 
 describe('POSTS UPDATE BY ID request', () => {
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body.id;
+    testBlogId = blog.body._id;
   });
 
   afterAll(async () => {
@@ -24,7 +25,7 @@ describe('POSTS UPDATE BY ID request', () => {
   
   beforeEach(async () => {
     const post = await createTestPost(getCreatePostPayload(testBlogId!)({}), true);
-    testPostId = post.body.id;
+    testPostId = post.body._id;
   });
   
   afterEach(async () => {
@@ -45,6 +46,7 @@ describe('POSTS UPDATE BY ID request', () => {
     expect(post.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('status check = 404', async () => {
+    // @ts-ignore
     const post = await updateTestPost('qwefgdfvl,mjohn812ne32r829rf', getUpdatePostPayload({}), true);
 
     expect(post.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -70,7 +72,7 @@ describe('POSTS UPDATE BY ID request', () => {
 describe('CHECK VALIDATION for POSTS update /put request', () => {
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body.id;
+    testBlogId = blog.body._id;
   });
 
   afterAll(async () => {
@@ -82,7 +84,7 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
 
   beforeEach(async () => {
     const post = await createTestPost(getCreatePostPayload(testBlogId!)({}), true);
-    testPostId = post.body.id;
+    testPostId = post.body._id;
   });
 
   afterEach(async () => {
@@ -157,12 +159,14 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
     },
     {
       name: 'Should return 400 if blogId is not specified',
+      // @ts-ignore
       payload: getUpdatePostPayload({ blogId: '' }),
       expectedField: 'blogId',
       expectedMessage: PostsErrorsList.BLOG_ID_EMPTY,
     },
     {
       name: 'Should return 400 if blogId is not not trimmed',
+      // @ts-ignore
       payload: getUpdatePostPayload({ blogId: '   ' }),
       expectedField: 'blogId',
       expectedMessage: PostsErrorsList.BLOG_ID_EMPTY,
@@ -176,6 +180,7 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
     },
     {
       name: 'Should return 400 if blogId does not exist',
+      // @ts-ignore
       payload: getUpdatePostPayload({ blogId: 'nonexistentBlogId' }),
       expectedField: 'blogId',
       expectedMessage: PostsErrorsList.BLOG_NOT_EXIST_WITH_ID,

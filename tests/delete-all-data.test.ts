@@ -1,22 +1,23 @@
-import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
-import { createTestBlog, deleteTestBlog, getAllBlogs, getCreateBlogPayload, getTestBlogById } from '../blogs/helpers';
-import { IErrorItem } from '../../src/types/error-item';
-import { createTestPost, deleteTestPost, getAllPosts, getCreatePostPayload, getTestPostById } from '../posts/helpers';
-import { PostsErrorsList } from '../../src/errors/posts-errors';
-import { req } from '../helper';
-import { APP_ROUTES } from '../../src/settings/routing';
-import { BlogsErrorsList } from '../../src/errors/blogs-errors';
+import { HTTP_STATUS_CODES } from '../src/const/http-status-codes';
+import { createTestBlog, deleteTestBlog, getAllBlogs, getCreateBlogPayload, getTestBlogById } from './blogs/helpers';
+import { IErrorItem } from '../src/types/error-item';
+import { createTestPost, deleteTestPost, getAllPosts, getCreatePostPayload, getTestPostById } from './posts/helpers';
+import { PostsErrorsList } from '../src/errors/posts-errors';
+import { req } from './helper';
+import { APP_ROUTES } from '../src/routing';
+import { BlogsErrorsList } from '../src/errors/blogs-errors';
+import { ObjectId } from 'mongodb';
 
 describe('TESTING DELETE ROUTE testing/all-data', () => {
-  let testBlogId: string | null = null;
-  let testPostId: string | null = null;
+  let testBlogId: ObjectId | null = null;
+  let testPostId: ObjectId | null = null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    const blogId = blog.body.id;
+    const blogId = blog.body._id;
     testBlogId = blogId;
     const post = await createTestPost(getCreatePostPayload(blogId)({}), true);
-    testPostId = post.body.id;
+    testPostId = post.body._id;
   });
 
   afterAll(async () => {

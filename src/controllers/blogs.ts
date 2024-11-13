@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import BlogsService from '@/services/blogs-service';
-import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
+import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { ObjectId } from 'mongodb';

@@ -1,5 +1,5 @@
-import { HTTP_ERROR_MESSAGES } from '@/settings/http-error-messages';
-import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
+import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
+import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { IErrorItem } from '@/types/error-item';
 import { NextFunction, Request, Response } from 'express';
 

@@ -1,4 +1,5 @@
-import { HTTP_STATUS_CODES } from '../../src/settings/http-status-codes';
+import { MongoClient } from 'mongodb';
+import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { getAllBlogs } from './helpers';
 
 describe('BLOGS GET ALL request', () => {

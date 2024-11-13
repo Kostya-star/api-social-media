@@ -1,8 +1,10 @@
+import { ObjectId } from 'mongodb';
+
 export interface IPost {
-  id: string;
+  _id?: ObjectId;
   title: string;
   shortDescription: string;
   content: string;
-  blogId: string;
+  blogId: ObjectId;
   blogName: string;
 }

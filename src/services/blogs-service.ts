@@ -1,7 +1,7 @@
 import { IBlog } from '@/types/blogs/blog';
 import { ErrorService } from './error-service';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
-import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
+import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { blogsCollection } from '@/DB';
@@ -18,6 +18,10 @@ const getAllBlogs = async (): Promise<IBlog[]> => {
 
 const getBlogById = async (blogId: ObjectId): Promise<IBlog> => {
   try {
+    if (!ObjectId.isValid(blogId)) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
     const blog = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
 
     if (!blog) {
@@ -41,6 +45,10 @@ const createBlog = async (newBlog: ICreateBlogPayload): Promise<IBlog> => {
 
 const updateBlog = async (blogId: ObjectId, newBlog: IUpdateBlogPayload): Promise<void> => {
   try {
+    if (!ObjectId.isValid(blogId)) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
     const blogToUpdate = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
 
     if (!blogToUpdate) {
@@ -54,6 +62,10 @@ const updateBlog = async (blogId: ObjectId, newBlog: IUpdateBlogPayload): Promis
 };
 
 const deleteBlog = async (blogId: ObjectId): Promise<void> => {
+  if (!ObjectId.isValid(blogId)) {
+    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
+  
   const blogToDelete = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
 
   if (!blogToDelete) {

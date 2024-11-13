@@ -1,10 +1,11 @@
 import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
+import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { TITLE_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, CONTENT_MAX_LENGTH } from '@/const/posts/posts';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
-// import { mockDB } from '@/DB';
+import { ObjectId } from 'mongodb';
+import { blogsCollection } from '@/DB';
 
 export const validatePostFields = [
   body('title')
@@ -42,11 +43,16 @@ export const validatePostFields = [
     .withMessage(PostsErrorsList.BLOG_ID_EMPTY)
 
     // check if a blog with id of 'blogId' exists
-    .custom((blogId) => {
-      // const blog = mockDB.blogs.find((b) => b.id === blogId);
-      // if (!blog) {
-      //   throw new Error(PostsErrorsList.BLOG_NOT_EXIST_WITH_ID);
-      // }
+    .custom(async (blogId: ObjectId) => {
+      if (!ObjectId.isValid(blogId)) {
+        throw new Error(PostsErrorsList.BLOG_NOT_EXIST_WITH_ID);
+      }
+
+      const blog = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
+
+      if (!blog) {
+        throw new Error(PostsErrorsList.BLOG_NOT_EXIST_WITH_ID);
+      }
       return true;
     }),
 
