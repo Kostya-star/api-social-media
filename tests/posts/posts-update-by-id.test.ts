@@ -66,6 +66,7 @@ describe('POSTS UPDATE BY ID request', () => {
     expect(updatedPost.body).toHaveProperty('shortDescription', getUpdatePostPayload({}).shortDescription);
     expect(updatedPost.body).toHaveProperty('content', getUpdatePostPayload({}).content);
     expect(updatedPost.body).toHaveProperty('blogId', getUpdatePostPayload({}).blogId);
+    expect(updatedPost.body).toHaveProperty('createdAt');
   });
 });
 

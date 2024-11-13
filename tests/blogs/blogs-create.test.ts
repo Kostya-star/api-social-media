@@ -34,6 +34,8 @@ describe('BLOGS CREATE request', () => {
     expect(blog.body).toHaveProperty('name');
     expect(blog.body).toHaveProperty('description');
     expect(blog.body).toHaveProperty('websiteUrl');
+    expect(blog.body).toHaveProperty('createdAt');
+    expect(blog.body).toHaveProperty('isMembership', false);
 
     const res = await getAllBlogs();
     expect(res.body.length).toBeGreaterThan(0);

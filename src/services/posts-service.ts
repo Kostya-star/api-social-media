@@ -40,6 +40,7 @@ const createPost = async (post: ICreatePostBody): Promise<IPost> => {
 
   const newPost: IPost = {
     ...post,
+    createdAt: new Date(),
     blogName,
   };
 

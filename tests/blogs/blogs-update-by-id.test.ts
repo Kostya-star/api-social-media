@@ -50,6 +50,9 @@ describe('BLOGS UPDATE BY ID request', () => {
     expect(updatedBlog.body).toHaveProperty('name', getUpdateBlogPayload({}).name);
     expect(updatedBlog.body).toHaveProperty('description', getUpdateBlogPayload({}).description);
     expect(updatedBlog.body).toHaveProperty('websiteUrl', getUpdateBlogPayload({}).websiteUrl);
+    expect(updatedBlog.body).toHaveProperty('createdAt');
+    expect(updatedBlog.body).toHaveProperty('isMembership', false);
+
   });
 });
 

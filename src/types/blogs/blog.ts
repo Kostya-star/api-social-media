@@ -5,4 +5,6 @@ export interface IBlog {
   name: string;
   description: string;
   websiteUrl: string;
+  isMembership: boolean;
+  createdAt: Date;
 }

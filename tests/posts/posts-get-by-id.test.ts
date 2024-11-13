@@ -45,5 +45,6 @@ describe('POSTS GET BY ID request', () => {
     expect(post.body).toHaveProperty('content');
     expect(post.body).toHaveProperty('blogId');
     expect(post.body).toHaveProperty('blogName');
+    expect(post.body).toHaveProperty('createdAt');
   });
 });

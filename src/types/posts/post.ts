@@ -7,4 +7,5 @@ export interface IPost {
   content: string;
   blogId: ObjectId;
   blogName: string;
+  createdAt: Date
 }

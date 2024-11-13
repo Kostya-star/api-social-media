@@ -34,8 +34,9 @@ const getBlogById = async (blogId: ObjectId): Promise<IBlog> => {
   }
 };
 
-const createBlog = async (newBlog: ICreateBlogPayload): Promise<IBlog> => {
+const createBlog = async (blog: ICreateBlogPayload): Promise<IBlog> => {
   try {
+    const newBlog: IBlog = { ...blog, isMembership: false, createdAt: new Date() }
     const res = await blogsCollection.insertOne(newBlog);
     return { ...newBlog, _id: res.insertedId };
   } catch (err) {

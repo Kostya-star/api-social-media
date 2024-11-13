@@ -38,5 +38,7 @@ describe('BLOGS GET BY ID request', () => {
     expect(blog.body).toHaveProperty('name');
     expect(blog.body).toHaveProperty('description');
     expect(blog.body).toHaveProperty('websiteUrl');
+    expect(blog.body).toHaveProperty('createdAt');
+    expect(blog.body).toHaveProperty('isMembership', false);
   });
 });
