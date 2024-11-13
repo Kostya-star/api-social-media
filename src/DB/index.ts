@@ -28,8 +28,9 @@
 // };
 
 import { IBlog } from '@/types/blogs/blog';
+import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IPost } from '@/types/posts/post';
-import { MongoClient } from 'mongodb';
+import { Collection, MongoClient } from 'mongodb';
 
 const MONGO_URI = 'mongodb+srv://konstantindanilov19:1qa2ws3ed@incubator-blogs.8ax2g.mongodb.net/?retryWrites=true&w=majority&appName=incubator-blogs';
 const client = new MongoClient(MONGO_URI);

@@ -1,7 +1,7 @@
 import { DESCRIPTION_MAX_SYMBOLS, NAME_MAX_SYMBOLS, URL_MAX_SYMBOLS } from '@/const/blogs/blogs';
 
 export enum BlogsErrorsList {
-  NOT_FOUND = 'Post not found',
+  NOT_FOUND = 'Blog not found',
 
   NAME_EMPTY = 'Name must not be empty',
   NAME_WRONG_FORMAT = 'Name must be a string',

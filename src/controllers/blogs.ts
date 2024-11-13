@@ -3,6 +3,7 @@ import BlogsService from '@/services/blogs-service';
 import { HTTP_STATUS_CODES } from '@/settings/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
+import { ObjectId } from 'mongodb';
 
 const getAllBlogs = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -14,16 +15,16 @@ const getAllBlogs = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// const getBlogById = (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
-//   const { blogId } = req.params; 
-//   try {
-//     const blog = BlogsService.getBlogById(blogId);
+const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response, next: NextFunction) => {
+  const { blogId } = req.params;
+  try {
+    const blog = await BlogsService.getBlogById(blogId);
 
-//     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blog);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blog);
+  } catch (err) {
+    next(err);
+  }
+};
 
 const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Response, next: NextFunction) => {
   const newBlog = req.body;
@@ -37,35 +38,35 @@ const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Respo
   }
 };
 
-// const updateBlog = (req: Request<{ blogId: string }, any, IUpdateBlogPayload>, res: Response, next: NextFunction) => {
-//   const blogId = req.params.blogId;
-//   const newBlog = req.body;
+const updateBlog = async (req: Request<{ blogId: ObjectId }, any, IUpdateBlogPayload>, res: Response, next: NextFunction) => {
+  const blogId = req.params.blogId;
+  const newBlog = req.body;
 
-//   try {
-//     BlogsService.updateBlog(blogId, newBlog);
+  try {
+    await BlogsService.updateBlog(blogId, newBlog);
 
-//     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+  } catch (err) {
+    next(err);
+  }
+};
 
-// const deleteBlog = (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
-//   const blogId = req.params.blogId;
+const deleteBlog = async (req: Request<{ blogId: ObjectId }>, res: Response, next: NextFunction) => {
+  const blogId = req.params.blogId;
 
-//   try {
-//     BlogsService.deleteBlog(blogId);
+  try {
+    await BlogsService.deleteBlog(blogId);
 
-//     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+  } catch (err) {
+    next(err);
+  }
+};
 
 export default {
   getAllBlogs,
-  // getBlogById,
+  getBlogById,
   createBlog,
-  // updateBlog,
-  // deleteBlog
+  updateBlog,
+  deleteBlog,
 };
