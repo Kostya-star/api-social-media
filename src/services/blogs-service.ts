@@ -1,10 +1,6 @@
 import { IBlog } from '@/types/blogs/blog';
-import { ErrorService } from './error-service';
-import { BlogsErrorsList } from '@/errors/blogs-errors';
-import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
-import { blogsCollection } from '@/DB';
 import { ObjectId } from 'mongodb';
 import BlogsRepository from '@/repositories/blogs-repository';
 
