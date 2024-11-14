@@ -4,5 +4,6 @@ export interface ICreatePostBody {
   title: string;
   shortDescription: string;
   content: string;
-  blogId: ObjectId;
+  // blogId: ObjectId;
+  blogId: string;
 }

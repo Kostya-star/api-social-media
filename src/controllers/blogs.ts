@@ -15,7 +15,7 @@ const getAllBlogs = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response, next: NextFunction) => {
+const getBlogById = async (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
   const { blogId } = req.params;
   try {
     const blog = await BlogsService.getBlogById(blogId);
@@ -38,7 +38,7 @@ const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Respo
   }
 };
 
-const updateBlog = async (req: Request<{ blogId: ObjectId }, any, IUpdateBlogPayload>, res: Response, next: NextFunction) => {
+const updateBlog = async (req: Request<{ blogId: string }, any, IUpdateBlogPayload>, res: Response, next: NextFunction) => {
   const blogId = req.params.blogId;
   const newBlog = req.body;
 
@@ -51,7 +51,7 @@ const updateBlog = async (req: Request<{ blogId: ObjectId }, any, IUpdateBlogPay
   }
 };
 
-const deleteBlog = async (req: Request<{ blogId: ObjectId }>, res: Response, next: NextFunction) => {
+const deleteBlog = async (req: Request<{ blogId: string }>, res: Response, next: NextFunction) => {
   const blogId = req.params.blogId;
 
   try {

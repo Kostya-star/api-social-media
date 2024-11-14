@@ -3,15 +3,14 @@ import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from '../blogs/h
 import { createTestPost, deleteTestPost, getCreatePostPayload } from './helpers';
 import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { TITLE_MAX_LENGTH, CONTENT_MAX_LENGTH } from '../..//src/const/posts/posts';
-import { ObjectId } from 'mongodb';
 
-let testBlogId: ObjectId | null;
-let testPostId: ObjectId | null;
+let testBlogId: string | null;
+let testPostId: string | null;
 
 describe('POSTS CREATE request', () => {
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
   });
 
   afterAll(async () => {
@@ -30,25 +29,25 @@ describe('POSTS CREATE request', () => {
 
   test('status check with auth = 201', async () => {
     const post = await createTestPost(getCreatePostPayload(testBlogId!)({ blogId: testBlogId! }), true);
-    testPostId = post.body._id;
+    testPostId = post.body.id;
 
     expect(post.headers['content-type']).toMatch(/json/);
     expect(post.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
   });
   test('status check with NO auth = 401', async () => {
     const post = await createTestPost(getCreatePostPayload(testBlogId!)({ blogId: testBlogId! }), false);
-    testPostId = post.body._id;
+    testPostId = post.body.id;
 
     expect(post.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('response check', async () => {
     const post = await createTestPost(getCreatePostPayload(testBlogId!)({ blogId: testBlogId! }), true);
-    testPostId = post.body._id;
-
+    testPostId = post.body.id;
+    
     expect(post.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
     expect(post.body).toMatchObject(getCreatePostPayload(testBlogId!)({ blogId: testBlogId! }));
     // expect(mockDB.posts.length).toBeGreaterThan(0);
-    expect(post.body).toHaveProperty('_id');
+    expect(post.body).toHaveProperty('id');
     expect(post.body).toHaveProperty('title');
     expect(post.body).toHaveProperty('shortDescription');
     expect(post.body).toHaveProperty('content');
@@ -62,7 +61,7 @@ describe('POSTS CREATE request', () => {
 describe('POST /posts - Validation Tests', () => {
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
   });
 
   afterAll(async () => {
@@ -181,7 +180,7 @@ describe('POST /posts - Validation Tests', () => {
   tests.forEach(({ name, payload, expectedField, expectedMessage }) => {
     test(name, async () => {
       const post = await createTestPost(payload, true);
-      testPostId = post.body._id;
+      testPostId = post.body.id;
       expect(post.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
       expect(post.body.errorsMessages).toContainEqual({
         field: expectedField,

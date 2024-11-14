@@ -2,14 +2,13 @@ import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { createTestBlog, deleteTestBlog, getCreateBlogPayload, getTestBlogById } from './helpers';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { IErrorItem } from '../../src/types/error-item';
-import { ObjectId } from 'mongodb';
 
 describe('BLOGS DELETE BY ID request', () => {
-  let testBlogId: ObjectId | null = null;
+  let testBlogId: string | null = null;
 
   beforeEach(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
   });
 
   afterEach(async () => {
@@ -28,7 +27,6 @@ describe('BLOGS DELETE BY ID request', () => {
     expect(res.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('status check. should be 404 coz no blog found', async () => {
-    // @ts-ignore
     const res = await deleteTestBlog('12345678utygewxr2e12e12211221qw', true);
 
     expect(res.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);

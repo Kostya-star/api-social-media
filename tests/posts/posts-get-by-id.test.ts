@@ -3,17 +3,16 @@ import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { IErrorItem } from '../../src/types/error-item';
 import { createTestPost, deleteTestPost, getCreatePostPayload, getTestPostById } from './helpers';
 import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from '../blogs/helpers';
-import { ObjectId } from 'mongodb';
 describe('POSTS GET BY ID request', () => {
-  let testBlogId: ObjectId | null;
-  let testPostId: ObjectId | null;
+  let testBlogId: string | null;
+  let testPostId: string | null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    const blogId = blog.body._id;
+    const blogId = blog.body.id;
     testBlogId = blogId;
     const post = await createTestPost(getCreatePostPayload(blogId)({}), true);
-    testPostId = post.body._id;
+    testPostId = post.body.id;
   });
 
   afterAll(async () => {
@@ -39,7 +38,7 @@ describe('POSTS GET BY ID request', () => {
 
     expect(post.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
 
-    expect(post.body).toHaveProperty('_id');
+    expect(post.body).toHaveProperty('id');
     expect(post.body).toHaveProperty('title');
     expect(post.body).toHaveProperty('shortDescription');
     expect(post.body).toHaveProperty('content');

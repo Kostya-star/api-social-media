@@ -3,15 +3,14 @@ import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from '../blogs/h
 import { IErrorItem } from '../../src/types/error-item';
 import { createTestPost, deleteTestPost, getCreatePostPayload, getTestPostById } from './helpers';
 import { PostsErrorsList } from '../../src/errors/posts-errors';
-import { ObjectId } from 'mongodb';
 
 describe('POSTS DELETE BY ID request', () => {
-  let testBlogId: ObjectId | null = null;
-  let testPostId: ObjectId | null = null;
+  let testBlogId: string | null = null;
+  let testPostId: string | null = null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
   });
 
   afterAll(async () => {
@@ -23,7 +22,7 @@ describe('POSTS DELETE BY ID request', () => {
   
   beforeEach(async () => {
     const post = await createTestPost(getCreatePostPayload(testBlogId!)({}), true);
-    testPostId = post.body._id;
+    testPostId = post.body.id;
   });
   
   afterEach(async () => {
@@ -43,7 +42,6 @@ describe('POSTS DELETE BY ID request', () => {
     expect(res.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('status check. should be 404 coz no post found', async () => {
-    //@ts-ignore
     const res = await deleteTestPost('12345678utygewxr2e12e12211221qw', true);
 
     expect(res.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);

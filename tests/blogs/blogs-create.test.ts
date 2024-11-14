@@ -1,9 +1,9 @@
 import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { createTestBlog, deleteTestBlog, getAllBlogs, getCreateBlogPayload } from './helpers';
-import { MongoClient, ObjectId } from 'mongodb';
+// import { MongoClient, ObjectId } from 'mongodb';
 
-let testBlogId: ObjectId | null;
+let testBlogId: string | null;
 
 describe('BLOGS CREATE request', () => {
   afterEach(async () => {
@@ -13,24 +13,24 @@ describe('BLOGS CREATE request', () => {
 
   test('status check with auth = 201', async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
 
     expect(blog.headers['content-type']).toMatch(/json/);
     expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
   });
   test('status check with NO auth = 401', async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), false);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('response check', async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
     expect(blog.body).toMatchObject(getCreateBlogPayload({}));
-    expect(blog.body).toHaveProperty('_id');
+    expect(blog.body).toHaveProperty('id');
     expect(blog.body).toHaveProperty('name');
     expect(blog.body).toHaveProperty('description');
     expect(blog.body).toHaveProperty('websiteUrl');
@@ -137,7 +137,7 @@ describe('BLOGS CREATE Validation Tests', () => {
   tests.forEach(({ name, payload, expectedField, expectedMessage }) => {
     test(name, async () => {
       const blog = await createTestBlog(payload, true);
-      testBlogId = blog.body._id;
+      testBlogId = blog.body.id;
       expect(blog.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
       expect(blog.body.errorsMessages).toContainEqual({
         field: expectedField,

@@ -6,18 +6,17 @@ import { PostsErrorsList } from '../src/errors/posts-errors';
 import { req } from './helper';
 import { APP_ROUTES } from '../src/routing';
 import { BlogsErrorsList } from '../src/errors/blogs-errors';
-import { ObjectId } from 'mongodb';
 
 describe('TESTING DELETE ROUTE testing/all-data', () => {
-  let testBlogId: ObjectId | null = null;
-  let testPostId: ObjectId | null = null;
+  let testBlogId: string | null = null;
+  let testPostId: string | null = null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    const blogId = blog.body._id;
+    const blogId = blog.body.id;
     testBlogId = blogId;
     const post = await createTestPost(getCreatePostPayload(blogId)({}), true);
-    testPostId = post.body._id;
+    testPostId = post.body.id;
   });
 
   afterAll(async () => {

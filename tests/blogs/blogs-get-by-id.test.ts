@@ -4,11 +4,11 @@ import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { IErrorItem } from '../../src/types/error-item';
 import { ObjectId } from 'mongodb';
 describe('BLOGS GET BY ID request', () => {
-  let testBlogId: ObjectId | null = null;
+  let testBlogId: string | null = null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
   });
 
   afterAll(async () => {
@@ -34,7 +34,7 @@ describe('BLOGS GET BY ID request', () => {
 
     expect(blog.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
 
-    expect(blog.body).toHaveProperty('_id');
+    expect(blog.body).toHaveProperty('id');
     expect(blog.body).toHaveProperty('name');
     expect(blog.body).toHaveProperty('description');
     expect(blog.body).toHaveProperty('websiteUrl');

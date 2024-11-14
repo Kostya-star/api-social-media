@@ -3,7 +3,6 @@ import { APP_ROUTES } from '../../src/routing';
 import { ICreateBlogPayload } from '../../src/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
 import { req } from '../helper';
-import { ObjectId } from 'mongodb';
 
 export function getCreateBlogPayload({
   name = 'new blog',
@@ -22,7 +21,7 @@ export async function getAllBlogs() {
   return await request;
 }
 
-export async function getTestBlogById(blogId: ObjectId) {
+export async function getTestBlogById(blogId: string) {
   const request = req.get(`${APP_ROUTES.BLOGS}/${blogId}`);
   return await request;
 }
@@ -38,7 +37,7 @@ export async function createTestBlog(blogToCreate: ICreateBlogPayload, isAuth: b
   return res;
 }
 
-export async function updateTestBlog(blogId: ObjectId, updateBlogBody: IUpdateBlogPayload, isAuth: boolean) {
+export async function updateTestBlog(blogId: string, updateBlogBody: IUpdateBlogPayload, isAuth: boolean) {
   const request = req.put(`${APP_ROUTES.BLOGS}/${blogId}`).send(updateBlogBody);
 
   if (isAuth) {
@@ -49,7 +48,7 @@ export async function updateTestBlog(blogId: ObjectId, updateBlogBody: IUpdateBl
   return res;
 }
 
-export async function deleteTestBlog(blogId: ObjectId, isAuth: boolean) {
+export async function deleteTestBlog(blogId: string, isAuth: boolean) {
   const request = req.delete(`${APP_ROUTES.BLOGS}/${blogId}`);
 
   if (isAuth) {

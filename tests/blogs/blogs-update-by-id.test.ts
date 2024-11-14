@@ -5,12 +5,12 @@ import { IErrorItem } from '../../src/types/error-item';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
 import { ObjectId } from 'mongodb';
 
-let testBlogId: ObjectId | null;
+let testBlogId: string | null;
 
 describe('BLOGS UPDATE BY ID request', () => {
   beforeEach(async () => {
     const res = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = res.body._id;
+    testBlogId = res.body.id;
   });
 
   afterEach(async () => {
@@ -59,7 +59,7 @@ describe('BLOGS UPDATE BY ID request', () => {
 describe('CHECK VALIDATION for BLOGS update /put request', () => {
   beforeEach(async () => {
     const res = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = res.body._id;
+    testBlogId = res.body.id;
   });
 
   afterEach(async () => {

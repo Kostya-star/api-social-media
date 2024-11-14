@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 
 // use alias
 import 'module-alias/register';
@@ -14,6 +15,7 @@ import { testingRoute } from './routes/testingRoute';
 export const app = express();
 
 app.use(express.json());
+app.use(cors())
 
 app.use(APP_ROUTES.BLOGS, blogsRoutes);
 app.use(APP_ROUTES.POSTS, postsRoutes);

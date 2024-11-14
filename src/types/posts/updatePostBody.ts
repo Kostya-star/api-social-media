@@ -4,5 +4,5 @@ export interface IUpdatePostBody {
   title: string;
   shortDescription: string;
   content: string;
-  blogId: ObjectId;
+  blogId: string;
 }

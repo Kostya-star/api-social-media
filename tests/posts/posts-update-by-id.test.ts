@@ -5,15 +5,14 @@ import { createTestPost, deleteTestPost, getCreatePostPayload, getTestPostById, 
 import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { IUpdatePostBody } from '../../src/types/posts/updatePostBody';
 import { CONTENT_MAX_LENGTH, TITLE_MAX_LENGTH } from '../../src/const/posts/posts';
-import { ObjectId } from 'mongodb';
 
-let testBlogId: ObjectId | null;
-let testPostId: ObjectId | null;
+let testBlogId: string | null;
+let testPostId: string | null;
 
 describe('POSTS UPDATE BY ID request', () => {
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
   });
 
   afterAll(async () => {
@@ -25,7 +24,7 @@ describe('POSTS UPDATE BY ID request', () => {
   
   beforeEach(async () => {
     const post = await createTestPost(getCreatePostPayload(testBlogId!)({}), true);
-    testPostId = post.body._id;
+    testPostId = post.body.id;
   });
   
   afterEach(async () => {
@@ -73,7 +72,7 @@ describe('POSTS UPDATE BY ID request', () => {
 describe('CHECK VALIDATION for POSTS update /put request', () => {
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
-    testBlogId = blog.body._id;
+    testBlogId = blog.body.id;
   });
 
   afterAll(async () => {
@@ -85,7 +84,7 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
 
   beforeEach(async () => {
     const post = await createTestPost(getCreatePostPayload(testBlogId!)({}), true);
-    testPostId = post.body._id;
+    testPostId = post.body.id;
   });
 
   afterEach(async () => {
