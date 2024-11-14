@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import postsControllers from '@/controllers/posts';
+import postsControllers from '@/controllers/posts-controller';
 import { checkAuth } from '@/middlewares/checkAuth';
 import { validatePostFields } from '@/middlewares/posts/validate-post-fields';
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import blogsControllers from '@/controllers/blogs';
+import blogsControllers from '@/controllers/blogs-controller';
 import { checkAuth } from '@/middlewares/checkAuth';
 import { validateBlogFields } from '@/middlewares/blogs/validate-blog-fields';
 
