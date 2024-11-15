@@ -7,9 +7,9 @@ import 'module-alias/register';
 import 'dotenv/config';
 
 import { APP_ROUTES } from './routing';
-import { blogsRoutes } from './routes/blogs';
+import { blogsRoutes } from './routes/blogs-routes';
 import { ErrorHandler } from './middlewares/ErrorHandler';
-import { postsRoutes } from './routes/posts';
+import { postsRoutes } from './routes/posts-routes';
 import { testingRoute } from './routes/testingRoute';
 
 export const app = express();

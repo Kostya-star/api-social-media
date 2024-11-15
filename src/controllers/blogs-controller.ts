@@ -4,6 +4,8 @@ import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { ObjectId } from 'mongodb';
+import PostsService from '@/services/posts-service';
+import { ICreatePostBody } from '@/types/posts/createPostBody';
 
 const getAllBlogs = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -31,6 +33,18 @@ const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Respo
 
   try {
     const blog = await BlogsService.createBlog(newBlog);
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(blog);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const createPostForBlog = async (req: Request<{ blogId: ObjectId }, any, Omit<ICreatePostBody, 'blogId'>>, res: Response, next: NextFunction) => {
+  const blogId = req.params.blogId;
+  const newPost = { ...req.body, blogId }
+  try {
+    const blog = await PostsService.createPost(newPost);
 
     res.status(HTTP_STATUS_CODES.SUCCESS_201).json(blog);
   } catch (err) {
@@ -67,6 +81,7 @@ export default {
   getAllBlogs,
   getBlogById,
   createBlog,
+  createPostForBlog,
   updateBlog,
   deleteBlog,
 };

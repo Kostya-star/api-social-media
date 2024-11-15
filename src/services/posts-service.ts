@@ -12,8 +12,8 @@ const getPostById = async (postId: ObjectId): Promise<IPost> => {
   return await PostsRepository.getPostById(postId);
 };
 
-const createPost = async (post: ICreatePostBody): Promise<IPost> => {
-  return PostsRepository.createPost(post);
+const createPost = async (newPost: ICreatePostBody): Promise<IPost> => {
+  return PostsRepository.createPost(newPost);
 };
 
 const updatePost = async (postId: ObjectId, newPost: IUpdatePostBody): Promise<void> => {
