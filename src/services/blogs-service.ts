@@ -8,7 +8,7 @@ const getAllBlogs = async (): Promise<IBlog[]> => {
   return await BlogsRepository.getAllBlogs();
 };
 
-const getBlogById = async (blogId: string): Promise<IBlog> => {
+const getBlogById = async (blogId: ObjectId): Promise<IBlog> => {
   return await BlogsRepository.getBlogById(blogId);
 };
 
@@ -16,11 +16,11 @@ const createBlog = async (blog: ICreateBlogPayload): Promise<IBlog> => {
   return await BlogsRepository.createBlog(blog);
 };
 
-const updateBlog = async (blogId: string, newBlog: IUpdateBlogPayload): Promise<void> => {
+const updateBlog = async (blogId: ObjectId, newBlog: IUpdateBlogPayload): Promise<void> => {
   return await BlogsRepository.updateBlog(blogId, newBlog);
 };
 
-const deleteBlog = async (blogId: string): Promise<void> => {
+const deleteBlog = async (blogId: ObjectId): Promise<void> => {
   return await BlogsRepository.deleteBlog(blogId);
 };
 

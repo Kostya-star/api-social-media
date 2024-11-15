@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
+import { ObjectId } from 'mongodb';
 import { APP_ROUTES } from '../../src/routing';
 import { ICreateBlogPayload } from '../../src/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
@@ -21,7 +21,7 @@ export async function getAllBlogs() {
   return await request;
 }
 
-export async function getTestBlogById(blogId: string) {
+export async function getTestBlogById(blogId: ObjectId) {
   const request = req.get(`${APP_ROUTES.BLOGS}/${blogId}`);
   return await request;
 }
@@ -37,7 +37,7 @@ export async function createTestBlog(blogToCreate: ICreateBlogPayload, isAuth: b
   return res;
 }
 
-export async function updateTestBlog(blogId: string, updateBlogBody: IUpdateBlogPayload, isAuth: boolean) {
+export async function updateTestBlog(blogId: ObjectId, updateBlogBody: IUpdateBlogPayload, isAuth: boolean) {
   const request = req.put(`${APP_ROUTES.BLOGS}/${blogId}`).send(updateBlogBody);
 
   if (isAuth) {
@@ -48,7 +48,7 @@ export async function updateTestBlog(blogId: string, updateBlogBody: IUpdateBlog
   return res;
 }
 
-export async function deleteTestBlog(blogId: string, isAuth: boolean) {
+export async function deleteTestBlog(blogId: ObjectId, isAuth: boolean) {
   const request = req.delete(`${APP_ROUTES.BLOGS}/${blogId}`);
 
   if (isAuth) {

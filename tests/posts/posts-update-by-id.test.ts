@@ -5,9 +5,10 @@ import { createTestPost, deleteTestPost, getCreatePostPayload, getTestPostById, 
 import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { IUpdatePostBody } from '../../src/types/posts/updatePostBody';
 import { CONTENT_MAX_LENGTH, TITLE_MAX_LENGTH } from '../../src/const/posts/posts';
+import { ObjectId } from 'mongodb';
 
-let testBlogId: string | null;
-let testPostId: string | null;
+let testBlogId: ObjectId | null;
+let testPostId: ObjectId | null;
 
 describe('POSTS UPDATE BY ID request', () => {
   beforeAll(async () => {

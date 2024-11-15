@@ -15,7 +15,7 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getPostById = async (req: Request<{ postId: string }>, res: Response, next: NextFunction) => {
+const getPostById = async (req: Request<{ postId: ObjectId }>, res: Response, next: NextFunction) => {
   const { postId } = req.params;
 
   try {
@@ -39,7 +39,7 @@ const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response
   }
 };
 
-const updatePost = async (req: Request<{ postId: string }, any, IUpdatePostBody>, res: Response, next: NextFunction) => {
+const updatePost = async (req: Request<{ postId: ObjectId }, any, IUpdatePostBody>, res: Response, next: NextFunction) => {
   const postId = req.params.postId;
   const newPost = req.body;
 
@@ -52,7 +52,7 @@ const updatePost = async (req: Request<{ postId: string }, any, IUpdatePostBody>
   }
 };
 
-const deletePost = async (req: Request<{ postId: string }>, res: Response, next: NextFunction) => {
+const deletePost = async (req: Request<{ postId: ObjectId }>, res: Response, next: NextFunction) => {
   const postId = req.params.postId;
 
   try {

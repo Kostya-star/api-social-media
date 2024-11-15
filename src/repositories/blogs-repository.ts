@@ -5,60 +5,60 @@ import { ErrorService } from '@/services/error-service';
 import { IBlog } from '@/types/blogs/blog';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
-import { v4 as uuidv4 } from 'uuid';
+import { blogObjMapper } from '@/util/blogObjMapper';
+import { ObjectId } from 'mongodb';
 
 const getAllBlogs = async (): Promise<IBlog[]> => {
-  // exclude _id prop
-  return await blogsCollection.find({}, { projection: { _id: 0 } }).toArray();
+  const blogs = await blogsCollection.find({}).toArray();
+  return blogs.map(blogObjMapper); 
 };
 
-const getBlogById = async (blogId: string): Promise<IBlog> => {
-  // if (!ObjectId.isValid(blogId)) {
-  //   throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  // }
+const getBlogById = async (blogId: ObjectId): Promise<IBlog> => {
+  if (!ObjectId.isValid(blogId)) {
+    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
 
-  const blog = await blogsCollection.findOne({ id: blogId }, { projection: { _id: 0 } });
+  const blog = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
 
   if (!blog) {
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  return blog;
+  return blogObjMapper(blog)
 };
 
 const createBlog = async (blog: ICreateBlogPayload): Promise<IBlog> => {
-  const newBlog: IBlog = { ...blog, id: uuidv4(), isMembership: false, createdAt: new Date() };
-  await blogsCollection.insertOne({ ...newBlog }); // Create a copy to avoid mutation
-  return { ...newBlog }; // Return a copy to ensure no _id is included
+  const newBlog: IBlog = { ...blog, isMembership: false, createdAt: new Date() };
+  const res = await blogsCollection.insertOne(newBlog);
+  return blogObjMapper({...newBlog, _id: res.insertedId});
 };
 
-const updateBlog = async (blogId: string, newBlog: IUpdateBlogPayload): Promise<void> => {
-  // if (!ObjectId.isValid(blogId)) {
-  //   throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  // }
+const updateBlog = async (blogId: ObjectId, newBlog: IUpdateBlogPayload): Promise<void> => {
+  if (!ObjectId.isValid(blogId)) {
+    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
 
-  const blogToUpdate = await blogsCollection.findOne({ id: blogId }, { projection: { _id: 0 } });
+  const blogToUpdate = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
 
   if (!blogToUpdate) {
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  await blogsCollection.updateOne({ id: blogId }, { $set: newBlog });
+  await blogsCollection.updateOne({ _id: new ObjectId(blogId) }, { $set: newBlog });
 };
 
-const deleteBlog = async (blogId: string): Promise<void> => {
-  // if (!ObjectId.isValid(blogId)) {
-  //   throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  // }
+const deleteBlog = async (blogId: ObjectId): Promise<void> => {
+  if (!ObjectId.isValid(blogId)) {
+    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
 
-  // const blogToDelete = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
-  const blogToDelete = await blogsCollection.findOne({ id: blogId }, { projection: { _id: 0 } });
+  const blogToDelete = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
 
   if (!blogToDelete) {
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  await blogsCollection.deleteOne({ id: blogId });
+  await blogsCollection.deleteOne({ _id: new ObjectId(blogId) });
 };
 
 export default {

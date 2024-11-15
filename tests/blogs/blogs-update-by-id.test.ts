@@ -5,7 +5,7 @@ import { IErrorItem } from '../../src/types/error-item';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
 import { ObjectId } from 'mongodb';
 
-let testBlogId: string | null;
+let testBlogId: ObjectId | null;
 
 describe('BLOGS UPDATE BY ID request', () => {
   beforeEach(async () => {

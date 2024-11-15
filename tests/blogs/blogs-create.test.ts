@@ -1,9 +1,9 @@
 import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { createTestBlog, deleteTestBlog, getAllBlogs, getCreateBlogPayload } from './helpers';
-// import { MongoClient, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 
-let testBlogId: string | null;
+let testBlogId: ObjectId | null;
 
 describe('BLOGS CREATE request', () => {
   afterEach(async () => {

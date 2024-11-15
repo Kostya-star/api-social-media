@@ -6,6 +6,7 @@ import { TITLE_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, CONTENT_MAX_LENGTH } from '@/
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 // import { ObjectId } from 'mongodb';
 import { blogsCollection } from '@/DB';
+import { ObjectId } from 'mongodb';
 
 export const validatePostFields = [
   body('title')
@@ -43,13 +44,12 @@ export const validatePostFields = [
     .withMessage(PostsErrorsList.BLOG_ID_EMPTY)
 
     // check if a blog with id of 'blogId' exists
-    .custom(async (blogId: string) => {
-      // if (!ObjectId.isValid(blogId)) {
-      //   throw new Error(PostsErrorsList.BLOG_NOT_EXIST_WITH_ID);
-      // }
+    .custom(async (blogId: ObjectId) => {
+      if (!ObjectId.isValid(blogId)) {
+        throw new Error(PostsErrorsList.BLOG_NOT_EXIST_WITH_ID);
+      }
 
-      // const blog = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
-      const blog = await blogsCollection.findOne({ id: blogId });
+      const blog = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
 
       if (!blog) {
         throw new Error(PostsErrorsList.BLOG_NOT_EXIST_WITH_ID);

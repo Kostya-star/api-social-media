@@ -4,7 +4,7 @@ import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 import { IErrorItem } from '../../src/types/error-item';
 import { ObjectId } from 'mongodb';
 describe('BLOGS GET BY ID request', () => {
-  let testBlogId: string | null = null;
+  let testBlogId: ObjectId | null = null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);

@@ -2,9 +2,10 @@ import { APP_ROUTES } from '../../src/routing';
 import { ICreatePostBody } from '../../src/types/posts/createPostBody';
 import { req } from '../helper';
 import { IUpdatePostBody } from '../../src/types/posts/updatePostBody';
+import { ObjectId } from 'mongodb';
 
 export const getCreatePostPayload =
-  (testBlogId: string) =>
+  (testBlogId: ObjectId) =>
   ({
     blogId = testBlogId,
     content = 'A valid content',
@@ -24,7 +25,7 @@ export async function getAllPosts() {
   return await request;
 }
 
-export async function getTestPostById(postId: string) {
+export async function getTestPostById(postId: ObjectId) {
   const request = req.get(`${APP_ROUTES.POSTS}/${postId}`);
   return await request;
 }
@@ -40,7 +41,7 @@ export async function createTestPost(payload: ICreatePostBody, isAuth: boolean) 
   return res;
 }
 
-export async function updateTestPost(postId: string, updateBlogBody: IUpdatePostBody, isAuth: boolean) {
+export async function updateTestPost(postId: ObjectId, updateBlogBody: IUpdatePostBody, isAuth: boolean) {
   const request = req.put(`${APP_ROUTES.POSTS}/${postId}`).send(updateBlogBody);
 
   if (isAuth) {
@@ -51,7 +52,7 @@ export async function updateTestPost(postId: string, updateBlogBody: IUpdatePost
   return res;
 }
 
-export async function deleteTestPost(postId: string, isAuth: boolean) {
+export async function deleteTestPost(postId: ObjectId, isAuth: boolean) {
   const request = req.delete(`${APP_ROUTES.POSTS}/${postId}`);
 
   if (isAuth) {

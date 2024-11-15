@@ -3,9 +3,10 @@ import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { IErrorItem } from '../../src/types/error-item';
 import { createTestPost, deleteTestPost, getCreatePostPayload, getTestPostById } from './helpers';
 import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from '../blogs/helpers';
+import { ObjectId } from 'mongodb';
 describe('POSTS GET BY ID request', () => {
-  let testBlogId: string | null;
-  let testPostId: string | null;
+  let testBlogId: ObjectId | null;
+  let testPostId: ObjectId | null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);

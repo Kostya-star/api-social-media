@@ -3,9 +3,10 @@ import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from '../blogs/h
 import { createTestPost, deleteTestPost, getCreatePostPayload } from './helpers';
 import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { TITLE_MAX_LENGTH, CONTENT_MAX_LENGTH } from '../..//src/const/posts/posts';
+import { ObjectId } from 'mongodb';
 
-let testBlogId: string | null;
-let testPostId: string | null;
+let testBlogId: ObjectId | null;
+let testPostId: ObjectId | null;
 
 describe('POSTS CREATE request', () => {
   beforeAll(async () => {

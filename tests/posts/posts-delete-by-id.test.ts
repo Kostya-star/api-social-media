@@ -3,10 +3,11 @@ import { createTestBlog, deleteTestBlog, getCreateBlogPayload } from '../blogs/h
 import { IErrorItem } from '../../src/types/error-item';
 import { createTestPost, deleteTestPost, getCreatePostPayload, getTestPostById } from './helpers';
 import { PostsErrorsList } from '../../src/errors/posts-errors';
+import { ObjectId } from 'mongodb';
 
 describe('POSTS DELETE BY ID request', () => {
-  let testBlogId: string | null = null;
-  let testPostId: string | null = null;
+  let testBlogId: ObjectId | null = null;
+  let testPostId: ObjectId | null = null;
 
   beforeAll(async () => {
     const blog = await createTestBlog(getCreateBlogPayload({}), true);
@@ -42,6 +43,7 @@ describe('POSTS DELETE BY ID request', () => {
     expect(res.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
   test('status check. should be 404 coz no post found', async () => {
+    // @ts-ignore
     const res = await deleteTestPost('12345678utygewxr2e12e12211221qw', true);
 
     expect(res.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
