@@ -14,55 +14,21 @@ const getAllPosts = async (): Promise<IPost[]> => {
   return posts.map(postObjMapper);
 };
 
-const getPostById = async (postId: ObjectId): Promise<IPost> => {
-  if (!ObjectId.isValid(postId)) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-
+const getPostById = async (postId: ObjectId): Promise<IPost | null> => {
   const post = await postsCollection.findOne({ _id: new ObjectId(postId) });
-
-  if (!post) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-
-  return postObjMapper(post)
+  return post ? postObjMapper(post) : null;
 };
 
-const createPost = async (post: ICreatePostBody): Promise<IPost> => {
-  // no errors should occur here coz all is checked in the validation middleware for this request
-  const blogName = (await BlogsRepository.getBlogById(post.blogId)).name;
-
-  const newPost: IPost = { ...post, createdAt: new Date(), blogName };
-
-  const res = await postsCollection.insertOne(newPost);
-  return postObjMapper({ ...newPost, _id: res.insertedId });
+const createPost = async (post: IPost): Promise<IPost> => {
+  const res = await postsCollection.insertOne(post);
+  return postObjMapper({ ...post, _id: res.insertedId });
 };
 
 const updatePost = async (postId: ObjectId, newPost: IUpdatePostBody): Promise<void> => {
-  if (!ObjectId.isValid(postId)) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-
-  const postToUpdate = await postsCollection.findOne({ _id: new ObjectId(postId) });
-
-  if (!postToUpdate) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-
   await postsCollection.updateOne({ _id: new ObjectId(postId) }, { $set: newPost });
 };
 
 const deletePost = async (postId: ObjectId): Promise<void> => {
-  if (!ObjectId.isValid(postId)) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-
-  const postToDelete = await postsCollection.findOne({ _id: new ObjectId(postId) });
-
-  if (!postToDelete) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-
   await postsCollection.deleteOne({ _id: new ObjectId(postId) });
 };
 
