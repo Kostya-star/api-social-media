@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 import PostsRepository from '@/repositories/posts-repository';
 
 const getAllPosts = async (): Promise<IPost[]> => {
-  return PostsRepository.getAllPosts();
+  return await PostsRepository.getAllPosts();
 };
 
 const getPostById = async (postId: ObjectId): Promise<IPost> => {
@@ -13,7 +13,7 @@ const getPostById = async (postId: ObjectId): Promise<IPost> => {
 };
 
 const createPost = async (newPost: ICreatePostBody): Promise<IPost> => {
-  return PostsRepository.createPost(newPost);
+  return await PostsRepository.createPost(newPost);
 };
 
 const updatePost = async (postId: ObjectId, newPost: IUpdatePostBody): Promise<void> => {

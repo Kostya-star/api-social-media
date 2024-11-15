@@ -6,6 +6,7 @@ import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { IUpdatePostBody } from '../../src/types/posts/updatePostBody';
 import { CONTENT_MAX_LENGTH, TITLE_MAX_LENGTH } from '../../src/const/posts/posts';
 import { ObjectId } from 'mongodb';
+import { BlogsErrorsList } from '../../src/errors/blogs-errors';
 
 let testBlogId: ObjectId | null;
 let testPostId: ObjectId | null;
@@ -184,7 +185,7 @@ describe('CHECK VALIDATION for POSTS update /put request', () => {
       // @ts-ignore
       payload: getUpdatePostPayload({ blogId: 'nonexistentBlogId' }),
       expectedField: 'blogId',
-      expectedMessage: PostsErrorsList.BLOG_NOT_EXIST_WITH_ID,
+      expectedMessage: BlogsErrorsList.NOT_FOUND,
     },
   ];
 

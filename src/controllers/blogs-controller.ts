@@ -6,6 +6,8 @@ import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { ObjectId } from 'mongodb';
 import PostsService from '@/services/posts-service';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
+import { BlogsErrorsList } from '@/errors/blogs-errors';
+import { ErrorService } from '@/services/error-service';
 
 const getAllBlogs = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -43,10 +45,21 @@ const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Respo
 const createPostForBlog = async (req: Request<{ blogId: ObjectId }, any, Omit<ICreatePostBody, 'blogId'>>, res: Response, next: NextFunction) => {
   const blogId = req.params.blogId;
   const newPost = { ...req.body, blogId }
-  try {
-    const blog = await PostsService.createPost(newPost);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(blog);
+  try {
+    if (!ObjectId.isValid(blogId)) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    const blog = await BlogsService.getBlogById(blogId)
+
+    if (!blog) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    const createdBlog = await PostsService.createPost(newPost);
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(createdBlog);
   } catch (err) {
     next(err);
   }

@@ -17,5 +17,4 @@ export enum PostsErrorsList {
 
   BLOG_ID_EMPTY = 'Blog ID must not be empty',
   BLOG_ID_WRONG_FORMAT = 'Blog ID must be a valid string',
-  BLOG_NOT_EXIST_WITH_ID = 'Blog with the provided id does not exist',
 }

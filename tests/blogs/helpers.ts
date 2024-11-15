@@ -3,6 +3,7 @@ import { APP_ROUTES } from '../../src/routing';
 import { ICreateBlogPayload } from '../../src/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
 import { req } from '../helper';
+import { ICreatePostBody } from '../../src/types/posts/createPostBody';
 
 export function getCreateBlogPayload({
   name = 'new blog',
@@ -28,6 +29,17 @@ export async function getTestBlogById(blogId: ObjectId) {
 
 export async function createTestBlog(blogToCreate: ICreateBlogPayload, isAuth: boolean) {
   const request = req.post(APP_ROUTES.BLOGS).send(blogToCreate);
+
+  if (isAuth) {
+    request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
+  }
+
+  const res = await request;
+  return res;
+}
+
+export async function createTestPostForBlog(newPost: ICreatePostBody, isAuth: boolean) {
+  const request = req.post(`${APP_ROUTES.BLOGS}/${newPost.blogId}${APP_ROUTES.POSTS}`).send(newPost);
 
   if (isAuth) {
     request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
