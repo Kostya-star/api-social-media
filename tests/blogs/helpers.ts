@@ -4,6 +4,7 @@ import { ICreateBlogPayload } from '../../src/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '../../src/types/blogs/updateBlogBody';
 import { req } from '../helper';
 import { ICreatePostBody } from '../../src/types/posts/createPostBody';
+import { GetAllBlogsQuery } from '../../src/types/blogs/getAllBlogsQuery';
 
 export function getCreateBlogPayload({
   name = 'new blog',
@@ -17,10 +18,24 @@ export function getCreateBlogPayload({
   };
 }
 
-export async function getAllBlogs() {
-  const request = req.get(APP_ROUTES.BLOGS);
-  return await request;
-}
+// export async function getAllBlogs() {
+//   const request = req.get(APP_ROUTES.BLOGS);
+//   return await request;
+// }
+
+export const getAllBlogs = async (params: GetAllBlogsQuery = {}) => {
+  const { searchNameTerm = null, sortBy = 'createdAt', sortDirection = 'desc', pageNumber = 1, pageSize = 10 } = params;
+
+  const query = new URLSearchParams({
+    ...(searchNameTerm !== null ? { searchNameTerm } : {}),
+    ...(sortBy ? { sortBy } : {}),
+    ...(sortDirection ? { sortDirection } : {}),
+    ...(pageNumber ? { pageNumber: String(pageNumber) } : {}),
+    ...(pageSize ? { pageSize: String(pageSize) } : {}),
+  });
+
+  return await req.get(`${APP_ROUTES.BLOGS}?${query.toString()}`).set('Accept', 'application/json');
+};
 
 export async function getTestBlogById(blogId: ObjectId) {
   const request = req.get(`${APP_ROUTES.BLOGS}/${blogId}`);

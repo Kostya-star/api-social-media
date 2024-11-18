@@ -1,14 +1,16 @@
 import { IBlog } from '@/types/blogs/blog';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
-import { ObjectId } from 'mongodb';
+import { ObjectId, Sort } from 'mongodb';
 import BlogsRepository from '@/repositories/blogs-repository';
 import { ErrorService } from './error-service';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
+import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
+import { GetAllBlogsResponse } from '@/types/blogs/getAllBlogsResponse';
 
-const getAllBlogs = async (): Promise<IBlog[]> => {
-  return await BlogsRepository.getAllBlogs();
+const getAllBlogs = async (query: Required<GetAllBlogsQuery>): Promise<GetAllBlogsResponse> => {
+  return await BlogsRepository.getAllBlogs(query);
 };
 
 const getBlogById = async (blogId: ObjectId): Promise<IBlog> => {
@@ -35,7 +37,7 @@ const updateBlog = async (blogId: ObjectId, newBlog: IUpdateBlogPayload): Promis
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  const blogToUpdate = await BlogsRepository.getBlogById(blogId)
+  const blogToUpdate = await BlogsRepository.getBlogById(blogId);
 
   if (!blogToUpdate) {
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -49,7 +51,7 @@ const deleteBlog = async (blogId: ObjectId): Promise<void> => {
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  const blogToDelete = await BlogsRepository.getBlogById(blogId)
+  const blogToDelete = await BlogsRepository.getBlogById(blogId);
 
   if (!blogToDelete) {
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

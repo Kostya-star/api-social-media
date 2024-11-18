@@ -38,7 +38,7 @@ describe('BLOGS CREATE request', () => {
     expect(blog.body).toHaveProperty('isMembership', false);
 
     const res = await getAllBlogs();
-    expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body.items.length).toBeGreaterThan(0);
   });
 });
 

@@ -1,10 +1,5 @@
-import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { postsCollection } from '@/DB';
-import { PostsErrorsList } from '@/errors/posts-errors';
-import { ErrorService } from '@/services/error-service';
-import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { IPost } from '@/types/posts/post';
-import BlogsRepository from './blogs-repository';
 import { IUpdatePostBody } from '@/types/posts/updatePostBody';
 import { ObjectId } from 'mongodb';
 import { postObjMapper } from '@/util/postObjMapper';

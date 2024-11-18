@@ -37,8 +37,8 @@ describe('TESTING DELETE ROUTE testing/all-data', () => {
 
     const blogs = await getAllBlogs();
     expect(blogs.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
-    expect(Array.isArray(blogs.body)).toBe(true);
-    expect(blogs.body).toHaveLength(0);
+    expect(Array.isArray(blogs.body.items)).toBe(true);
+    expect(blogs.body.items).toHaveLength(0);
 
     const posts = await getAllPosts();
     expect(posts.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);

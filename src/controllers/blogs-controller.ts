@@ -8,10 +8,17 @@ import PostsService from '@/services/posts-service';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { ErrorService } from '@/services/error-service';
+import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 
-const getAllBlogs = async (req: Request, res: Response, next: NextFunction) => {
+const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: Response, next: NextFunction) => {
+  const searchNameTerm = req.query.searchNameTerm || null;
+  const sortBy = req.query.sortBy || 'createdAt';
+  const sortDirection = req.query.sortDirection || 'desc';
+  const pageNumber = parseInt(String(req.query.pageNumber)) || 1;
+  const pageSize = parseInt(String(req.query.pageSize)) || 10;
+
   try {
-    const blogs = await BlogsService.getAllBlogs();
+    const blogs = await BlogsService.getAllBlogs({ searchNameTerm, sortBy, sortDirection, pageNumber, pageSize });
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blogs);
   } catch (err) {
@@ -44,14 +51,14 @@ const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Respo
 
 const createPostForBlog = async (req: Request<{ blogId: ObjectId }, any, Omit<ICreatePostBody, 'blogId'>>, res: Response, next: NextFunction) => {
   const blogId = req.params.blogId;
-  const newPost = { ...req.body, blogId }
+  const newPost = { ...req.body, blogId };
 
   try {
     if (!ObjectId.isValid(blogId)) {
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const blog = await BlogsService.getBlogById(blogId)
+    const blog = await BlogsService.getBlogById(blogId);
 
     if (!blog) {
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

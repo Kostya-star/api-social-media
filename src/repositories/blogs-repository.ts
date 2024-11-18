@@ -1,12 +1,31 @@
 import { blogsCollection } from '@/DB';
 import { IBlog } from '@/types/blogs/blog';
+import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
+import { GetAllBlogsResponse } from '@/types/blogs/getAllBlogsResponse';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { blogObjMapper } from '@/util/blogObjMapper';
-import { ObjectId } from 'mongodb';
+import { ObjectId, Sort } from 'mongodb';
 
-const getAllBlogs = async (): Promise<IBlog[]> => {
-  const blogs = await blogsCollection.find({}).toArray();
-  return blogs.map(blogObjMapper); 
+const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<GetAllBlogsResponse> => {
+  const skip = (pageNumber - 1) * pageSize;
+  const limit = pageSize;
+
+  const query = searchNameTerm ? { name: { $regex: searchNameTerm, $options: 'i' } } : {};
+
+  const sortOptions: Sort = { [sortBy]: sortDirection === 'asc' ? 1 : -1 };
+
+  const blogs = await blogsCollection.find(query).sort(sortOptions).skip(skip).limit(limit).toArray();
+
+  const totalCount = await blogsCollection.countDocuments(query);
+  const pagesCount = Math.ceil(totalCount / pageSize);
+
+  return {
+    pagesCount,
+    page: pageNumber,
+    pageSize,
+    totalCount,
+    items: blogs.map(blogObjMapper),
+  };
 };
 
 const getBlogById = async (blogId: ObjectId): Promise<IBlog | null> => {
@@ -16,7 +35,7 @@ const getBlogById = async (blogId: ObjectId): Promise<IBlog | null> => {
 
 const createBlog = async (newBlog: IBlog): Promise<IBlog> => {
   const res = await blogsCollection.insertOne(newBlog);
-  return blogObjMapper({...newBlog, _id: res.insertedId});
+  return blogObjMapper({ ...newBlog, _id: res.insertedId });
 };
 
 const updateBlog = async (blogId: ObjectId, newBlog: IUpdateBlogPayload): Promise<void> => {
