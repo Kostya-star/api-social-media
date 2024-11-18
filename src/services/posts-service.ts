@@ -7,6 +7,7 @@ import { ErrorService } from './error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import BlogsRepository from '@/repositories/blogs-repository';
+import { IBaseQuery } from '@/types/base-query';
 
 const getAllPosts = async (): Promise<IPost[]> => {
   return await PostsRepository.getAllPosts();
@@ -16,14 +17,18 @@ const getPostById = async (postId: ObjectId): Promise<IPost> => {
   if (!ObjectId.isValid(postId)) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
-
+  
   const post = await PostsRepository.getPostById(postId);
-
+  
   if (!post) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
-
+  
   return post;
+};
+
+const getPostsForBlog = async (blogId: ObjectId, query: Required<IBaseQuery<IPost>>): Promise<IPost[]> => {
+  return await PostsRepository.getPostsForBlog(blogId, query);
 };
 
 const createPost = async (post: ICreatePostBody): Promise<IPost> => {
@@ -65,6 +70,7 @@ const deletePost = async (postId: ObjectId): Promise<void> => {
 export default {
   getAllPosts,
   getPostById,
+  getPostsForBlog,
   createPost,
   updatePost,
   deletePost,

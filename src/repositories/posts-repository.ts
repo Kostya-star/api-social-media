@@ -3,6 +3,8 @@ import { IPost } from '@/types/posts/post';
 import { IUpdatePostBody } from '@/types/posts/updatePostBody';
 import { ObjectId } from 'mongodb';
 import { postObjMapper } from '@/util/postObjMapper';
+import { IBaseQuery } from '@/types/base-query';
+import { buildQuery } from '@/util/buildQuery';
 
 const getAllPosts = async (): Promise<IPost[]> => {
   const posts = await postsCollection.find({}).toArray();
@@ -12,6 +14,23 @@ const getAllPosts = async (): Promise<IPost[]> => {
 const getPostById = async (postId: ObjectId): Promise<IPost | null> => {
   const post = await postsCollection.findOne({ _id: new ObjectId(postId) });
   return post ? postObjMapper(post) : null;
+};
+
+const getPostsForBlog = async (blogId: ObjectId, { pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPost>>) => {
+  const { query, sortOptions, skip, limit } = buildQuery<IPost>({ pageNumber, pageSize, sortBy, sortDirection });
+
+  const posts = await postsCollection.find({ blogId }).sort(sortOptions).skip(skip).limit(limit).toArray();
+
+  const totalCount = await postsCollection.countDocuments({ blogId });
+  const pagesCount = Math.ceil(totalCount / pageSize);
+
+  return {
+    pagesCount,
+    page: pageNumber,
+    pageSize,
+    totalCount,
+    items: posts.map(postObjMapper),
+  };
 };
 
 const createPost = async (post: IPost): Promise<IPost> => {
@@ -30,6 +49,7 @@ const deletePost = async (postId: ObjectId): Promise<void> => {
 export default {
   getAllPosts,
   getPostById,
+  getPostsForBlog,
   createPost,
   updatePost,
   deletePost,

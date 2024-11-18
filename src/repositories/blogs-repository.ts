@@ -4,15 +4,11 @@ import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 import { GetAllBlogsResponse } from '@/types/blogs/getAllBlogsResponse';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { blogObjMapper } from '@/util/blogObjMapper';
+import { buildQuery } from '@/util/buildQuery';
 import { ObjectId, Sort } from 'mongodb';
 
 const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<GetAllBlogsResponse> => {
-  const skip = (pageNumber - 1) * pageSize;
-  const limit = pageSize;
-
-  const query = searchNameTerm ? { name: { $regex: searchNameTerm, $options: 'i' } } : {};
-
-  const sortOptions: Sort = { [sortBy]: sortDirection === 'asc' ? 1 : -1 };
+  const { query, sortOptions, skip, limit } = buildQuery<IBlog>({ pageNumber, pageSize, sortBy, searchNameTerm, sortDirection, searchByKey: 'name' });
 
   const blogs = await blogsCollection.find(query).sort(sortOptions).skip(skip).limit(limit).toArray();
 

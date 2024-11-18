@@ -9,6 +9,10 @@ export const blogsRoutes = Router();
 
 blogsRoutes.get('/', blogsControllers.getAllBlogs);
 blogsRoutes.get('/:blogId', blogsControllers.getBlogById);
+
+// endpoing for getting posts for the specific blog
+blogsRoutes.get(`/:blogId${APP_ROUTES.POSTS}`, blogsControllers.getPostsForBlog);
+
 blogsRoutes.post('/', checkAuth, validateBlogFields, blogsControllers.createBlog);
 
 // endpoing for creating a post for the specific blog

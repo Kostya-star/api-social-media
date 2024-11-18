@@ -1,9 +1,6 @@
+import { IBaseQuery } from '../base-query';
 import { IBlog } from './blog';
 
-export interface GetAllBlogsQuery {
+export interface GetAllBlogsQuery extends IBaseQuery<IBlog> {
   searchNameTerm?: string | null;
-  sortBy?: keyof IBlog;
-  sortDirection?: 'asc' | 'desc';
-  pageNumber?: number;
-  pageSize?: number;
 }
