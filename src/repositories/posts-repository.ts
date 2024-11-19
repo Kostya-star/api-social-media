@@ -7,9 +7,21 @@ import { IBaseQuery } from '@/types/base-query';
 import { buildQuery } from '@/util/buildQuery';
 import { IBaseResponse } from '@/types/base-response';
 
-const getAllPosts = async (): Promise<IPost[]> => {
-  const posts = await postsCollection.find({}).toArray();
-  return posts.map(postObjMapper);
+const getAllPosts = async ({ pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPost>>): Promise<IBaseResponse<IPost>> => {
+  const { sortOptions, skip, limit } = buildQuery<IPost>({ pageNumber, pageSize, sortBy, sortDirection });
+
+  const posts = await postsCollection.find({}).sort(sortOptions).skip(skip).limit(limit).toArray();
+
+  const totalCount = await postsCollection.countDocuments();
+  const pagesCount = Math.ceil(totalCount / pageSize);
+
+  return {
+    pagesCount,
+    page: pageNumber,
+    pageSize,
+    totalCount,
+    items: posts.map(postObjMapper),
+  };
 };
 
 const getPostById = async (postId: ObjectId): Promise<IPost | null> => {

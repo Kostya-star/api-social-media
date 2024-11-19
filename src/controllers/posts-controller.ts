@@ -4,10 +4,19 @@ import PostsService from '@/services/posts-service';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { IUpdatePostBody } from '@/types/posts/updatePostBody';
 import { ObjectId } from 'mongodb';
+import { SORT_DIRECTIONS } from '@/const/sort-directions';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
+import { IBaseQuery } from '@/types/base-query';
+import { IPost } from '@/types/posts/post';
 
-const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
+const getAllPosts = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPost>>, res: Response, next: NextFunction) => {
   try {
-    const posts = await PostsService.getAllPosts();
+    const sortBy = req.query.sortBy || 'createdAt';
+    const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
+    const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
+    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+
+    const posts = await PostsService.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(posts);
   } catch (err) {

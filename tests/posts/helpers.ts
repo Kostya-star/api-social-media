@@ -22,9 +22,17 @@ export const getCreatePostPayload =
     };
   };
 
-export async function getAllPosts() {
-  const request = req.get(APP_ROUTES.POSTS);
-  return await request;
+export async function getAllPosts(params: IBaseQuery<IPost> = {}) {
+  const { sortBy = 'createdAt', sortDirection = 'desc', pageNumber = 1, pageSize = 10 } = params;
+
+  const query = new URLSearchParams({
+    ...(sortBy ? { sortBy } : {}),
+    ...(sortDirection ? { sortDirection } : {}),
+    ...(pageNumber ? { pageNumber: String(pageNumber) } : {}),
+    ...(pageSize ? { pageSize: String(pageSize) } : {}),
+  });
+
+  return await req.get(`${APP_ROUTES.POSTS}?${query.toString()}`);
 }
 
 export async function getTestPostById(postId: ObjectId) {

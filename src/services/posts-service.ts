@@ -10,8 +10,8 @@ import BlogsRepository from '@/repositories/blogs-repository';
 import { IBaseQuery } from '@/types/base-query';
 import { IBaseResponse } from '@/types/base-response';
 
-const getAllPosts = async (): Promise<IPost[]> => {
-  return await PostsRepository.getAllPosts();
+const getAllPosts = async (query: Required<IBaseQuery<IPost>>): Promise<IBaseResponse<IPost>> => {
+  return await PostsRepository.getAllPosts(query);
 };
 
 const getPostById = async (postId: ObjectId): Promise<IPost> => {
