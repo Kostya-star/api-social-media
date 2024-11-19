@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb';
 import { postObjMapper } from '@/util/postObjMapper';
 import { IBaseQuery } from '@/types/base-query';
 import { buildQuery } from '@/util/buildQuery';
+import { IBaseResponse } from '@/types/base-response';
 
 const getAllPosts = async (): Promise<IPost[]> => {
   const posts = await postsCollection.find({}).toArray();
@@ -16,8 +17,8 @@ const getPostById = async (postId: ObjectId): Promise<IPost | null> => {
   return post ? postObjMapper(post) : null;
 };
 
-const getPostsForBlog = async (blogId: ObjectId, { pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPost>>) => {
-  const { query, sortOptions, skip, limit } = buildQuery<IPost>({ pageNumber, pageSize, sortBy, sortDirection });
+const getPostsForBlog = async (blogId: ObjectId, { pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPost>>): Promise<IBaseResponse<IPost>> => {
+  const { sortOptions, skip, limit } = buildQuery<IPost>({ pageNumber, pageSize, sortBy, sortDirection });
 
   const posts = await postsCollection.find({ blogId }).sort(sortOptions).skip(skip).limit(limit).toArray();
 

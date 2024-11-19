@@ -8,6 +8,7 @@ import { PostsErrorsList } from '@/errors/posts-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import BlogsRepository from '@/repositories/blogs-repository';
 import { IBaseQuery } from '@/types/base-query';
+import { IBaseResponse } from '@/types/base-response';
 
 const getAllPosts = async (): Promise<IPost[]> => {
   return await PostsRepository.getAllPosts();
@@ -27,7 +28,7 @@ const getPostById = async (postId: ObjectId): Promise<IPost> => {
   return post;
 };
 
-const getPostsForBlog = async (blogId: ObjectId, query: Required<IBaseQuery<IPost>>): Promise<IPost[]> => {
+const getPostsForBlog = async (blogId: ObjectId, query: Required<IBaseQuery<IPost>>): Promise<IBaseResponse<IPost>> => {
   return await PostsRepository.getPostsForBlog(blogId, query);
 };
 

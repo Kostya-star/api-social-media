@@ -7,9 +7,9 @@ import { ErrorService } from './error-service';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
-import { GetAllBlogsResponse } from '@/types/blogs/getAllBlogsResponse';
+import { IBaseResponse } from '@/types/base-response';
 
-const getAllBlogs = async (query: Required<GetAllBlogsQuery>): Promise<GetAllBlogsResponse> => {
+const getAllBlogs = async (query: Required<GetAllBlogsQuery>): Promise<IBaseResponse<IBlog>> => {
   return await BlogsRepository.getAllBlogs(query);
 };
 

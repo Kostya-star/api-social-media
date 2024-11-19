@@ -18,11 +18,6 @@ export function getCreateBlogPayload({
   };
 }
 
-// export async function getAllBlogs() {
-//   const request = req.get(APP_ROUTES.BLOGS);
-//   return await request;
-// }
-
 export const getAllBlogs = async (params: GetAllBlogsQuery = {}) => {
   const { searchNameTerm = null, sortBy = 'createdAt', sortDirection = 'desc', pageNumber = 1, pageSize = 10 } = params;
 
