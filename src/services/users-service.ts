@@ -24,7 +24,7 @@ const createUser = async (user: ICreateUserBody): Promise<IUser> => {
   if (userWithSameEmail) {
     throw {
       field: 'email',
-      message: UsersErrorsList.LOGIN_ALREADY_EXIST,
+      message: UsersErrorsList.EMAIL_ALREADY_EXIST,
     }
   }
 

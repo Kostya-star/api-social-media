@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ObjectId } from 'mongodb';
-import { ErrorService } from '@/services/error-service';
-import { IBaseQuery } from '@/types/base-query';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { ICreateUserBody } from '@/types/users/createUserBody';
