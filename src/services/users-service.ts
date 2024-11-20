@@ -5,9 +5,28 @@ import { ICreateUserBody } from '@/types/users/createUserBody';
 import { IUser } from '@/types/users/user';
 import UsersRepository from '@/repositories/users-repository';
 import bcrypt from 'bcrypt';
+import { UsersErrorsList } from '@/errors/users-errors';
 
 const createUser = async (user: ICreateUserBody): Promise<IUser> => {
   const { email, login, password } = user;
+
+  const userWithSameLogin = await UsersRepository.findUserByFilter({ login });
+
+  if (userWithSameLogin) {
+    throw {
+      field: 'login',
+      message: UsersErrorsList.LOGIN_ALREADY_EXIST,
+    }
+  }
+
+  const userWithSameEmail = await UsersRepository.findUserByFilter({ email });
+
+  if (userWithSameEmail) {
+    throw {
+      field: 'email',
+      message: UsersErrorsList.LOGIN_ALREADY_EXIST,
+    }
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -15,26 +34,26 @@ const createUser = async (user: ICreateUserBody): Promise<IUser> => {
     login,
     email,
     hashedPassword,
-    createdAt: new Date()
-  }
+    createdAt: new Date(),
+  };
   return await UsersRepository.createUser(newUser);
 };
 
-// const deleteBlog = async (blogId: ObjectId): Promise<void> => {
-//   if (!ObjectId.isValid(blogId)) {
-//     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-//   }
+const deleteUser = async (userId: ObjectId): Promise<void> => {
+  if (!ObjectId.isValid(userId)) {
+    throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
 
-//   const blogToDelete = await BlogsRepository.getBlogById(blogId);
+  const userToDelete = await UsersRepository.findUserByFilter({ _id: new ObjectId(userId) });
 
-//   if (!blogToDelete) {
-//     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-//   }
+  if (!userToDelete) {
+    throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
 
-//   await BlogsRepository.deleteBlog(blogId);
-// };
+  await UsersRepository.deleteUser(userId);
+};
 
 export default {
   createUser,
-  // deleteBlog,
+  deleteUser,
 };

@@ -1,41 +1,57 @@
 import { usersCollection } from '@/DB';
 import { IBaseResponse } from '@/types/base-response';
+import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
 import { IUser } from '@/types/users/user';
 import { blogObjMapper } from '@/util/blogObjMapper';
 import { buildQuery } from '@/util/buildQuery';
 import { userObjMapper } from '@/util/userObjMapper';
-import { ObjectId} from 'mongodb';
+import { Filter, ObjectId} from 'mongodb';
 
-// const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<IBaseResponse<IBlog>> => {
-//   const { sortOptions, skip, limit } = buildQuery<IBlog>({ pageNumber, pageSize, sortBy, sortDirection });
+const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResponse<IUser>> => {
+  const { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection } = query;
+  const { sortOptions, skip, limit } = buildQuery<IUser>({ pageNumber, pageSize, sortBy, sortDirection });
 
-//   const query = searchNameTerm ? { name: { $regex: searchNameTerm, $options: 'i' } } : {};
+  const searchConditions: Partial<Record<'login' | 'email', any>> = {};
 
-//   const blogs = await blogsCollection.find(query).sort(sortOptions).skip(skip).limit(limit).toArray();
+  if (searchLoginTerm) {
+    searchConditions.login = { $regex: searchLoginTerm, $options: 'i' };
+  }
 
-//   const totalCount = await blogsCollection.countDocuments(query);
-//   const pagesCount = Math.ceil(totalCount / pageSize);
+  if (searchEmailTerm) {
+    searchConditions.email = { $regex: searchEmailTerm, $options: 'i' };
+  }
 
-//   return {
-//     pagesCount,
-//     page: pageNumber,
-//     pageSize,
-//     totalCount,
-//     items: blogs.map(blogObjMapper),
-//   };
-// };
+  const users = await usersCollection.find(searchConditions).sort(sortOptions).skip(skip).limit(limit).toArray();
+
+  const totalCount = await usersCollection.countDocuments(searchConditions);
+  const pagesCount = Math.ceil(totalCount / pageSize);
+
+  return {
+    pagesCount,
+    page: pageNumber,
+    pageSize,
+    totalCount,
+    items: users.map(userObjMapper),
+  };
+};
 
 const createUser = async (newUser: IUser): Promise<IUser> => {
   const res = await usersCollection.insertOne(newUser);
   return userObjMapper({ ...newUser, _id: res.insertedId });
 };
 
-// const deleteBlog = async (blogId: ObjectId): Promise<void> => {
-//   await blogsCollection.deleteOne({ _id: new ObjectId(blogId) });
-// };
+const deleteUser = async (userId: ObjectId): Promise<void> => {
+  await usersCollection.deleteOne({ _id: new ObjectId(userId) });
+};
+
+const findUserByFilter = async (filter: Filter<IUser>): Promise<IUser | null> => {
+  const user = await usersCollection.findOne(filter);
+  return user ? userObjMapper(user) : null;
+}
 
 export default {
-  // getAllBlogs,
+  getAllUsers,
   createUser,
-  // deleteBlog,
+  findUserByFilter,
+  deleteUser,
 };

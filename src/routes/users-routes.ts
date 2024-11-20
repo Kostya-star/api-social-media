@@ -5,6 +5,6 @@ import { validateUserFields } from '@/middlewares/users/validate-user-fields';
 
 export const usersRoutes = Router();
 
-// usersRoutes.get('/', checkAuth, usersController.getAllUsers);
+usersRoutes.get('/', checkAuth, usersController.getAllUsers);
 usersRoutes.post('/', checkAuth, validateUserFields, usersController.createUser);
-// usersRoutes.delete('/:userId', checkAuth, usersController.deleteBlog);
+usersRoutes.delete('/:userId', checkAuth, usersController.deleteUser);
