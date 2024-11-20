@@ -6,26 +6,6 @@ import BlogsRepository from '@/repositories/blogs-repository';
 import { ErrorService } from './error-service';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
-import { IBaseResponse } from '@/types/base-response';
-
-const getAllBlogs = async (query: Required<GetAllBlogsQuery>): Promise<IBaseResponse<IBlog>> => {
-  return await BlogsRepository.getAllBlogs(query);
-};
-
-const getBlogById = async (blogId: ObjectId): Promise<IBlog> => {
-  if (!ObjectId.isValid(blogId)) {
-    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-
-  const blog = await BlogsRepository.getBlogById(blogId);
-
-  if (!blog) {
-    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-
-  return blog;
-};
 
 const createBlog = async (blog: ICreateBlogPayload): Promise<IBlog> => {
   const newBlog: IBlog = { ...blog, isMembership: false, createdAt: new Date() };
@@ -61,8 +41,6 @@ const deleteBlog = async (blogId: ObjectId): Promise<void> => {
 };
 
 export default {
-  getAllBlogs,
-  getBlogById,
   createBlog,
   updateBlog,
   deleteBlog,

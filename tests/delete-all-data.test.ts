@@ -42,8 +42,8 @@ describe('TESTING DELETE ROUTE testing/all-data', () => {
 
     const posts = await getAllPosts();
     expect(posts.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
-    expect(Array.isArray(posts.body)).toBe(true);
-    expect(posts.body).toHaveLength(0);
+    expect(Array.isArray(posts.body.items)).toBe(true);
+    expect(posts.body.items).toHaveLength(0);
 
     const notFoundBlog = await getTestBlogById(testBlogId!);
     expect(notFoundBlog.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);

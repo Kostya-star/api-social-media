@@ -13,6 +13,7 @@ import { IBaseQuery } from '@/types/base-query';
 import { IPost } from '@/types/posts/post';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
+import BlogsRepository from '@/repositories/blogs-repository';
 
 const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: Response, next: NextFunction) => {
   try {
@@ -22,7 +23,7 @@ const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: R
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
     const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    const blogs = await BlogsService.getAllBlogs({ searchNameTerm, sortBy, sortDirection, pageNumber, pageSize });
+    const blogs = await BlogsRepository.getAllBlogs({ searchNameTerm, sortBy, sortDirection, pageNumber, pageSize });
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blogs);
   } catch (err) {
@@ -32,8 +33,17 @@ const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: R
 
 const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response, next: NextFunction) => {
   const { blogId } = req.params;
+
   try {
-    const blog = await BlogsService.getBlogById(blogId);
+    if (!ObjectId.isValid(blogId)) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    const blog = await BlogsRepository.getBlogById(blogId);
+
+    if (!blog) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blog);
   } catch (err) {
@@ -54,7 +64,7 @@ const getPostsForBlog = async (req: Request<{ blogId: ObjectId }, any, any, IBas
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const blog = await BlogsService.getBlogById(blogId);
+    const blog = await BlogsRepository.getBlogById(blogId);
 
     if (!blog) {
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -89,7 +99,7 @@ const createPostForBlog = async (req: Request<{ blogId: ObjectId }, any, Omit<IC
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const blog = await BlogsService.getBlogById(blogId);
+    const blog = await BlogsRepository.getBlogById(blogId);
 
     if (!blog) {
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

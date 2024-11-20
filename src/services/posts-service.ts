@@ -10,24 +10,6 @@ import BlogsRepository from '@/repositories/blogs-repository';
 import { IBaseQuery } from '@/types/base-query';
 import { IBaseResponse } from '@/types/base-response';
 
-const getAllPosts = async (query: Required<IBaseQuery<IPost>>): Promise<IBaseResponse<IPost>> => {
-  return await PostsRepository.getAllPosts(query);
-};
-
-const getPostById = async (postId: ObjectId): Promise<IPost> => {
-  if (!ObjectId.isValid(postId)) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-  
-  const post = await PostsRepository.getPostById(postId);
-  
-  if (!post) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
-  
-  return post;
-};
-
 const getPostsForBlog = async (blogId: ObjectId, query: Required<IBaseQuery<IPost>>): Promise<IBaseResponse<IPost>> => {
   return await PostsRepository.getPostsForBlog(blogId, query);
 };
@@ -45,7 +27,7 @@ const updatePost = async (postId: ObjectId, newPost: IUpdatePostBody): Promise<v
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  const postToUpdate = await PostsRepository.getPostById(postId)
+  const postToUpdate = await PostsRepository.getPostById(postId);
 
   if (!postToUpdate) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -59,7 +41,7 @@ const deletePost = async (postId: ObjectId): Promise<void> => {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  const postToDelete = await PostsRepository.getPostById(postId)
+  const postToDelete = await PostsRepository.getPostById(postId);
 
   if (!postToDelete) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -69,8 +51,6 @@ const deletePost = async (postId: ObjectId): Promise<void> => {
 };
 
 export default {
-  getAllPosts,
-  getPostById,
   getPostsForBlog,
   createPost,
   updatePost,

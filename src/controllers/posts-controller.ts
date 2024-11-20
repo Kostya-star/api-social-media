@@ -8,6 +8,9 @@ import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { IBaseQuery } from '@/types/base-query';
 import { IPost } from '@/types/posts/post';
+import PostsRepository from '@/repositories/posts-repository';
+import { ErrorService } from '@/services/error-service';
+import { PostsErrorsList } from '@/errors/posts-errors';
 
 const getAllPosts = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPost>>, res: Response, next: NextFunction) => {
   try {
@@ -16,7 +19,7 @@ const getAllPosts = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQue
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
     const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    const posts = await PostsService.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
+    const posts = await PostsRepository.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(posts);
   } catch (err) {
@@ -28,7 +31,16 @@ const getPostById = async (req: Request<{ postId: ObjectId }>, res: Response, ne
   const { postId } = req.params;
 
   try {
-    const post = await PostsService.getPostById(postId);
+    if (!ObjectId.isValid(postId)) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+  
+    const post = await PostsRepository.getPostById(postId);
+  
+    if (!post) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+  
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(post);
   } catch (err) {
