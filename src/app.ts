@@ -12,12 +12,14 @@ import { ErrorHandler } from './middlewares/ErrorHandler';
 import { postsRoutes } from './routes/posts-routes';
 import { testingRoute } from './routes/testingRoute';
 import { usersRoutes } from './routes/users-routes';
+import { authRoutes } from './routes/auth-routes';
 
 export const app = express();
 
 app.use(express.json());
 app.use(cors());
 
+app.use(APP_ROUTES.AUTH, authRoutes);
 app.use(APP_ROUTES.BLOGS, blogsRoutes);
 app.use(APP_ROUTES.POSTS, postsRoutes);
 app.use(APP_ROUTES.USERS, usersRoutes);

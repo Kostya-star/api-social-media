@@ -5,7 +5,7 @@ import { IUser } from '@/types/users/user';
 import { blogObjMapper } from '@/util/blogObjMapper';
 import { buildQuery } from '@/util/buildQuery';
 import { userObjMapper } from '@/util/userObjMapper';
-import { Filter, ObjectId} from 'mongodb';
+import { Filter, ObjectId, WithId} from 'mongodb';
 
 const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResponse<IUser>> => {
   const { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection } = query;
@@ -44,9 +44,9 @@ const deleteUser = async (userId: ObjectId): Promise<void> => {
   await usersCollection.deleteOne({ _id: new ObjectId(userId) });
 };
 
-const findUserByFilter = async (filter: Filter<IUser>): Promise<IUser | null> => {
+const findUserByFilter = async (filter: Filter<IUser>): Promise<WithId<IUser> | null> => {
   const user = await usersCollection.findOne(filter);
-  return user ? userObjMapper(user) : null;
+  return user;
 }
 
 export default {
