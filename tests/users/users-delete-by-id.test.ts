@@ -1,13 +1,13 @@
 import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { IUser } from '../../src/types/users/user';
-import { createTestUser, deleteTestUser, getAllUsers, getCreateUserPayload } from './helpers';
+import { baseUser, createTestUser, deleteTestUser, getAllUsers } from './helpers';
 import { ObjectId } from 'mongodb';
 
 let testUserId: ObjectId | null;
 
 describe('USERS DELETE request', () => {
   beforeEach(async () => {
-    const user = await createTestUser(getCreateUserPayload({ login: 'User1', email: 'example1@example.com', password: 'password' }), true);
+    const user = await createTestUser(baseUser, true);
     testUserId = user.body.id;
   });
 

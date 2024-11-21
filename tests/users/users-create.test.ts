@@ -1,7 +1,7 @@
 import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { UsersErrorsList } from '../../src/errors/users-errors';
 import { ICreateUserBody } from '../../src/types/users/createUserBody';
-import { createTestUser, deleteTestUser, getAllUsers, getCreateUserPayload } from './helpers';
+import { baseUser, createTestUser, deleteTestUser, getAllUsers } from './helpers';
 import { ObjectId } from 'mongodb';
 
 let testUserId: ObjectId | null;
@@ -16,7 +16,7 @@ describe('USERS CREATE POST request', () => {
   });
 
   test('status check with auth = 201', async () => {
-    const user = await createTestUser(getCreateUserPayload({ login: 'User1', email: 'example1@example.com', password: 'password' }), true);
+    const user = await createTestUser(baseUser, true);
     testUserId = user.body.id;
 
     expect(user.headers['content-type']).toMatch(/json/);
@@ -24,33 +24,29 @@ describe('USERS CREATE POST request', () => {
   });
 
   test('status check with NO auth = 401', async () => {
-    const user = await createTestUser(getCreateUserPayload({ login: 'User1', email: 'example1@example.com', password: 'password' }), false);
+    const user = await createTestUser(baseUser, false);
     expect(user.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
 
   test('response check', async () => {
-    const newUser = { login: 'User1', email: 'example1@example.com', password: 'password' };
-
-    const user = await createTestUser(newUser, true);
+    const user = await createTestUser(baseUser, true);
     testUserId = user.body.id;
 
     expect(user.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
     expect(user.body).toHaveProperty('id');
-    expect(user.body).toHaveProperty('login', newUser.login);
-    expect(user.body).toHaveProperty('email', newUser.email);
+    expect(user.body).toHaveProperty('login', baseUser.login);
+    expect(user.body).toHaveProperty('email', baseUser.email);
     expect(user.body).toHaveProperty('createdAt');
 
     const res = await getAllUsers({}, true);
     expect(res.body.items.length).toBeGreaterThan(0);
   });
   test('should return 400 if email already exists', async () => {
-    const newUser = { login: 'User1', email: 'example1@example.com', password: 'password' };
-
-    const user1 = await createTestUser(newUser, true);
+    const user1 = await createTestUser(baseUser, true);
     testUserId = user1.body.id;
     expect(user1.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
 
-    const user2 = await createTestUser({ ...newUser, login: 'newLogin' }, true);
+    const user2 = await createTestUser({ ...baseUser, login: 'newLogin' }, true);
     expect(user2.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
     expect(user2.body).toEqual({
       errorsMessages: [
@@ -62,13 +58,11 @@ describe('USERS CREATE POST request', () => {
     });
   });
   test('should return 400 if login already exists', async () => {
-    const newUser = { login: 'User1', email: 'example1@example.com', password: 'password' };
-
-    const user1 = await createTestUser(newUser, true);
+    const user1 = await createTestUser(baseUser, true);
     testUserId = user1.body.id;
     expect(user1.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
 
-    const user2 = await createTestUser({ ...newUser, email: 'example1@example.com' }, true);
+    const user2 = await createTestUser({ ...baseUser, email: 'example1@example.com' }, true);
     expect(user2.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
     expect(user2.body).toEqual({
       errorsMessages: [
@@ -90,68 +84,66 @@ describe('USERS CREATE Validation Tests', () => {
     }
   });
 
-  const user: ICreateUserBody = { login: 'User1', email: 'example1@example.com', password: 'password' };
-
   const validationTests = [
     {
       name: 'Should return 400 if login is not specified',
-      payload: getCreateUserPayload({ ...user, login: '' }),
+      payload: { ...baseUser, login: '' },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_TOO_SHORT,
     },
     {
       name: 'Should return 400 if login is in wrong format',
       // @ts-ignore
-      payload: getCreateUserPayload({ ...user, login: 55 }),
+      payload: { ...baseUser, login: 55 },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_IS_NOT_STRING,
     },
     {
       name: 'Should return 400 if login is in wrong format',
-      payload: getCreateUserPayload({ ...user, login: ',_-*/-+&' }),
+      payload: { ...baseUser, login: ',_-*/-+&' },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_INVALID_PATTERN,
     },
     {
       name: 'Should return 400 if login exceeds max length',
-      payload: getCreateUserPayload({ ...user, login: 'a'.repeat(51) }),
+      payload: { ...baseUser, login: 'a'.repeat(51) },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_TOO_BIG,
     },
     {
       name: 'Should return 400 if login is too short',
-      payload: getCreateUserPayload({ ...user, login: 'a' }),
+      payload: { ...baseUser, login: 'a' },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_TOO_SHORT,
     },
     {
       name: 'Should return 400 if email is not specified',
-      payload: getCreateUserPayload({ ...user, email: '' }),
+      payload: { ...baseUser, email: '' },
       expectedField: 'email',
       expectedMessage: UsersErrorsList.EMAIL_INVALID_PATTERN,
     },
     {
       name: 'Should return 400 if email is not string',
       // @ts-ignore
-      payload: getCreateUserPayload({ ...user, email: 5564 }),
+      payload: { ...baseUser, email: 5564 },
       expectedField: 'email',
       expectedMessage: UsersErrorsList.EMAIL_IS_NOT_STRING,
     },
     {
       name: 'Should return 400 if email is in wrong format',
-      payload: getCreateUserPayload({ ...user, email: 'invalid-email' }),
+      payload: { ...baseUser, email: 'invalid-email' },
       expectedField: 'email',
       expectedMessage: UsersErrorsList.EMAIL_INVALID_PATTERN,
     },
     {
       name: 'Should return 400 if password is not specified',
-      payload: getCreateUserPayload({ ...user, password: '' }),
+      payload: { ...baseUser, password: '' },
       expectedField: 'password',
       expectedMessage: UsersErrorsList.PASSWORD_TOO_SHORT,
     },
     {
       name: 'Should return 400 if password is too short',
-      payload: getCreateUserPayload({ ...user, password: '123' }),
+      payload: { ...baseUser, password: '123' },
       expectedField: 'password',
       expectedMessage: UsersErrorsList.PASSWORD_TOO_SHORT,
     },
@@ -159,7 +151,7 @@ describe('USERS CREATE Validation Tests', () => {
 
   validationTests.forEach(({ name, payload, expectedField, expectedMessage }) => {
     test(name, async () => {
-      const user = await createTestUser(payload, true);
+      const user = await createTestUser(payload as ICreateUserBody, true);
       expect(user.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
       expect(user.body.errorsMessages).toContainEqual({
         field: expectedField,

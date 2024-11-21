@@ -12,6 +12,7 @@ const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response, n
     next(err);
   }
 };
+
 export default {
   login,
 };

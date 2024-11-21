@@ -2,10 +2,10 @@ import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { APP_ROUTES } from '../../src/routing';
 import { req } from '../helper';
 import {
+  baseUser,
   createTestUser,
   deleteTestUser,
-  getAllUsers,
-  getCreateUserPayload,
+  getAllUsers
 } from './helpers';
 import { ObjectId } from 'mongodb';
 
@@ -29,9 +29,9 @@ describe('USERS GET ALL request', () => {
   });
 
   test('should return a list of users', async () => {
-    const user1 = await createTestUser(getCreateUserPayload({ login: 'User1', email: 'example1@example.com', password: 'password' }), true);
-    const user2 = await createTestUser(getCreateUserPayload({ login: 'User2', email: 'example2@example.com', password: 'password' }), true);
-    const user3 = await createTestUser(getCreateUserPayload({ login: 'User3', email: 'example3@example.com', password: 'password' }), true);
+    const user1 = await createTestUser({ ...baseUser, login: 'User1', email: 'example1@example.com' }, true);
+    const user2 = await createTestUser({ ...baseUser, login: 'User2', email: 'example2@example.com' }, true);
+    const user3 = await createTestUser({ ...baseUser, login: 'User3', email: 'example3@example.com' }, true);
 
     testUserIds.push(user1.body.id, user2.body.id, user3.body.id);
 
@@ -46,7 +46,7 @@ describe('USERS GET ALL request', () => {
   test('should return paginated users with pageNumber and pageSize parameters', async () => {
     const usersToCreate = 5;
     for (let i = 1; i <= usersToCreate; i++) {
-      const user = await createTestUser(getCreateUserPayload({ login: `User${i}`, email: `example${i}@example.com`, password: 'password'  }), true);
+      const user = await createTestUser({ ...baseUser, login: `User${i}`, email: `example${i}@example.com`  }, true);
       testUserIds.push(user.body.id);
     }
 
@@ -69,9 +69,9 @@ describe('USERS GET ALL request', () => {
   });
 
   test('should filter users by searchLoginTerm', async () => {
-    const user1 = await createTestUser(getCreateUserPayload({ login: 'FirstUser', email: 'example1@example.com', password: 'password' }), true);
-    const user2 = await createTestUser(getCreateUserPayload({ login: 'SecondUser', email: 'example2@example.com', password: 'password' }), true);
-    const user3 = await createTestUser(getCreateUserPayload({ login: 'ThirdUser', email: 'example3@example.com', password: 'password' }), true);
+    const user1 = await createTestUser({ ...baseUser, login: 'FirstUser', email: 'example1@example.com' }, true);
+    const user2 = await createTestUser({ ...baseUser, login: 'SecondUser', email: 'example2@example.com' }, true);
+    const user3 = await createTestUser({ ...baseUser, login: 'ThirdUser', email: 'example3@example.com' }, true);
     
     
     testUserIds.push(user1.body.id, user2.body.id, user3.body.id);
@@ -83,8 +83,8 @@ describe('USERS GET ALL request', () => {
   });
   
   test('should handle search with no matching results', async () => {
-    const user1 = await createTestUser(getCreateUserPayload({ login: 'AlphaUser', email: 'example1@example.com', password: 'password' }), true);
-    const user2 = await createTestUser(getCreateUserPayload({ login: 'BetaUser', email: 'example2@example.com', password: 'password' }), true);
+    const user1 = await createTestUser({ ...baseUser, login: 'AlphaUser', email: 'example1@example.com' }, true);
+    const user2 = await createTestUser({ ...baseUser, login: 'BetaUser', email: 'example2@example.com' }, true);
 
     testUserIds.push(user1.body.id, user2.body.id);
 
@@ -95,7 +95,7 @@ describe('USERS GET ALL request', () => {
   });
 
   test('should handle invalid pagination parameters gracefully', async () => {
-    const user = await createTestUser(getCreateUserPayload({ login: 'TestUser', email: 'example1@example.com', password: 'password' }), true);
+    const user = await createTestUser(baseUser, true);
     testUserIds.push(user.body.id);
 
     // @ts-ignore
@@ -110,9 +110,9 @@ describe('USERS GET ALL request', () => {
   });
 
   test('should sort users by createdAt in ascending and descending order', async () => {
-    const user1 = await createTestUser(getCreateUserPayload({ login: 'UserA', email: 'example1@example.com', password: 'password' }), true);
-    const user2 = await createTestUser(getCreateUserPayload({ login: 'UserB', email: 'example2@example.com', password: 'password' }), true);
-    const user3 = await createTestUser(getCreateUserPayload({ login: 'UserC', email: 'example3@example.com', password: 'password' }), true);
+    const user1 = await createTestUser({ ...baseUser, login: 'UserA', email: 'example1@example.com' }, true);
+    const user2 = await createTestUser({ ...baseUser, login: 'UserB', email: 'example2@example.com' }, true);
+    const user3 = await createTestUser({ ...baseUser, login: 'UserC', email: 'example3@example.com' }, true);
 
     testUserIds.push(user1.body.id, user2.body.id, user3.body.id);
 

@@ -4,13 +4,7 @@ import { req } from '../helper';
 import { ICreateUserBody } from '../../src/types/users/createUserBody';
 import { GetAllUsersQuery } from '../../src/types/users/getAllUsersQuery';
 
-export function getCreateUserPayload({ email, login, password }: ICreateUserBody): ICreateUserBody {
-  return {
-    email,
-    login,
-    password,
-  };
-}
+export const baseUser: ICreateUserBody = { login: 'User1', email: 'example1@example.com', password: 'password' }
 
 export const getAllUsers = async (params: GetAllUsersQuery = {}, isAuth: boolean) => {
   const { searchEmailTerm = null, searchLoginTerm = null, sortBy = 'createdAt', sortDirection = 'desc', pageNumber = 1, pageSize = 10 } = params;
