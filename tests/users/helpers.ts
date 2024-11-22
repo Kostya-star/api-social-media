@@ -21,7 +21,7 @@ export const getAllUsers = async (params: GetAllUsersQuery = {}, isAuth: boolean
   const request = req.get(`${APP_ROUTES.USERS}?${query.toString()}`)
   
   if (isAuth) {
-    request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
+    request.set('Authorization', `Basic ${btoa(process.env.AUTH_BASIC_CREDENTIALS!)}`);
   }
 
   return await request;
@@ -31,7 +31,7 @@ export async function createTestUser(userToCreate: ICreateUserBody, isAuth: bool
   const request = req.post(APP_ROUTES.USERS).send(userToCreate);
 
   if (isAuth) {
-    request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
+    request.set('Authorization', `Basic ${btoa(process.env.AUTH_BASIC_CREDENTIALS!)}`);
   }
 
   return await request;
@@ -41,7 +41,7 @@ export async function deleteTestUser(userId: ObjectId, isAuth: boolean) {
   const request = req.delete(`${APP_ROUTES.USERS}/${userId}`);
 
   if (isAuth) {
-    request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
+    request.set('Authorization', `Basic ${btoa(process.env.AUTH_BASIC_CREDENTIALS!)}`);
   }
 
   return await request;

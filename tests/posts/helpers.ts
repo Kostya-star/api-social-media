@@ -57,7 +57,7 @@ export async function createTestPost(payload: ICreatePostBody, isAuth: boolean) 
   const request = req.post(APP_ROUTES.POSTS).send(payload);
 
   if (isAuth) {
-    request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
+    request.set('Authorization', `Basic ${btoa(process.env.AUTH_BASIC_CREDENTIALS!)}`);
   }
 
   const res = await request;
@@ -68,7 +68,7 @@ export async function updateTestPost(postId: ObjectId, updateBlogBody: IUpdatePo
   const request = req.put(`${APP_ROUTES.POSTS}/${postId}`).send(updateBlogBody);
 
   if (isAuth) {
-    request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
+    request.set('Authorization', `Basic ${btoa(process.env.AUTH_BASIC_CREDENTIALS!)}`);
   }
 
   const res = await request;
@@ -79,7 +79,7 @@ export async function deleteTestPost(postId: ObjectId, isAuth: boolean) {
   const request = req.delete(`${APP_ROUTES.POSTS}/${postId}`);
 
   if (isAuth) {
-    request.set('Authorization', `Basic ${btoa(process.env.AUTH_CREDENTIALS!)}`);
+    request.set('Authorization', `Basic ${btoa(process.env.AUTH_BASIC_CREDENTIALS!)}`);
   }
 
   return await request;
