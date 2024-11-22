@@ -10,21 +10,21 @@ export const checkBearerAuth = (req: Request<any>, res: Response, next: NextFunc
     const authHeader = req.headers.authorization;
 
     if (!authHeader || typeof authHeader !== 'string' || !authHeader.startsWith('Bearer')) {
-      return next(ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401));
+      throw Error;
     }
 
     const token = authHeader.split(' ')[1];
 
-    if (!token) return next(ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401));
-    
+    if (!token) throw Error;
+
     const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET!) as { userId: ObjectId };
-    
-    if (!decodedToken.userId) return next(ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401));
+
+    if (!decodedToken.userId) throw Error;
 
     req.userId = decodedToken.userId;
 
     next();
   } catch (err) {
-    next(err);
+    next(ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401));
   }
 };

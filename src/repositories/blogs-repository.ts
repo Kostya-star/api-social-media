@@ -5,14 +5,14 @@ import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { blogObjMapper } from '@/util/blogObjMapper';
 import { buildQuery } from '@/util/buildQuery';
-import { ObjectId} from 'mongodb';
+import { ObjectId, WithId} from 'mongodb';
 
-const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<IBaseResponse<IBlog>> => {
+const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<IBaseResponse<WithId<IBlog>>> => {
   const { sortOptions, skip, limit } = buildQuery<IBlog>({ pageNumber, pageSize, sortBy, sortDirection });
 
   const query = searchNameTerm ? { name: { $regex: searchNameTerm, $options: 'i' } } : {};
 
-  const blogs = await blogsCollection.find(query).sort(sortOptions).skip(skip).limit(limit).toArray();
+  const items = await blogsCollection.find(query).sort(sortOptions).skip(skip).limit(limit).toArray();
 
   const totalCount = await blogsCollection.countDocuments(query);
   const pagesCount = Math.ceil(totalCount / pageSize);
@@ -22,18 +22,17 @@ const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortD
     page: pageNumber,
     pageSize,
     totalCount,
-    items: blogs.map(blogObjMapper),
+    items,
   };
 };
 
-const getBlogById = async (blogId: ObjectId): Promise<IBlog | null> => {
-  const blog = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
-  return blog ? blogObjMapper(blog) : null;
+const getBlogById = async (blogId: ObjectId): Promise<WithId<IBlog> | null> => {
+  return await blogsCollection.findOne({ _id: new ObjectId(blogId) });
 };
 
-const createBlog = async (newBlog: IBlog): Promise<IBlog> => {
+const createBlog = async (newBlog: IBlog): Promise<WithId<IBlog>> => {
   const res = await blogsCollection.insertOne(newBlog);
-  return blogObjMapper({ ...newBlog, _id: res.insertedId });
+  return { ...newBlog, _id: res.insertedId };
 };
 
 const updateBlog = async (blogId: ObjectId, newBlog: IUpdateBlogPayload): Promise<void> => {

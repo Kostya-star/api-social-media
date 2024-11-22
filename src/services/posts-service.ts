@@ -1,20 +1,14 @@
 import { IPost } from '@/types/posts/post';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { IUpdatePostBody } from '@/types/posts/updatePostBody';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 import PostsRepository from '@/repositories/posts-repository';
 import { ErrorService } from './error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import BlogsRepository from '@/repositories/blogs-repository';
-import { IBaseQuery } from '@/types/base-query';
-import { IBaseResponse } from '@/types/base-response';
 
-const getPostsForBlog = async (blogId: ObjectId, query: Required<IBaseQuery<IPost>>): Promise<IBaseResponse<IPost>> => {
-  return await PostsRepository.getPostsForBlog(blogId, query);
-};
-
-const createPost = async (post: ICreatePostBody): Promise<IPost> => {
+const createPost = async (post: ICreatePostBody): Promise<WithId<IPost>> => {
   // no errors should occur here coz previusly it was assured the post.blogId should exist and be valid
   const blogName = (await BlogsRepository.getBlogById(post.blogId))!.name;
 
@@ -51,7 +45,6 @@ const deletePost = async (postId: ObjectId): Promise<void> => {
 };
 
 export default {
-  getPostsForBlog,
   createPost,
   updatePost,
   deletePost,

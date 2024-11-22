@@ -1,4 +1,4 @@
-import { ObjectId, Sort } from 'mongodb';
+import { ObjectId, Sort, WithId } from 'mongodb';
 import { ErrorService } from './error-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateUserBody } from '@/types/users/createUserBody';
@@ -7,7 +7,7 @@ import UsersRepository from '@/repositories/users-repository';
 import bcrypt from 'bcrypt';
 import { UsersErrorsList } from '@/errors/users-errors';
 
-const createUser = async (user: ICreateUserBody): Promise<IUser> => {
+const createUser = async (user: ICreateUserBody): Promise<WithId<IUser>> => {
   const { email, login, password } = user;
 
   const userWithSameLogin = await UsersRepository.findUserByFilter({ login });
@@ -36,6 +36,7 @@ const createUser = async (user: ICreateUserBody): Promise<IUser> => {
     hashedPassword,
     createdAt: new Date(),
   };
+  
   return await UsersRepository.createUser(newUser);
 };
 

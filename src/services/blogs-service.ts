@@ -1,13 +1,13 @@
 import { IBlog } from '@/types/blogs/blog';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
-import { ObjectId, Sort } from 'mongodb';
+import { ObjectId, Sort, WithId } from 'mongodb';
 import BlogsRepository from '@/repositories/blogs-repository';
 import { ErrorService } from './error-service';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 
-const createBlog = async (blog: ICreateBlogPayload): Promise<IBlog> => {
+const createBlog = async (blog: ICreateBlogPayload): Promise<WithId<IBlog>> => {
   const newBlog: IBlog = { ...blog, isMembership: false, createdAt: new Date() };
   return await BlogsRepository.createBlog(newBlog);
 };

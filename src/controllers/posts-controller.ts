@@ -11,56 +11,57 @@ import { IPost } from '@/types/posts/post';
 import PostsRepository from '@/repositories/posts-repository';
 import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
+import { postObjMapper } from '@/util/postObjMapper';
+import { IBaseResponse } from '@/types/base-response';
 
-const getAllPosts = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPost>>, res: Response, next: NextFunction) => {
+const getAllPosts = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPost>>, res: Response<IBaseResponse<IPost>>, next: NextFunction) => {
   try {
     const sortBy = req.query.sortBy || 'createdAt';
     const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+    const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    const posts = await PostsRepository.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
+    const { pagesCount, page, pageSize, totalCount, items } = await PostsRepository.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize: _pageSize });
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(posts);
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ pagesCount, page, pageSize, totalCount, items: items.map(postObjMapper) });
   } catch (err) {
     next(err);
   }
 };
 
-const getPostById = async (req: Request<{ postId: ObjectId }>, res: Response, next: NextFunction) => {
+const getPostById = async (req: Request<{ postId: ObjectId }>, res: Response<IPost>, next: NextFunction) => {
   const { postId } = req.params;
 
   try {
     if (!ObjectId.isValid(postId)) {
       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
-  
+
     const post = await PostsRepository.getPostById(postId);
-  
+
     if (!post) {
       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
-  
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(post);
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(postObjMapper(post));
   } catch (err) {
     next(err);
   }
 };
 
-const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response, next: NextFunction) => {
+const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response<IPost>, next: NextFunction) => {
   const newPost = req.body;
 
   try {
     const post = await PostsService.createPost(newPost);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(post);
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(postObjMapper(post));
   } catch (err) {
     next(err);
   }
 };
 
-const updatePost = async (req: Request<{ postId: ObjectId }, any, IUpdatePostBody>, res: Response, next: NextFunction) => {
+const updatePost = async (req: Request<{ postId: ObjectId }, any, IUpdatePostBody>, res: Response<void>, next: NextFunction) => {
   const postId = req.params.postId;
   const newPost = req.body;
 
@@ -73,7 +74,7 @@ const updatePost = async (req: Request<{ postId: ObjectId }, any, IUpdatePostBod
   }
 };
 
-const deletePost = async (req: Request<{ postId: ObjectId }>, res: Response, next: NextFunction) => {
+const deletePost = async (req: Request<{ postId: ObjectId }>, res: Response<void>, next: NextFunction) => {
   const postId = req.params.postId;
 
   try {

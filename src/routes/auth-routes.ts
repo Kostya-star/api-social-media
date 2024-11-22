@@ -6,4 +6,4 @@ import { checkBearerAuth } from '@/middlewares/check-bearer-auth';
 export const authRoutes = Router();
 
 authRoutes.post('/login', validateAuthLoginFields, authController.login);
-authRoutes.get('/me', checkBearerAuth, authController.me);
+authRoutes.get('/me', checkBearerAuth, authController.getMe);
