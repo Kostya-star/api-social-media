@@ -4,6 +4,7 @@ import { baseUser, createTestUser, deleteTestUser } from '../users/helpers';
 import { loginUser} from './helpers';
 import { HTTP_ERROR_MESSAGES } from '../../src/const/http-error-messages';
 import { ObjectId } from 'mongodb';
+import jwt from 'jsonwebtoken';
 
 let testUserId: ObjectId | null;
 
@@ -20,14 +21,21 @@ describe('AUTH LOGIN POST request', () => {
     }
   });
 
-  test('Successful login with email = 204', async () => {
+  test('Successful login with email = 200', async () => {
     const response = await loginUser({ loginOrEmail: baseUser.email, password: baseUser.password });
-    expect(response.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
+    expect(response.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
   });
 
-  test('Successful login with username = 204', async () => {
+  test('Successful login with username = 200', async () => {
     const response = await loginUser({ loginOrEmail: baseUser.login, password: baseUser.password });
-    expect(response.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
+    expect(response.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
+  });
+
+  test('should return access token', async () => {
+    const response = await loginUser({ loginOrEmail: baseUser.login, password: baseUser.password });
+    expect(response.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
+    const token = jwt.sign({ userId: testUserId }, process.env.TOKEN_SECRET!) 
+    expect(response.body).toHaveProperty('accessToken', token)
   });
 
   test('Failed login with incorrect password = 401', async () => {
