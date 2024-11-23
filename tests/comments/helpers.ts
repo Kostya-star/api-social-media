@@ -33,6 +33,12 @@ export const updateComment = async (commentId: ObjectId, updatedContent: ICommen
   return await request;
 };
 
-// export const deleteCommentById = async (commentId: string) => {
-//   return req.delete(`${APP_ROUTES.COMMENTS}/${commentId}`);
-// };
+export const deleteComment = async (commentId: ObjectId, token: string) => {
+  const request = req.delete(`${APP_ROUTES.COMMENTS}/${commentId}`);
+
+  if (token) {
+    request.set('Authorization', `Bearer ${token}`);
+  }
+
+  return await request;
+};
