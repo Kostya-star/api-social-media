@@ -17,8 +17,9 @@ import { ICommentBody } from '@/types/comments/commentBody';
 import { IComment } from '@/types/comments/comment';
 import CommentsService from '@/services/comments-service';
 import { commentObjMapper } from '@/util/commentObjMapper';
+import CommentsRepository from '@/repositories/comments-repository';
 
-const getAllPosts = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPost>>, res: Response<IBaseResponse<IPost>>, next: NextFunction) => {
+const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPost>>, res: Response<IBaseResponse<IPost>>, next: NextFunction) => {
   try {
     const sortBy = req.query.sortBy || 'createdAt';
     const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
@@ -48,6 +49,34 @@ const getPostById = async (req: Request<{ postId: ObjectId }>, res: Response<IPo
     }
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(postObjMapper(post));
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getCommentsForPosts = async (req: Request<{ postId: ObjectId }, any, any, IBaseQuery<IComment>>, res: Response<IBaseResponse<IComment>>, next: NextFunction) => {
+  try {
+    const postId = req.params.postId
+
+    if (!ObjectId.isValid(postId)) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    const post = await PostsRepository.getPostById(postId);
+
+    if (!post) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    const sortBy = req.query.sortBy || 'createdAt';
+    const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
+    const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
+    const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+
+    const { pagesCount, page, pageSize, totalCount, items } = await CommentsRepository
+      .getCommentsForPost({ sortBy, sortDirection, pageNumber, pageSize: _pageSize }, postId);
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ pagesCount, page, pageSize, totalCount, items: items.map(commentObjMapper) });
   } catch (err) {
     next(err);
   }
@@ -106,6 +135,7 @@ const deletePost = async (req: Request<{ postId: ObjectId }>, res: Response<void
 
 export default {
   getAllPosts,
+  getCommentsForPosts,
   getPostById,
   createPost,
   createCommentForPost,

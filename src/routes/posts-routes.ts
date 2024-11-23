@@ -12,6 +12,7 @@ postsRoutes.get('/', postsControllers.getAllPosts);
 postsRoutes.get('/:postId', postsControllers.getPostById);
 postsRoutes.post('/', checkBasicAuth, validateCreatePostFields, postsControllers.createPost);
 
+postsRoutes.get(`/:postId${APP_ROUTES.COMMENTS}`, postsControllers.getCommentsForPosts);
 postsRoutes.post(`/:postId${APP_ROUTES.COMMENTS}`, checkBearerAuth, validateCommentFields, postsControllers.createCommentForPost);
 
 postsRoutes.put('/:postId', checkBasicAuth, validateCreatePostFields, postsControllers.updatePost);
