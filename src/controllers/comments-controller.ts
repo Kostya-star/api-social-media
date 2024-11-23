@@ -6,12 +6,12 @@ import CommentsRepository from '@/repositories/comments-repository';
 import { ErrorService } from '@/services/error-service';
 import { CommentsErrorsList } from '@/errors/comments-errors';
 import { commentObjMapper } from '@/util/commentObjMapper';
-import { IUpdateCommentBody } from '@/types/comments/updateCommentBody';
+import { ICommentBody } from '@/types/comments/commentBody';
 import blogsService from '@/services/blogs-service';
 import CommentsService from '@/services/comments-service';
 
 const getCommentById = async (req: Request<{ commentId: ObjectId }>, res: Response<IComment>, next: NextFunction) => {
-  console.log('getCommentById')
+  console.log('getCommentById');
   try {
     const commentId = req.params.commentId;
 
@@ -19,7 +19,7 @@ const getCommentById = async (req: Request<{ commentId: ObjectId }>, res: Respon
       throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const comment = await CommentsRepository.getCommentById(commentId)
+    const comment = await CommentsRepository.getCommentById(commentId);
 
     if (!comment) {
       throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -31,12 +31,12 @@ const getCommentById = async (req: Request<{ commentId: ObjectId }>, res: Respon
   }
 };
 
-const updateComment = async (req: Request<{ commentId: ObjectId }, any, IUpdateCommentBody>, res: Response<void>, next: NextFunction) => {
+const updateComment = async (req: Request<{ commentId: ObjectId }, any, ICommentBody>, res: Response<void>, next: NextFunction) => {
   const commentId = req.params.commentId;
   const newComment = req.body;
 
   // the user attached into the request with auth middleware. is used to determine if the comment belongs to the current user
-  const currentUserId = req.userId!
+  const currentUserId = req.userId!;
 
   try {
     await CommentsService.updateComment(commentId, newComment, currentUserId);
@@ -51,7 +51,7 @@ const deleteComment = async (req: Request<{ commentId: ObjectId }, any>, res: Re
   const commentId = req.params.commentId;
 
   // the user attached into the request with auth middleware. is used to determine if the comment belongs to the current user
-  const currentUserId = req.userId!
+  const currentUserId = req.userId!;
 
   try {
     await CommentsService.deleteComment(commentId, currentUserId);
@@ -65,5 +65,5 @@ const deleteComment = async (req: Request<{ commentId: ObjectId }, any>, res: Re
 export default {
   getCommentById,
   updateComment,
-  deleteComment
+  deleteComment,
 };

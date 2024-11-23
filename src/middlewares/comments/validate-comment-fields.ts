@@ -3,7 +3,7 @@ import { CommentsErrorsList } from '@/errors/comments-errors';
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { COMMENT_CONTENT_MAX_LENGTH, COMMENT_CONTENT_MIN_LENGTH } from '@/const/comments/comments';
-import { IUpdateCommentBody } from '@/types/comments/updateCommentBody';
+import { IUpdateCommentBody } from '@/types/comments/commentBody';
 
 export const validateCommentFields = [
   body('content')

@@ -13,6 +13,10 @@ import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { postObjMapper } from '@/util/postObjMapper';
 import { IBaseResponse } from '@/types/base-response';
+import { ICommentBody } from '@/types/comments/commentBody';
+import { IComment } from '@/types/comments/comment';
+import CommentsService from '@/services/comments-service';
+import { commentObjMapper } from '@/util/commentObjMapper';
 
 const getAllPosts = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPost>>, res: Response<IBaseResponse<IPost>>, next: NextFunction) => {
   try {
@@ -61,6 +65,20 @@ const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response
   }
 };
 
+const createCommentForPost = async (req: Request<{ postId: ObjectId }, any, ICommentBody>, res: Response<IComment>, next: NextFunction) => {
+  const newComment = req.body;
+  const postId = req.params.postId;
+  const userId = req.userId!;
+
+  try {
+    const comment = await CommentsService.createCommentForPost(postId, newComment, userId);
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(commentObjMapper(comment));
+  } catch (err) {
+    next(err);
+  }
+};
+
 const updatePost = async (req: Request<{ postId: ObjectId }, any, IUpdatePostBody>, res: Response<void>, next: NextFunction) => {
   const postId = req.params.postId;
   const newPost = req.body;
@@ -90,6 +108,7 @@ export default {
   getAllPosts,
   getPostById,
   createPost,
+  createCommentForPost,
   updatePost,
   deletePost,
 };
