@@ -9,12 +9,20 @@ export const getCommentsForPost = async (postId: ObjectId, query: IBaseQuery<ICo
   return req.get(`${APP_ROUTES.POSTS}/${postId}${APP_ROUTES.COMMENTS}`).query(query);
 };
 
+export const getCommentById = async (commentId: ObjectId) => {
+  return req.get(`${APP_ROUTES.COMMENTS}/${commentId}`);
+};
+
 export const createCommentForPost = async (postId: ObjectId, commentBody: ICommentBody, token: string) => {
   const request = req.post(`${APP_ROUTES.POSTS}/${postId}${APP_ROUTES.COMMENTS}`).send(commentBody);
-
+  
   if (token) {
     request.set('Authorization', `Bearer ${token}`);
   }
-
+  
   return await request;
 };
+
+// export const deleteCommentById = async (commentId: string) => {
+//   return req.delete(`${APP_ROUTES.COMMENTS}/${commentId}`);
+// };
