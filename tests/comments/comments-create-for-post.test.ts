@@ -1,5 +1,4 @@
 import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
-import { AuthErrorsList } from '../../src/errors/auth-errors';
 import { CommentsErrorsList } from '../../src/errors/comments-errors';
 import { PostsErrorsList } from '../../src/errors/posts-errors';
 import { baseUser, createTestUser, deleteTestUser } from '../users/helpers';
@@ -8,7 +7,6 @@ import { createTestPost, deleteTestPost, getCreatePostPayload } from '../posts/h
 import { ObjectId } from 'mongodb';
 import { createCommentForPost } from './helpers';
 import { HTTP_ERROR_MESSAGES } from '../../src/const/http-error-messages';
-import jwt from 'jsonwebtoken';
 import { createTestBlog, getCreateBlogPayload, deleteTestBlog } from '../blogs/helpers';
 import { ICommentBody } from '../../src/types/comments/commentBody';
 import { IErrorItem } from '../../src/types/error-item';
