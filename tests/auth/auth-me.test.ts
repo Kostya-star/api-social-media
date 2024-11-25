@@ -43,7 +43,6 @@ describe('AUTH ME GET request', () => {
 
   test('Failed auth/me with invalid token = 401', async () => {
     const response = await getMe('invalid_token');
-    console.log('response.body', response.body)
     expect(response.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
     const error = { status: HTTP_STATUS_CODES.UNAUTHORIZED_401, message: HTTP_ERROR_MESSAGES.UNAUTHORIZED_401 };
     expect(response.body).toEqual(error);

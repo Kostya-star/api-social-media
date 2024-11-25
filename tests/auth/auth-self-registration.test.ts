@@ -1,57 +1,32 @@
 import { HTTP_STATUS_CODES } from '../../src/const/http-status-codes';
 import { UsersErrorsList } from '../../src/errors/users-errors';
+import { APP_ROUTES } from '../../src/routing';
 import { ICreateUserBody } from '../../src/types/users/createUserBody';
-import { baseUser, createTestUser, deleteTestUser, getAllUsers } from './helpers';
-import { ObjectId } from 'mongodb';
+import { req } from '../helper';
+import { baseUser, deleteTestUser, getAllUsers } from '../users/helpers';
+import { selfRegister, selfRegisterUserBody } from './helpers';
 
-let testUserId: ObjectId | null;
-
-// General API Tests
 describe('USERS CREATE POST request', () => {
-  afterEach(async () => {
-    if (testUserId) {
-      await deleteTestUser(testUserId, true);
-      testUserId = null;
-    }
+  beforeEach(async () => {
+    await req.delete(APP_ROUTES.TESTING)
   });
 
-  test('status check with auth = 201', async () => {
-    const user = await createTestUser(baseUser, true);
-    testUserId = user.body.id;
+  test('success status check = 204', async () => {
+    const res = await selfRegister(selfRegisterUserBody);
+    console.log(res.body)
+    expect(res.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
 
-    expect(user.headers['content-type']).toMatch(/json/);
-    expect(user.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
+    const users = await getAllUsers({}, true);
+    expect(users.body.items.length).toBeGreaterThan(0);
   });
 
-  test('status check with NO auth = 401', async () => {
-    const user = await createTestUser(baseUser, false);
-    expect(user.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-  });
-
-  test('response check', async () => {
-    const user = await createTestUser(baseUser, true);
-    testUserId = user.body.id;
-
-    expect(user.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
-    expect(user.body).toHaveProperty('id');
-    expect(user.body).toHaveProperty('login', baseUser.login);
-    expect(user.body).toHaveProperty('email', baseUser.email);
-    expect(user.body).toHaveProperty('createdAt');
-    expect(user.body).not.toHaveProperty('hashedPassword');
-    expect(user.body).not.toHaveProperty('emailConfirmation');
-    expect(user.body).not.toHaveProperty('_id');
-
-    const res = await getAllUsers({}, true);
-    expect(res.body.items.length).toBeGreaterThan(0);
-  });
   test('should return 400 if email already exists', async () => {
-    const user1 = await createTestUser(baseUser, true);
-    testUserId = user1.body.id;
-    expect(user1.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
-
-    const user2 = await createTestUser({ ...baseUser, login: 'newLogin' }, true);
-    expect(user2.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
-    expect(user2.body).toEqual({
+    const auth1 = await selfRegister(selfRegisterUserBody);
+    expect(auth1.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
+    
+    const auth2 = await selfRegister({ ...selfRegisterUserBody, login: 'newLogin' });
+    expect(auth2.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
+    expect(auth2.body).toEqual({
       errorsMessages: [
         {
           field: 'email',
@@ -61,13 +36,12 @@ describe('USERS CREATE POST request', () => {
     });
   });
   test('should return 400 if login already exists', async () => {
-    const user1 = await createTestUser(baseUser, true);
-    testUserId = user1.body.id;
-    expect(user1.status).toBe(HTTP_STATUS_CODES.SUCCESS_201);
-
-    const user2 = await createTestUser({ ...baseUser, email: 'example123456@example.com' }, true);
-    expect(user2.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
-    expect(user2.body).toEqual({
+    const auth1 = await selfRegister(selfRegisterUserBody);
+    expect(auth1.status).toBe(HTTP_STATUS_CODES.NO_CONTENT_204);
+    
+    const auth2 = await selfRegister({ ...selfRegisterUserBody, email: selfRegisterUserBody.email });
+    expect(auth2.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
+    expect(auth2.body).toEqual({
       errorsMessages: [
         {
           field: 'login',
@@ -80,73 +54,70 @@ describe('USERS CREATE POST request', () => {
 
 // Validation Tests
 describe('USERS CREATE Validation Tests', () => {
-  afterEach(async () => {
-    if (testUserId) {
-      await deleteTestUser(testUserId, true);
-      testUserId = null;
-    }
+  beforeEach(async () => {
+    await req.delete(APP_ROUTES.TESTING)
   });
 
   const validationTests = [
     {
       name: 'Should return 400 if login is not specified',
-      payload: { ...baseUser, login: '' },
+      payload: { ...selfRegisterUserBody, login: '' },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_TOO_SHORT,
     },
     {
       name: 'Should return 400 if login is in wrong format',
       // @ts-ignore
-      payload: { ...baseUser, login: 55 },
+      payload: { ...selfRegisterUserBody, login: 55 },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_IS_NOT_STRING,
     },
     {
       name: 'Should return 400 if login is in wrong format',
-      payload: { ...baseUser, login: ',_-*/-+&' },
+      payload: { ...selfRegisterUserBody, login: ',_-*/-+&' },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_INVALID_PATTERN,
     },
     {
       name: 'Should return 400 if login exceeds max length',
-      payload: { ...baseUser, login: 'a'.repeat(51) },
+      payload: { ...selfRegisterUserBody, login: 'a'.repeat(51) },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_TOO_BIG,
     },
     {
       name: 'Should return 400 if login is too short',
-      payload: { ...baseUser, login: 'a' },
+      payload: { ...selfRegisterUserBody, login: 'a' },
       expectedField: 'login',
       expectedMessage: UsersErrorsList.LOGIN_TOO_SHORT,
     },
     {
       name: 'Should return 400 if email is not specified',
-      payload: { ...baseUser, email: '' },
+      payload: { ...selfRegisterUserBody, email: '' },
       expectedField: 'email',
       expectedMessage: UsersErrorsList.EMAIL_INVALID_PATTERN,
     },
     {
       name: 'Should return 400 if email is not string',
       // @ts-ignore
-      payload: { ...baseUser, email: 5564 },
+      payload: { ...selfRegisterUserBody, email: 5564 },
       expectedField: 'email',
       expectedMessage: UsersErrorsList.EMAIL_IS_NOT_STRING,
     },
     {
       name: 'Should return 400 if email is in wrong format',
-      payload: { ...baseUser, email: 'invalid-email' },
+      payload: { ...selfRegisterUserBody, email: 'invalid-email' },
       expectedField: 'email',
       expectedMessage: UsersErrorsList.EMAIL_INVALID_PATTERN,
     },
     {
       name: 'Should return 400 if password is not specified',
-      payload: { ...baseUser, password: '' },
+      payload: { ...selfRegisterUserBody, password: '' },
       expectedField: 'password',
       expectedMessage: UsersErrorsList.PASSWORD_TOO_SHORT,
     },
     {
       name: 'Should return 400 if password is too short',
-      payload: { ...baseUser, password: '123' },
+      payload: { ...selfRegisterUserBody, password: '123' },
       expectedField: 'password',
       expectedMessage: UsersErrorsList.PASSWORD_TOO_SHORT,
     },
@@ -154,7 +125,7 @@ describe('USERS CREATE Validation Tests', () => {
 
   validationTests.forEach(({ name, payload, expectedField, expectedMessage }) => {
     test(name, async () => {
-      const user = await createTestUser(payload as ICreateUserBody, true);
+      const user = await selfRegister(payload as ICreateUserBody);
       expect(user.status).toBe(HTTP_STATUS_CODES.BAD_REQUEST_400);
       expect(user.body.errorsMessages).toContainEqual({
         field: expectedField,
