@@ -38,6 +38,20 @@ const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfi
   return await UsersRepository.createUser(newUser);
 };
 
+const updateUserById = async (userId: ObjectId, newUser: Partial<IUser>): Promise<void> => {
+  if (!ObjectId.isValid(userId)) {
+    throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
+
+  const userToUpdate = await UsersRepository.getUserById(userId);
+
+  if (!userToUpdate) {
+    throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  }
+
+  await UsersRepository.updateUserById(userId, newUser);
+};
+
 const deleteUser = async (userId: ObjectId): Promise<void> => {
   if (!ObjectId.isValid(userId)) {
     throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -54,5 +68,6 @@ const deleteUser = async (userId: ObjectId): Promise<void> => {
 
 export default {
   createUser,
+  updateUserById,
   deleteUser,
 };

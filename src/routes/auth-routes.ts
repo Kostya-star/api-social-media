@@ -7,5 +7,6 @@ import { validateUserRegistrationFields } from '@/middlewares/auth/validate-user
 export const authRoutes = Router();
 
 authRoutes.post('/registration', validateUserRegistrationFields, authController.selfRegistration);
+authRoutes.post('/registration-confirmation', authController.registrationConfirmation);
 authRoutes.post('/login', validateAuthLoginFields, authController.login);
 authRoutes.get('/me', checkBearerAuth, authController.getMe);

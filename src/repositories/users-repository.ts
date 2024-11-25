@@ -3,7 +3,7 @@ import { IBaseResponse } from '@/types/base-response';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
 import { IUser } from '@/types/users/user';
 import { buildQuery } from '@/util/buildQuery';
-import { Filter, ObjectId, WithId} from 'mongodb';
+import { Filter, ObjectId, WithId } from 'mongodb';
 
 const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResponse<WithId<IUser>>> => {
   const { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection } = query;
@@ -35,22 +35,32 @@ const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResp
   };
 };
 
+const getUserById = async (userId: ObjectId): Promise<WithId<IUser> | null> => {
+  return await usersCollection.findOne({ _id: new ObjectId(userId) });
+};
+
+const findUserByFilter = async (filter: Filter<IUser>): Promise<WithId<IUser> | null> => {
+  return await usersCollection.findOne(filter);
+};
+
 const createUser = async (newUser: IUser): Promise<WithId<IUser>> => {
   const res = await usersCollection.insertOne(newUser);
   return { ...newUser, _id: res.insertedId };
+};
+
+const updateUserById = async (userId: ObjectId, newUser: Partial<IUser>): Promise<void> => {
+  await usersCollection.updateOne({ _id: new ObjectId(userId) }, { $set: newUser });
 };
 
 const deleteUser = async (userId: ObjectId): Promise<void> => {
   await usersCollection.deleteOne({ _id: new ObjectId(userId) });
 };
 
-const findUserByFilter = async (filter: Filter<IUser>): Promise<WithId<IUser> | null> => {
-  return await usersCollection.findOne(filter);
-}
-
 export default {
   getAllUsers,
+  getUserById,
   createUser,
+  updateUserById,
   findUserByFilter,
   deleteUser,
 };
