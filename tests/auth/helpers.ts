@@ -13,6 +13,10 @@ export const selfRegister = async (payload: ICreateUserBody) => {
   return await req.post(`${APP_ROUTES.AUTH}/registration`).send(payload);
 };
 
+export const confirmRegistration = async (code: string) => {
+  return await req.post(`${APP_ROUTES.AUTH}/registration-confirmation`).send({ code });
+};
+
 export const loginUser = async (payload: IAuthLoginPayload) => {
   return await req.post(`${APP_ROUTES.AUTH}/login`).send(payload);
 };
