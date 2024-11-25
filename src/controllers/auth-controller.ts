@@ -6,6 +6,32 @@ import { ObjectId, WithId } from 'mongodb';
 import UsersRepository from '@/repositories/users-repository';
 import { IUser } from '@/types/users/user';
 import { userObjMapper } from '@/util/userObjMapper';
+import { ICreateUserBody } from '@/types/users/createUserBody';
+
+// user registers themselves without admin
+const selfRegistration = async (req: Request<any, any, ICreateUserBody>, res: Response, next: NextFunction) => {
+  try {
+    const newUser = req.body;
+
+    await AuthService.selfRegistration(newUser);
+
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end()
+  } catch (err: any) {
+    if (err.field) {
+      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
+        errorsMessages: [
+          {
+            field: err.field,
+            message: err.message,
+          },
+        ],
+      });
+      return;
+    }
+
+    next(err);
+  }
+};
 
 const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response<{ accessToken: string }>, next: NextFunction) => {
   try {
@@ -30,6 +56,7 @@ const getMe = async (req: Request, res: Response<{ email: string; login: string;
 };
 
 export default {
+  selfRegistration,
   login,
   getMe,
 };

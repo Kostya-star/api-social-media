@@ -35,7 +35,7 @@ const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: R
   }
 };
 
-const createUser = async (req: Request<any, any, ICreateUserBody>, res: Response<IUser | unknown>, next: NextFunction) => {
+const adminCreatesUser = async (req: Request<any, any, ICreateUserBody>, res: Response<IUser | unknown>, next: NextFunction) => {
   const newUser = req.body;
 
   try {
@@ -73,6 +73,6 @@ const deleteUser = async (req: Request<{ userId: ObjectId }>, res: Response<void
 
 export default {
   getAllUsers,
-  createUser,
+  adminCreatesUser,
   deleteUser,
 };

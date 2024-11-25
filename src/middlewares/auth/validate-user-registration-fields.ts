@@ -5,7 +5,7 @@ import { ICreateUserBody } from '@/types/users/createUserBody';
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 
-export const validateUserFields = [
+export const validateUserRegistrationFields = [
   body('login')
     .isString()
     .withMessage(UsersErrorsList.LOGIN_IS_NOT_STRING)

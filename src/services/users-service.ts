@@ -6,26 +6,18 @@ import { IUser } from '@/types/users/user';
 import UsersRepository from '@/repositories/users-repository';
 import bcrypt from 'bcrypt';
 import { UsersErrorsList } from '@/errors/users-errors';
+import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 
-const createUser = async (user: ICreateUserBody): Promise<WithId<IUser>> => {
+const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfirmationBody): Promise<WithId<IUser>> => {
   const { email, login, password } = user;
 
-  const userWithSameLogin = await UsersRepository.findUserByFilter({ login });
+  const [userWithSameLogin, userWithSameEmail] = await Promise.all([UsersRepository.findUserByFilter({ login }), UsersRepository.findUserByFilter({ email })]);
 
-  if (userWithSameLogin) {
+  if (userWithSameLogin || userWithSameEmail) {
     throw {
-      field: 'login',
-      message: UsersErrorsList.LOGIN_ALREADY_EXIST,
-    }
-  }
-
-  const userWithSameEmail = await UsersRepository.findUserByFilter({ email });
-
-  if (userWithSameEmail) {
-    throw {
-      field: 'email',
-      message: UsersErrorsList.EMAIL_ALREADY_EXIST,
-    }
+      field: userWithSameLogin ? 'login' : 'email',
+      message: userWithSameLogin ? UsersErrorsList.LOGIN_ALREADY_EXIST : UsersErrorsList.EMAIL_ALREADY_EXIST,
+    };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,9 +26,15 @@ const createUser = async (user: ICreateUserBody): Promise<WithId<IUser>> => {
     login,
     email,
     hashedPassword,
+    // default values when created by admin
+    emailConfirmation: emailConfirmation || {
+      code: null,
+      expDate: null,
+      isConfirmed: true,
+    },
     createdAt: new Date(),
   };
-  
+
   return await UsersRepository.createUser(newUser);
 };
 
