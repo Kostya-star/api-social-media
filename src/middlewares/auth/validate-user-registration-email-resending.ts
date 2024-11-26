@@ -2,13 +2,9 @@ import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateUserBody } from '@/types/users/createUserBody';
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { validateLogin } from './validate-login';
-import { validatePassword } from './validate-password';
 import { validateEmail } from './validate-email';
 
-export const validateUserRegistrationFields = [
-  validateLogin(),
-  validatePassword(),
+export const validateUserRegistrationEmailResending = [
   validateEmail(),
   (req: Request<any, any, ICreateUserBody>, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true }); // Use onlyFirstError to get one error per field

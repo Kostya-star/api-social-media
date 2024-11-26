@@ -17,6 +17,10 @@ export const confirmRegistration = async (code: string) => {
   return await req.post(`${APP_ROUTES.AUTH}/registration-confirmation`).send({ code });
 };
 
+export const resendRegistrationEmail = async (email: string) => {
+  return await req.post(`${APP_ROUTES.AUTH}/registration-email-resending`).send({ email });
+};
+
 export const loginUser = async (payload: IAuthLoginPayload) => {
   return await req.post(`${APP_ROUTES.AUTH}/login`).send(payload);
 };

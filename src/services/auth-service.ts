@@ -14,22 +14,11 @@ import MailService from './mail-service';
 import { AuthErrorsList } from '@/errors/auth-errors';
 
 const selfRegistration = async (newUser: ICreateUserBody): Promise<void> => {
-  const emailConfirmation: IEmailConfirmationBody = {
-    code: uuidv4(),
-    expDate: add(new Date(), {
-      minutes: 5,
-    }),
-    isConfirmed: false,
-  };
+  const emailConfirmation = EmailConfirmationDTO();
 
   const createdUser = await UsersService.createUser(newUser, emailConfirmation);
 
-  const message = `<h1>Thanks for your registration</h1>
-  <p>To finish, please follow the link and
-      <a href='http://localhost:8000/auth/registration-confirmation?code=${emailConfirmation.code}'>confirm registration</a>
-  </p>
-  <b>You have 5 minutes!</b>
-  `;
+  const message = EmailMessageDTO(emailConfirmation.code!)
 
   try {
     await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", newUser.email, 'Registration Confirmation', message);
@@ -68,6 +57,32 @@ const confirmRegistration = async (code: string): Promise<void> => {
   await UsersService.updateUserById(user._id, { emailConfirmation: { ...user.emailConfirmation, isConfirmed: true } as IEmailConfirmationBody });
 };
 
+const resendCode = async (email: string): Promise<void> => {
+  const user = await UsersRepository.findUserByFilter({ email });
+
+  if (!user) {
+    throw {
+      field: 'email',
+      message: AuthErrorsList.EMAIL_WRONG,
+    };
+  }
+
+  if (user.emailConfirmation!.isConfirmed) {
+    throw {
+      field: 'email',
+      message: AuthErrorsList.CONFIRM_CODE_BEEN_APPLIED,
+    };
+  }
+
+  const emailConfirmation = EmailConfirmationDTO();
+
+  await UsersService.updateUserById(user._id, { emailConfirmation })
+
+  const message = EmailMessageDTO(emailConfirmation.code!)
+  await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", user.email, 'Registration Confirmation', message);
+};
+
+
 const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<string> => {
   const user = await UsersRepository.findUserByFilter({ $or: [{ login: loginOrEmail }, { email: loginOrEmail }] });
 
@@ -89,5 +104,25 @@ const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<str
 export default {
   selfRegistration,
   confirmRegistration,
+  resendCode,
   login,
 };
+
+function EmailConfirmationDTO(): IEmailConfirmationBody {
+  return {
+    code: uuidv4(),
+    expDate: add(new Date(), {
+      minutes: 5,
+    }),
+    isConfirmed: false,
+  }
+}
+
+function EmailMessageDTO(code: string) {
+  return `<h1>Thanks for your registration</h1>
+  <p>To finish, please follow the link and
+      <a href='http://localhost:8000/auth/registration-confirmation?code=${code}'>confirm registration</a>
+  </p>
+  <b>You have 5 minutes!</b>
+  `;
+}

@@ -57,6 +57,30 @@ const registrationConfirmation = async (req: Request<any, any, { code: string }>
   }
 };
 
+const registrationEmailCodeResending = async (req: Request<any, any, { email: string }>, res: Response, next: NextFunction) => {
+  try {
+    const email = req.body.email;
+
+    await AuthService.resendCode(email);
+
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end()
+  } catch (err: any) {
+    if (err.field) {
+      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
+        errorsMessages: [
+          {
+            field: err.field,
+            message: err.message,
+          },
+        ],
+      });
+      return;
+    }
+
+    next(err);
+  }
+};
+
 const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response<{ accessToken: string }>, next: NextFunction) => {
   try {
     const token = await AuthService.login(req.body);
@@ -82,6 +106,7 @@ const getMe = async (req: Request, res: Response<{ email: string; login: string;
 export default {
   selfRegistration,
   registrationConfirmation,
+  registrationEmailCodeResending,
   login,
   getMe,
 };
