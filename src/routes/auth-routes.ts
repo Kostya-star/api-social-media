@@ -14,3 +14,4 @@ authRoutes.post('/registration-email-resending', validateUserRegistrationEmailRe
 authRoutes.post('/login', validateAuthLoginFields, authController.login);
 authRoutes.post('/refresh-token', checkRefreshToken, authController.refreshToken);
 authRoutes.get('/me', checkBearerAuth, authController.getMe);
+authRoutes.post('/logout', checkRefreshToken, authController.logout);

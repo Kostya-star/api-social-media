@@ -21,7 +21,7 @@ const selfRegistration = async (newUser: ICreateUserBody): Promise<void> => {
 
   const createdUser = await UsersService.createUser(newUser, emailConfirmation);
 
-  const message = EmailMessageDTO(emailConfirmation.code!)
+  const message = EmailMessageDTO(emailConfirmation.code!);
 
   try {
     await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", newUser.email, 'Registration Confirmation', message);
@@ -79,14 +79,13 @@ const resendCode = async (email: string): Promise<void> => {
 
   const emailConfirmation = EmailConfirmationDTO();
 
-  await UsersService.updateUserById(user._id, { emailConfirmation })
+  await UsersService.updateUserById(user._id, { emailConfirmation });
 
-  const message = EmailMessageDTO(emailConfirmation.code!)
+  const message = EmailMessageDTO(emailConfirmation.code!);
   await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", user.email, 'Registration Confirmation', message);
 };
 
-
-const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<{ accessToken: string, refreshToken: string }> => {
+const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<{ accessToken: string; refreshToken: string }> => {
   const user = await UsersRepository.findUserByFilter({ $or: [{ login: loginOrEmail }, { email: loginOrEmail }] });
 
   if (!user) {
@@ -118,7 +117,7 @@ const refreshToken = async (userId: ObjectId, oldRefreshToken: string): Promise<
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  await RevokedTokensRepository.revokeToken(oldRefreshToken)
+  await RevokedTokensRepository.revokeToken(oldRefreshToken);
 
   const newAccessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
   const newRefreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
@@ -126,12 +125,29 @@ const refreshToken = async (userId: ObjectId, oldRefreshToken: string): Promise<
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 };
 
+const logout = async (userId: ObjectId, oldRefreshToken: string): Promise<void> => {
+  const user = await UsersRepository.getUserById(userId);
+
+  if (!user) {
+    throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  }
+
+  const isTokenRevoked = await RevokedTokensRepository.isTokenRevoked(oldRefreshToken);
+
+  if (isTokenRevoked) {
+    throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  }
+
+  await RevokedTokensRepository.revokeToken(oldRefreshToken);
+};
+
 export default {
   selfRegistration,
   confirmRegistration,
   resendCode,
   login,
-  refreshToken
+  refreshToken,
+  logout,
 };
 
 function EmailConfirmationDTO(): IEmailConfirmationBody {
@@ -141,7 +157,7 @@ function EmailConfirmationDTO(): IEmailConfirmationBody {
       minutes: 5,
     }),
     isConfirmed: false,
-  }
+  };
 }
 
 function EmailMessageDTO(code: string) {

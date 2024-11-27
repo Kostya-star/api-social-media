@@ -94,7 +94,7 @@ const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response<{ 
 
 const refreshToken = async (req: Request, res: Response<{ accessToken: string }>, next: NextFunction) => {
   try {
-    const { refreshToken: oldRefreshToken, userId } = req
+    const { refreshToken: oldRefreshToken, userId } = req;
 
     const { accessToken, refreshToken } = await AuthService.refreshToken(userId!, oldRefreshToken!);
 
@@ -117,6 +117,18 @@ const getMe = async (req: Request, res: Response<{ email: string; login: string;
   }
 };
 
+const logout = async (req: Request, res: Response<void>, next: NextFunction) => {
+  try {
+    const { refreshToken: oldRefreshToken, userId } = req;
+
+    await AuthService.logout(userId!, oldRefreshToken!);
+
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   selfRegistration,
   registrationConfirmation,
@@ -124,4 +136,5 @@ export default {
   login,
   refreshToken,
   getMe,
+  logout,
 };
