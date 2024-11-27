@@ -7,7 +7,7 @@ export const selfRegisterUserBody: ICreateUserBody = {
   email: 'kostya.danilov.99@mail.ru',
   login: 'User1',
   password: 'password',
-}
+};
 
 export const selfRegister = async (payload: ICreateUserBody) => {
   return await req.post(`${APP_ROUTES.AUTH}/registration`).send(payload);
@@ -26,10 +26,7 @@ export const loginUser = async (payload: IAuthLoginPayload) => {
 };
 
 export const refreshTokenRequest = async (refreshToken: string) => {
-  return req
-    .post(`${APP_ROUTES.AUTH}/refresh-token`)
-    .set('Cookie', `refreshToken=${refreshToken}`)
-    .send();
+  return req.post(`${APP_ROUTES.AUTH}/refresh-token`).set('Cookie', `refreshToken=${refreshToken}`).send();
 };
 
 export const getMe = async (token?: string) => {
@@ -40,4 +37,11 @@ export const getMe = async (token?: string) => {
   }
 
   return await request;
+};
+
+export const logoutRequest = async (refreshToken: string) => {
+  return req
+    .post(`${APP_ROUTES.AUTH}/logout`)
+    .set('Cookie', `refreshToken=${refreshToken}`)
+    .send();
 };

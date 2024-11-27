@@ -5,6 +5,7 @@ import { loginUser} from './helpers';
 import { HTTP_ERROR_MESSAGES } from '../../src/const/http-error-messages';
 import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
+import { REFRESH_TOKEN_EXP_TIME, ACCESS_TOKEN_EXP_TIME } from '../../src/const/tokens-exp-time';
 
 let testUserId: ObjectId | null;
 
@@ -35,8 +36,8 @@ describe('AUTH LOGIN POST request', () => {
     const response = await loginUser({ loginOrEmail: baseUser.login, password: baseUser.password });
     expect(response.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
 
-    const accessToken = jwt.sign({ userId: testUserId }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '30s' });
-    const refreshToken = jwt.sign({ userId: testUserId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: '100s' });
+    const accessToken = jwt.sign({ userId: testUserId }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
+    const refreshToken = jwt.sign({ userId: testUserId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
     expect(response.body).toHaveProperty('accessToken', accessToken)
 
     const cookies = response.headers['set-cookie'];
