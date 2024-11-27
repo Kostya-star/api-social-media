@@ -92,6 +92,19 @@ const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response<{ 
   }
 };
 
+const refreshToken = async (req: Request, res: Response<{ accessToken: string }>, next: NextFunction) => {
+  try {
+    const { refreshToken: oldRefreshToken, userId } = req
+
+    const { accessToken, refreshToken } = await AuthService.refreshToken(userId!, oldRefreshToken!);
+
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getMe = async (req: Request, res: Response<{ email: string; login: string; userId: ObjectId }>, next: NextFunction) => {
   try {
     const userId = req.userId!;
@@ -109,5 +122,6 @@ export default {
   registrationConfirmation,
   registrationEmailCodeResending,
   login,
+  refreshToken,
   getMe,
 };

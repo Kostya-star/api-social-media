@@ -5,23 +5,20 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
 
-export const checkBearerAuth = (req: Request<any>, res: Response, next: NextFunction) => {
+export const checkRefreshToken = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization;
+    const refreshToken= req.cookies.refreshToken
 
-    if (!authHeader || typeof authHeader !== 'string' || !authHeader.startsWith('Bearer')) {
+    if (!refreshToken || typeof refreshToken !== 'string') {
       throw Error;
     }
 
-    const token = authHeader.split(' ')[1];
-
-    if (!token) throw Error;
-
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as { userId: ObjectId };
+    const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as { userId: ObjectId };
 
     if (!decodedToken.userId) throw Error;
 
     req.userId = decodedToken.userId;
+    req.refreshToken = refreshToken;
 
     next();
   } catch (err) {

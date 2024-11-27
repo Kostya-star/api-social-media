@@ -1,6 +1,6 @@
 import { IBlog } from '@/types/blogs/blog';
 import { IPost } from '@/types/posts/post';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { CollectionsNames, DatabasesNames } from './config';
 import { IUser } from '@/types/users/user';
 import { IComment } from '@/types/comments/comment';
@@ -13,6 +13,7 @@ export const blogsCollection = db.collection<IBlog>(CollectionsNames.BLOGS);
 export const postsCollection = db.collection<IPost>(CollectionsNames.POSTS);
 export const usersCollection = db.collection<IUser>(CollectionsNames.USERS);
 export const commentsCollection = db.collection<IComment>(CollectionsNames.COMMENTS);
+export const revokedTokensCollection = db.collection<{ _id?: ObjectId; token: string }>(CollectionsNames.REVOKED_TOKENS);
 
 export async function connectToDb() {
   try {

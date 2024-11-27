@@ -7,4 +7,5 @@ export enum CollectionsNames {
   POSTS = 'posts',
   USERS = 'users',
   COMMENTS = 'comments',
+  REVOKED_TOKENS = 'revoked-tokens',
 }

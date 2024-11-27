@@ -12,6 +12,9 @@ import { add, isAfter } from 'date-fns';
 import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 import MailService from './mail-service';
 import { AuthErrorsList } from '@/errors/auth-errors';
+import { ObjectId } from 'mongodb';
+import RevokedTokensRepository from '@/repositories/revoked-tokens-repository';
+import { ACCESS_TOKEN_EXP_TIME, REFRESH_TOKEN_EXP_TIME } from '@/const/tokens-exp-time';
 
 const selfRegistration = async (newUser: ICreateUserBody): Promise<void> => {
   const emailConfirmation = EmailConfirmationDTO();
@@ -96,10 +99,31 @@ const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<{ a
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '30s' });
-  const refreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: '100s' });
+  const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
+  const refreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
 
   return { accessToken, refreshToken };
+};
+
+const refreshToken = async (userId: ObjectId, oldRefreshToken: string): Promise<{ accessToken: string; refreshToken: string }> => {
+  const user = await UsersRepository.getUserById(userId);
+
+  if (!user) {
+    throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  }
+
+  const isTokenRevoked = await RevokedTokensRepository.isTokenRevoked(oldRefreshToken);
+
+  if (isTokenRevoked) {
+    throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  }
+
+  await RevokedTokensRepository.revokeToken(oldRefreshToken)
+
+  const newAccessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
+  const newRefreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
+
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 };
 
 export default {
@@ -107,6 +131,7 @@ export default {
   confirmRegistration,
   resendCode,
   login,
+  refreshToken
 };
 
 function EmailConfirmationDTO(): IEmailConfirmationBody {
