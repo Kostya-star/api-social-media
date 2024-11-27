@@ -25,6 +25,13 @@ export const loginUser = async (payload: IAuthLoginPayload) => {
   return await req.post(`${APP_ROUTES.AUTH}/login`).send(payload);
 };
 
+export const refreshTokenRequest = async (refreshToken: string) => {
+  return req
+    .post(`${APP_ROUTES.AUTH}/refresh-token`)
+    .set('Cookie', `refreshToken=${refreshToken}`)
+    .send();
+};
+
 export const getMe = async (token?: string) => {
   const request = req.get(`${APP_ROUTES.AUTH}/me`);
 
