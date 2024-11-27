@@ -34,8 +34,17 @@ describe('AUTH LOGIN POST request', () => {
   test('should return access token', async () => {
     const response = await loginUser({ loginOrEmail: baseUser.login, password: baseUser.password });
     expect(response.status).toBe(HTTP_STATUS_CODES.SUCCESS_200);
-    const token = jwt.sign({ userId: testUserId }, process.env.TOKEN_SECRET!) 
-    expect(response.body).toHaveProperty('accessToken', token)
+
+    const accessToken = jwt.sign({ userId: testUserId }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '30s' });
+    const refreshToken = jwt.sign({ userId: testUserId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: '100s' });
+    expect(response.body).toHaveProperty('accessToken', accessToken)
+
+    const cookies = response.headers['set-cookie'];
+    expect(cookies).toBeDefined();
+    // @ts-ignore
+    const refreshTokenCookie = cookies.find((cookie: string) => cookie.startsWith('refreshToken='));
+    expect(refreshTokenCookie).toBe(`refreshToken=${refreshToken}; Path=/; HttpOnly; Secure`);
+    expect(refreshTokenCookie).toBeDefined();
   });
 
   test('Failed login with incorrect password = 401', async () => {

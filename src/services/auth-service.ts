@@ -83,7 +83,7 @@ const resendCode = async (email: string): Promise<void> => {
 };
 
 
-const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<string> => {
+const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<{ accessToken: string, refreshToken: string }> => {
   const user = await UsersRepository.findUserByFilter({ $or: [{ login: loginOrEmail }, { email: loginOrEmail }] });
 
   if (!user) {
@@ -96,9 +96,10 @@ const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<str
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  const token = jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET!);
+  const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '30s' });
+  const refreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: '100s' });
 
-  return token;
+  return { accessToken, refreshToken };
 };
 
 export default {

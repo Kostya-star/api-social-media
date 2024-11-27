@@ -49,7 +49,7 @@ describe('AUTH ME GET request', () => {
   });
 
   // test('Failed auth/me with expired token = 401', async () => {
-  //   const expiredToken = jwt.sign({ userId: testUserId }, process.env.TOKEN_SECRET!, { expiresIn: '-1h' });
+  //   const expiredToken = jwt.sign({ userId: testUserId }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '-1h' });
   //   const response = await getMe(`Bearer ${expiredToken}`);
   //   expect(response.status).toBe(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   //   const error = { status: HTTP_STATUS_CODES.UNAUTHORIZED_401, message: HTTP_ERROR_MESSAGES.UNAUTHORIZED_401 };

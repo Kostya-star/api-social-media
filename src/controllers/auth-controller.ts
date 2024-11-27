@@ -15,7 +15,7 @@ const selfRegistration = async (req: Request<any, any, ICreateUserBody>, res: Re
 
     await AuthService.selfRegistration(newUser);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end()
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
   } catch (err: any) {
     if (err.field) {
       res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
@@ -39,7 +39,7 @@ const registrationConfirmation = async (req: Request<any, any, { code: string }>
 
     await AuthService.confirmRegistration(code);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end()
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
   } catch (err: any) {
     if (err.field) {
       res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
@@ -63,7 +63,7 @@ const registrationEmailCodeResending = async (req: Request<any, any, { email: st
 
     await AuthService.resendCode(email);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end()
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
   } catch (err: any) {
     if (err.field) {
       res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
@@ -83,9 +83,10 @@ const registrationEmailCodeResending = async (req: Request<any, any, { email: st
 
 const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response<{ accessToken: string }>, next: NextFunction) => {
   try {
-    const token = await AuthService.login(req.body);
+    const { accessToken, refreshToken } = await AuthService.login(req.body);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken: token });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken });
   } catch (err) {
     next(err);
   }

@@ -17,7 +17,9 @@ export const checkBearerAuth = (req: Request<any>, res: Response, next: NextFunc
 
     if (!token) throw Error;
 
-    const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET!) as { userId: ObjectId };
+    console.log(process.env.ACCESS_TOKEN_SECRET)
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as { userId: ObjectId };
+    console.log(decodedToken)
 
     if (!decodedToken.userId) throw Error;
 
