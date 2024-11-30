@@ -3,22 +3,26 @@ import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { ObjectId } from 'mongodb';
+import { IRefreshTokenDecodedPayload } from '@/types/refresh-token-decoded-payload';
 
 export const checkRefreshToken = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const refreshToken= req.cookies.refreshToken
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken || typeof refreshToken !== 'string') {
       throw Error;
     }
 
-    const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as { userId: ObjectId };
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as IRefreshTokenDecodedPayload;
 
-    if (!decodedToken.userId) throw Error;
+    if (!decoded.userId || !decoded.sessionId || !decoded.iat || !decoded.exp) throw Error;
 
-    req.userId = decodedToken.userId;
-    req.refreshToken = refreshToken;
+    req.refresh_token_decoded_payload = {
+      userId: decoded.userId,
+      sessionId: decoded.sessionId,
+      iat: decoded.iat,
+      exp: decoded.exp,
+    };
 
     next();
   } catch (err) {

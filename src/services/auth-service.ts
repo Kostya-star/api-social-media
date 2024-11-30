@@ -13,8 +13,10 @@ import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 import MailService from './mail-service';
 import { AuthErrorsList } from '@/errors/auth-errors';
 import { ObjectId } from 'mongodb';
-import RevokedTokensRepository from '@/repositories/revoked-tokens-repository';
 import { ACCESS_TOKEN_EXP_TIME, REFRESH_TOKEN_EXP_TIME } from '@/const/tokens-exp-time';
+import SessionsService from './sessions-service';
+import SessionsRepository from '@/repositories/sessions-repository';
+import { IRefreshTokenDecodedPayload } from '@/types/refresh-token-decoded-payload';
 
 const selfRegistration = async (newUser: ICreateUserBody): Promise<void> => {
   const emailConfirmation = EmailConfirmationDTO();
@@ -85,7 +87,11 @@ const resendCode = async (email: string): Promise<void> => {
   await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", user.email, 'Registration Confirmation', message);
 };
 
-const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<{ accessToken: string; refreshToken: string }> => {
+const login = async (
+  { loginOrEmail, password }: IAuthLoginPayload,
+  userAgent: string,
+  ipAddress: string
+): Promise<{ accessToken: string; refreshToken: string }> => {
   const user = await UsersRepository.findUserByFilter({ $or: [{ login: loginOrEmail }, { email: loginOrEmail }] });
 
   if (!user) {
@@ -98,31 +104,47 @@ const login = async ({ loginOrEmail, password }: IAuthLoginPayload): Promise<{ a
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
+  const sessionId = uuidv4();
+
   const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
-  const refreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
+  const refreshToken = jwt.sign({ userId: user._id, sessionId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
+
+  const { iat, exp } = jwt.decode(refreshToken) as IRefreshTokenDecodedPayload;
+
+  await SessionsService.createSession({ sessionId, userId: user._id, issuedAt: iat, expiresAt: exp, userAgent, ipAddress, lastActiveDate: iat });
 
   return { accessToken, refreshToken };
 };
 
-const refreshToken = async (userId: ObjectId, oldRefreshToken: string): Promise<{ accessToken: string; refreshToken: string }> => {
+const refreshToken = async ({ userId, sessionId, exp, iat }: IRefreshTokenDecodedPayload): Promise<{ accessToken: string; refreshToken: string }> => {
   const user = await UsersRepository.getUserById(userId);
 
   if (!user) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  const isTokenRevoked = await RevokedTokensRepository.isTokenRevoked(oldRefreshToken);
+  const session = await SessionsRepository.findSessionById(sessionId);
 
-  if (isTokenRevoked) {
+  if (!session) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  await RevokedTokensRepository.revokeToken(oldRefreshToken);
+  // make sure the token isn't revoked
+  if (iat !== session.issuedAt) {
+    throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  }
 
-  const newAccessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
-  const newRefreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
+  const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
+  const refreshToken = jwt.sign({ userId, sessionId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
 
-  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  {
+    const { iat, exp } = jwt.decode(refreshToken) as IRefreshTokenDecodedPayload;
+
+    // revoke the token by updating the issuedAt prop of the session
+    await SessionsService.updateSession(sessionId, { issuedAt: iat, lastActiveDate: iat, expiresAt: exp });
+  }
+
+  return { accessToken, refreshToken };
 };
 
 const logout = async (userId: ObjectId, oldRefreshToken: string): Promise<void> => {

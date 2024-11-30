@@ -4,7 +4,7 @@ declare global {
   namespace Express {
     export interface Request {
       userId?: ObjectId;
-      refreshToken?: string;
+      refresh_token_decoded_payload: IRefreshTokenDecodedPayload;
       cookies: {
         refreshToken?: string;
       };

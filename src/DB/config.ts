@@ -1,5 +1,5 @@
 export enum DatabasesNames {
-  INCUBATOR_BLOGS = 'incubator-blogs'
+  INCUBATOR_BLOGS = 'incubator-blogs',
 }
 
 export enum CollectionsNames {
@@ -7,5 +7,7 @@ export enum CollectionsNames {
   POSTS = 'posts',
   USERS = 'users',
   COMMENTS = 'comments',
+  SESSIONS = 'sessions',
+
   REVOKED_TOKENS = 'revoked-tokens',
 }

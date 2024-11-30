@@ -83,7 +83,10 @@ const registrationEmailCodeResending = async (req: Request<any, any, { email: st
 
 const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response<{ accessToken: string }>, next: NextFunction) => {
   try {
-    const { accessToken, refreshToken } = await AuthService.login(req.body);
+    const userAgent = req.headers['user-agent'] || 'Unknown device';
+    const ipAddress = req.ip;
+
+    const { accessToken, refreshToken } = await AuthService.login(req.body, userAgent, ipAddress!);
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken });
@@ -94,9 +97,7 @@ const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response<{ 
 
 const refreshToken = async (req: Request, res: Response<{ accessToken: string }>, next: NextFunction) => {
   try {
-    const { refreshToken: oldRefreshToken, userId } = req;
-
-    const { accessToken, refreshToken } = await AuthService.refreshToken(userId!, oldRefreshToken!);
+    const { accessToken, refreshToken } = await AuthService.refreshToken(req.refresh_token_decoded_payload);
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken });
@@ -119,9 +120,9 @@ const getMe = async (req: Request, res: Response<{ email: string; login: string;
 
 const logout = async (req: Request, res: Response<void>, next: NextFunction) => {
   try {
-    const { refreshToken: oldRefreshToken, userId } = req;
+    // const { refreshToken: oldRefreshToken, userId } = req;
 
-    await AuthService.logout(userId!, oldRefreshToken!);
+    // await AuthService.logout(userId!, oldRefreshToken!);
 
     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
   } catch (err) {
