@@ -14,8 +14,13 @@ const updateSession = async (sessionId: string, updates: Partial<ISession>) => {
   await sessionsCollection.updateOne({ sessionId }, { $set: updates });
 };
 
+const deleteSession = async (sessionId: string) => {
+  await sessionsCollection.deleteOne({ sessionId });
+};
+
 export default {
   findSessionById,
   createSession,
   updateSession,
+  deleteSession,
 };

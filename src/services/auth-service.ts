@@ -147,20 +147,24 @@ const refreshToken = async ({ userId, sessionId, exp, iat }: IRefreshTokenDecode
   return { accessToken, refreshToken };
 };
 
-const logout = async (userId: ObjectId, oldRefreshToken: string): Promise<void> => {
+const logout = async ({ userId, sessionId, iat }: IRefreshTokenDecodedPayload): Promise<void> => {
   const user = await UsersRepository.getUserById(userId);
 
   if (!user) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  const isTokenRevoked = await RevokedTokensRepository.isTokenRevoked(oldRefreshToken);
+  const session = await SessionsRepository.findSessionById(sessionId);
 
-  if (isTokenRevoked) {
+  if (!session) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  await RevokedTokensRepository.revokeToken(oldRefreshToken);
+  if (iat !== session.issuedAt) {
+    throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  }
+
+  await SessionsService.deleteSession(sessionId);
 };
 
 export default {

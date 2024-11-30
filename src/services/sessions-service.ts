@@ -9,7 +9,12 @@ const updateSession = async (sessionId: string, updates: Partial<ISession>) => {
   await SessionsRepository.updateSession(sessionId, updates);
 };
 
+const deleteSession = async (sessionId: string) => {
+  await SessionsRepository.deleteSession(sessionId);
+};
+
 export default {
   createSession,
   updateSession,
+  deleteSession,
 };

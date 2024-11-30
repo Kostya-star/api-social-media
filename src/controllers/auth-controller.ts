@@ -120,10 +120,9 @@ const getMe = async (req: Request, res: Response<{ email: string; login: string;
 
 const logout = async (req: Request, res: Response<void>, next: NextFunction) => {
   try {
-    // const { refreshToken: oldRefreshToken, userId } = req;
+    await AuthService.logout(req.refresh_token_decoded_payload);
 
-    // await AuthService.logout(userId!, oldRefreshToken!);
-
+    res.clearCookie('refreshToken');
     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
   } catch (err) {
     next(err);
