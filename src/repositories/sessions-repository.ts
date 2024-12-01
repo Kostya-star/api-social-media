@@ -1,6 +1,10 @@
 import { sessionsCollection } from '@/DB';
 import { ISession } from '@/types/sessions/session';
-import { WithId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
+
+const findUserSessions = async (userId: ObjectId): Promise<WithId<ISession>[]> => {
+  return await sessionsCollection.find({ userId: new ObjectId(userId) }).toArray();
+};
 
 const findSessionById = async (sessionId: string): Promise<WithId<ISession> | null> => {
   return await sessionsCollection.findOne({ sessionId });
@@ -14,13 +18,19 @@ const updateSession = async (sessionId: string, updates: Partial<ISession>) => {
   await sessionsCollection.updateOne({ sessionId }, { $set: updates });
 };
 
-const deleteSession = async (sessionId: string) => {
+const deleteSessionsExceptCurrent = async (userId: ObjectId, sessionId: string) => {
+  await sessionsCollection.deleteMany({ userId: new ObjectId(userId), sessionId: { $ne: sessionId } });
+};
+
+const deleteSessionById = async (sessionId: string) => {
   await sessionsCollection.deleteOne({ sessionId });
 };
 
 export default {
   findSessionById,
+  findUserSessions,
   createSession,
   updateSession,
-  deleteSession,
+  deleteSessionsExceptCurrent,
+  deleteSessionById,
 };

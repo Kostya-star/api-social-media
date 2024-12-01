@@ -4,6 +4,7 @@ interface IAPP_ROUTES {
   POSTS: string;
   USERS: string;
   COMMENTS: string;
+  DEVICES: string;
   TESTING: string;
 }
 
@@ -13,5 +14,6 @@ export const APP_ROUTES: IAPP_ROUTES = {
   POSTS: '/posts',
   USERS: '/users',
   COMMENTS: '/comments',
+  DEVICES: '/security/devices',
   TESTING: '/testing/all-data',
 };

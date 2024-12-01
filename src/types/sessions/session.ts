@@ -9,3 +9,10 @@ export interface ISession {
   ipAddress: string;
   lastActiveDate: number; // UNIX
 }
+
+export interface ISessionReturn {
+  ip: string;
+  title: string;
+  lastActiveDate: string;
+  deviceId: string;
+}

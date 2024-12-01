@@ -15,6 +15,7 @@ import { testingRoute } from './routes/testingRoute';
 import { usersRoutes } from './routes/users-routes';
 import { authRoutes } from './routes/auth-routes';
 import { commentsRoutes } from './routes/comments-routes';
+import { devicesRoutes } from './routes/devices-routes';
 
 export const app = express();
 
@@ -27,6 +28,7 @@ app.use(APP_ROUTES.BLOGS, blogsRoutes);
 app.use(APP_ROUTES.POSTS, postsRoutes);
 app.use(APP_ROUTES.COMMENTS, commentsRoutes);
 app.use(APP_ROUTES.USERS, usersRoutes);
+app.use(APP_ROUTES.DEVICES, devicesRoutes);
 app.use(APP_ROUTES.TESTING, testingRoute);
 
 app.use(ErrorHandler);

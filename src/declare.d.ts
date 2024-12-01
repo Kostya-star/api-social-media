@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { IRefreshTokenDecodedPayload } from './types/refresh-token-decoded-payload';
 
 declare global {
   namespace Express {

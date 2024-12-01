@@ -164,7 +164,7 @@ const logout = async ({ userId, sessionId, iat }: IRefreshTokenDecodedPayload): 
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  await SessionsService.deleteSession(sessionId);
+  await SessionsService.deleteSessionById(userId, sessionId);
 };
 
 export default {
