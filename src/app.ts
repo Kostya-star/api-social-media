@@ -19,9 +19,11 @@ import { devicesRoutes } from './routes/devices-routes';
 
 export const app = express();
 
-app.use(cookieParser())
-app.use(express.json());
 app.use(cors());
+app.options('*', cors());
+
+app.use(cookieParser());
+app.use(express.json());
 
 app.use(APP_ROUTES.AUTH, authRoutes);
 app.use(APP_ROUTES.BLOGS, blogsRoutes);

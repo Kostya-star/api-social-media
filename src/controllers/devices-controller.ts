@@ -19,9 +19,9 @@ const getUserDevices = async (req: Request, res: Response<ISessionReturn[]>, nex
 
 const terminateOtherSessions = async (req: Request, res: Response<void>, next: NextFunction) => {
   try {
-    const { userId, sessionId } = req.refresh_token_decoded_payload;
+    const { userId, deviceId } = req.refresh_token_decoded_payload;
 
-    await SessionsService.deleteSessionsExceptCurrent(userId, sessionId);
+    await SessionsService.deleteSessionsExceptCurrent(userId, deviceId);
 
     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
   } catch (err) {
@@ -29,12 +29,12 @@ const terminateOtherSessions = async (req: Request, res: Response<void>, next: N
   }
 };
 
-const terminateSessionById = async (req: Request<{ sessionId: string }>, res: Response<void>, next: NextFunction) => {
+const terminateSessionById = async (req: Request<{ deviceId: string }>, res: Response<void>, next: NextFunction) => {
   try {
     const { userId } = req.refresh_token_decoded_payload;
-    const { sessionId } = req.params;
+    const { deviceId } = req.params;
 
-    await SessionsService.deleteSessionById(userId, sessionId);
+    await SessionsService.deleteSessionById(userId, deviceId);
 
     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
   } catch (err) {

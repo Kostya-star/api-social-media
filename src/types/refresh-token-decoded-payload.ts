@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 
 export interface IRefreshTokenDecodedPayload {
   userId: ObjectId;
-  sessionId: string;
+  deviceId: string;
   iat: number;
   exp: number;
 }

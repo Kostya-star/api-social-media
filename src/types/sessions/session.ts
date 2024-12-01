@@ -1,13 +1,13 @@
 import { ObjectId } from 'mongodb';
 
 export interface ISession {
-  sessionId: string;
+  deviceId: string;
   userId: ObjectId;
-  issuedAt: number; // UNIX
-  expiresAt: number; // UNIX
+  issuedAt: string;
+  expiresAt: string;
   userAgent: string;
   ipAddress: string;
-  lastActiveDate: number; // UNIX
+  lastActiveDate: string;
 }
 
 export interface ISessionReturn {

@@ -6,4 +6,4 @@ export const devicesRoutes = Router();
 
 devicesRoutes.get('/', checkRefreshToken, devicesController.getUserDevices);
 devicesRoutes.delete('/', checkRefreshToken, devicesController.terminateOtherSessions);
-devicesRoutes.delete('/:sessionId', checkRefreshToken, devicesController.terminateSessionById);
+devicesRoutes.delete('/:deviceId', checkRefreshToken, devicesController.terminateSessionById);

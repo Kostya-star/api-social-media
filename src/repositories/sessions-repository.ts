@@ -7,7 +7,7 @@ const findUserSessions = async (userId: ObjectId): Promise<WithId<ISession>[]> =
 };
 
 const findSessionById = async (sessionId: string): Promise<WithId<ISession> | null> => {
-  return await sessionsCollection.findOne({ sessionId });
+  return await sessionsCollection.findOne({ deviceId: sessionId });
 };
 
 const createSession = async (session: ISession) => {
@@ -15,15 +15,15 @@ const createSession = async (session: ISession) => {
 };
 
 const updateSession = async (sessionId: string, updates: Partial<ISession>) => {
-  await sessionsCollection.updateOne({ sessionId }, { $set: updates });
+  await sessionsCollection.updateOne({ deviceId: sessionId }, { $set: updates });
 };
 
 const deleteSessionsExceptCurrent = async (userId: ObjectId, sessionId: string) => {
-  await sessionsCollection.deleteMany({ userId: new ObjectId(userId), sessionId: { $ne: sessionId } });
+  await sessionsCollection.deleteMany({ userId: new ObjectId(userId), deviceId: { $ne: sessionId } });
 };
 
 const deleteSessionById = async (sessionId: string) => {
-  await sessionsCollection.deleteOne({ sessionId });
+  await sessionsCollection.deleteOne({ deviceId: sessionId });
 };
 
 export default {

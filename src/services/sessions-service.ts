@@ -17,8 +17,8 @@ const deleteSessionsExceptCurrent = async (userId: ObjectId, sessionId: string) 
   await SessionsRepository.deleteSessionsExceptCurrent(userId, sessionId);
 };
 
-const deleteSessionById = async (currUserId: ObjectId, sessionId: string) => {
-  const session = await SessionsRepository.findSessionById(sessionId);
+const deleteSessionById = async (currUserId: ObjectId, deviceId: string) => {
+  const session = await SessionsRepository.findSessionById(deviceId);
 
   if (!session) {
     throw ErrorService(HTTP_ERROR_MESSAGES.NOT_FOUND_404, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -26,11 +26,11 @@ const deleteSessionById = async (currUserId: ObjectId, sessionId: string) => {
 
   const isOwner = session.userId === currUserId
 
-  if (isOwner) {
+  if (!isOwner) {
     throw ErrorService(HTTP_ERROR_MESSAGES.FORBIDDEN_403, HTTP_STATUS_CODES.FORBIDDEN_403);
   }
 
-  await SessionsRepository.deleteSessionById(sessionId);
+  await SessionsRepository.deleteSessionById(deviceId);
 };
 
 export default {

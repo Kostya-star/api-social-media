@@ -15,11 +15,11 @@ export const checkRefreshToken = (req: Request, res: Response, next: NextFunctio
 
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as IRefreshTokenDecodedPayload;
 
-    if (!decoded.userId || !decoded.sessionId || !decoded.iat || !decoded.exp) throw Error;
+    if (!decoded.userId || !decoded.deviceId || !decoded.iat || !decoded.exp) throw Error;
 
     req.refresh_token_decoded_payload = {
       userId: decoded.userId,
-      sessionId: decoded.sessionId,
+      deviceId: decoded.deviceId,
       iat: decoded.iat,
       exp: decoded.exp,
     };

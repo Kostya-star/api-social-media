@@ -17,6 +17,7 @@ import { ACCESS_TOKEN_EXP_TIME, REFRESH_TOKEN_EXP_TIME } from '@/const/tokens-ex
 import SessionsService from './sessions-service';
 import SessionsRepository from '@/repositories/sessions-repository';
 import { IRefreshTokenDecodedPayload } from '@/types/refresh-token-decoded-payload';
+import { getISOFromUnixSeconds } from '@/util/get-iso-from-unix-secs';
 
 const selfRegistration = async (newUser: ICreateUserBody): Promise<void> => {
   const emailConfirmation = EmailConfirmationDTO();
@@ -104,67 +105,73 @@ const login = async (
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  const sessionId = uuidv4();
+  const deviceId = uuidv4();
 
   const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
-  const refreshToken = jwt.sign({ userId: user._id, sessionId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
+  const refreshToken = jwt.sign({ userId: user._id, deviceId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
 
   const { iat, exp } = jwt.decode(refreshToken) as IRefreshTokenDecodedPayload;
 
-  await SessionsService.createSession({ sessionId, userId: user._id, issuedAt: iat, expiresAt: exp, userAgent, ipAddress, lastActiveDate: iat });
+  const iatISO = getISOFromUnixSeconds(iat)
+  const expISO = getISOFromUnixSeconds(exp)
+
+  await SessionsService.createSession({ deviceId, userId: user._id, issuedAt: iatISO, expiresAt: expISO, userAgent, ipAddress, lastActiveDate: iatISO });
 
   return { accessToken, refreshToken };
 };
 
-const refreshToken = async ({ userId, sessionId, exp, iat }: IRefreshTokenDecodedPayload): Promise<{ accessToken: string; refreshToken: string }> => {
+const refreshToken = async ({ userId, deviceId, iat }: IRefreshTokenDecodedPayload): Promise<{ accessToken: string; refreshToken: string }> => {
   const user = await UsersRepository.getUserById(userId);
 
   if (!user) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  const session = await SessionsRepository.findSessionById(sessionId);
+  const session = await SessionsRepository.findSessionById(deviceId);
 
   if (!session) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
   // make sure the token isn't revoked
-  if (iat !== session.issuedAt) {
+  if (getISOFromUnixSeconds(iat) !== session.issuedAt) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
   const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
-  const refreshToken = jwt.sign({ userId, sessionId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
+  const refreshToken = jwt.sign({ userId, deviceId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
 
   {
     const { iat, exp } = jwt.decode(refreshToken) as IRefreshTokenDecodedPayload;
 
+    const iatISO = getISOFromUnixSeconds(iat)
+    const expISO = getISOFromUnixSeconds(exp)
+
     // revoke the token by updating the issuedAt prop of the session
-    await SessionsService.updateSession(sessionId, { issuedAt: iat, lastActiveDate: iat, expiresAt: exp });
+    await SessionsService.updateSession(deviceId, { issuedAt: iatISO, lastActiveDate: iatISO, expiresAt: expISO });
   }
 
   return { accessToken, refreshToken };
 };
 
-const logout = async ({ userId, sessionId, iat }: IRefreshTokenDecodedPayload): Promise<void> => {
+const logout = async ({ userId, deviceId, iat }: IRefreshTokenDecodedPayload): Promise<void> => {
   const user = await UsersRepository.getUserById(userId);
 
   if (!user) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  const session = await SessionsRepository.findSessionById(sessionId);
+  const session = await SessionsRepository.findSessionById(deviceId);
 
   if (!session) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  if (iat !== session.issuedAt) {
+  if (getISOFromUnixSeconds(iat) !== session.issuedAt) {
     throw ErrorService(HTTP_ERROR_MESSAGES.UNAUTHORIZED_401, HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  await SessionsService.deleteSessionById(userId, sessionId);
+  await SessionsService.deleteSessionById(userId, deviceId);
 };
 
 export default {
