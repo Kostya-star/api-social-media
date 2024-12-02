@@ -24,7 +24,7 @@ const deleteSessionById = async (currUserId: ObjectId, deviceId: string) => {
     throw ErrorService(HTTP_ERROR_MESSAGES.NOT_FOUND_404, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  const isOwner = session.userId === currUserId
+  const isOwner = session.userId.toString() === currUserId.toString()
 
   if (!isOwner) {
     throw ErrorService(HTTP_ERROR_MESSAGES.FORBIDDEN_403, HTTP_STATUS_CODES.FORBIDDEN_403);
