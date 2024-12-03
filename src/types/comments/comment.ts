@@ -1,13 +1,17 @@
-import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
 
-export interface IComment {
-  _id?: ObjectId;
-  id?: ObjectId;
+export interface ICommentDB {
+  _id: Types.ObjectId;
   content: string;
-  postId?: ObjectId;
+  postId: Types.ObjectId;
   commentatorInfo: {
-    userId: ObjectId;
+    userId: Types.ObjectId;
     userLogin: string;
   };
   createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ICommentView extends Omit<ICommentDB, '_id' | 'updatedAt' | 'postId'> {
+  id: Types.ObjectId;
 }

@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import { ObjectId, WithId } from 'mongodb';
-import { IComment } from '@/types/comments/comment';
+import { ObjectId } from 'mongodb';
 import CommentsRepository from '@/repositories/comments-repository';
 import { ErrorService } from '@/services/error-service';
 import { CommentsErrorsList } from '@/errors/comments-errors';
 import { commentObjMapper } from '@/util/commentObjMapper';
-import { ICommentBody } from '@/types/comments/commentBody';
-import blogsService from '@/services/blogs-service';
 import CommentsService from '@/services/comments-service';
+import { Types } from 'mongoose';
+import { ICommentView } from '@/types/comments/comment';
 
-const getCommentById = async (req: Request<{ commentId: ObjectId }>, res: Response<IComment>, next: NextFunction) => {
-  console.log('getCommentById');
+type MObjectId = Types.ObjectId;
+
+const getCommentById = async (req: Request<{ commentId: MObjectId }>, res: Response<ICommentView>, next: NextFunction) => {
   try {
     const commentId = req.params.commentId;
 
@@ -31,11 +31,10 @@ const getCommentById = async (req: Request<{ commentId: ObjectId }>, res: Respon
   }
 };
 
-const updateComment = async (req: Request<{ commentId: ObjectId }, any, ICommentBody>, res: Response<void>, next: NextFunction) => {
+const updateComment = async (req: Request<{ commentId: MObjectId }, any, { content: string }>, res: Response<void>, next: NextFunction) => {
   const commentId = req.params.commentId;
   const newComment = req.body;
 
-  // the user attached into the request with auth middleware. is used to determine if the comment belongs to the current user
   const currentUserId = req.userId!;
 
   try {
@@ -47,10 +46,8 @@ const updateComment = async (req: Request<{ commentId: ObjectId }, any, IComment
   }
 };
 
-const deleteComment = async (req: Request<{ commentId: ObjectId }, any>, res: Response<void>, next: NextFunction) => {
+const deleteComment = async (req: Request<{ commentId: MObjectId }, any>, res: Response<void>, next: NextFunction) => {
   const commentId = req.params.commentId;
-
-  // the user attached into the request with auth middleware. is used to determine if the comment belongs to the current user
   const currentUserId = req.userId!;
 
   try {

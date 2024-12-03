@@ -1,17 +1,19 @@
-import { commentsCollection } from '@/DB';
+import { CommentModel } from '@/models/comments-model';
 import { IBaseQuery } from '@/types/base-query';
 import { IBaseResponse } from '@/types/base-response';
-import { IComment } from '@/types/comments/comment';
-import { ICommentBody } from '@/types/comments/commentBody';
+import { ICommentDB } from '@/types/comments/comment';
+import { ICommentPayload } from '@/types/comments/commentPayload';
 import { buildQuery } from '@/util/buildQuery';
-import { ObjectId, WithId } from 'mongodb';
+import { Types } from 'mongoose';
 
-const getCommentsForPost = async (query: Required<IBaseQuery<IComment>>, postId: ObjectId): Promise<IBaseResponse<WithId<IComment>>> => {
-  const { sortOptions, skip, limit } = buildQuery<IComment>(query);
+type MObjectId = Types.ObjectId;
 
-  const items = await commentsCollection.find({ postId }).sort(sortOptions).skip(skip).limit(limit).toArray();
+const getCommentsForPost = async (query: Required<IBaseQuery<ICommentDB>>, postId: MObjectId): Promise<IBaseResponse<ICommentDB>> => {
+  const { sortOptions, skip, limit } = buildQuery<ICommentDB>(query);
 
-  const totalCount = await commentsCollection.countDocuments({ postId });
+  const items = await CommentModel.find({ postId }).sort(sortOptions).skip(skip).limit(limit);
+
+  const totalCount = await CommentModel.countDocuments({ postId });
   const pagesCount = Math.ceil(totalCount / query.pageSize);
 
   return {
@@ -23,21 +25,20 @@ const getCommentsForPost = async (query: Required<IBaseQuery<IComment>>, postId:
   };
 };
 
-const getCommentById = async (commentId: ObjectId): Promise<WithId<IComment> | null> => {
-  return await commentsCollection.findOne({ _id: new ObjectId(commentId) });
+const getCommentById = async (commentId: MObjectId): Promise<ICommentDB | null> => {
+  return await CommentModel.findOne({ _id: commentId });
 };
 
-const createComment = async (postComment: IComment): Promise<WithId<IComment>> => {
-  const res = await commentsCollection.insertOne(postComment);
-  return { ...postComment, _id: res.insertedId };
+const createComment = async (postComment: ICommentPayload): Promise<ICommentDB> => {
+  return await CommentModel.create(postComment);
 };
 
-const updateComment = async (commentId: ObjectId, newComment: ICommentBody): Promise<void> => {
-  await commentsCollection.updateOne({ _id: new ObjectId(commentId) }, { $set: newComment });
+const updateComment = async (commentId: MObjectId, updates: { content: string }): Promise<void> => {
+  await CommentModel.updateOne({ _id: commentId }, updates);
 };
 
-const deleteComment = async (commentId: ObjectId): Promise<void> => {
-  await commentsCollection.deleteOne({ _id: new ObjectId(commentId) });
+const deleteComment = async (commentId: MObjectId): Promise<void> => {
+  await CommentModel.deleteOne({ _id: commentId });
 };
 
 export default {

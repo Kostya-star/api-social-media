@@ -12,7 +12,6 @@ import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { postObjMapper } from '@/util/postObjMapper';
 import { IBaseResponse } from '@/types/base-response';
-import { ICommentBody } from '@/types/comments/commentBody';
 import { IComment } from '@/types/comments/comment';
 import CommentsService from '@/services/comments-service';
 import { commentObjMapper } from '@/util/commentObjMapper';
@@ -97,7 +96,7 @@ const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response
   }
 };
 
-const createCommentForPost = async (req: Request<{ postId: MObjectId }, any, ICommentBody>, res: Response<IComment>, next: NextFunction) => {
+const createCommentForPost = async (req: Request<{ postId: MObjectId }, any, { content: string }>, res: Response<IComment>, next: NextFunction) => {
   const newComment = req.body;
   const postId = req.params.postId;
   const userId = req.userId!;

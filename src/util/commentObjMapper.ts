@@ -1,10 +1,6 @@
-import { IComment } from '@/types/comments/comment';
-import { WithId } from 'mongodb';
+import { ICommentDB, ICommentView } from '@/types/comments/comment';
 
-type MapperResponse = Omit<IComment, 'postId' | '_id'>;
-
-// map the response and get rid of _id
-export function commentObjMapper(comment: WithId<IComment>): MapperResponse {
+export function commentObjMapper(comment: ICommentDB): ICommentView {
   return {
     id: comment._id,
     content: comment.content,

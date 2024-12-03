@@ -1,19 +1,19 @@
 import { ErrorService } from './error-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import { IAuthLoginPayload } from '@/types/auth/auth-login-payload';
 import UsersRepository from '@/repositories/users-repository';
 import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { ObjectId, WithId } from 'mongodb';
-import { ICommentBody } from '@/types/comments/commentBody';
+import { ObjectId } from 'mongodb';
 import { CommentsErrorsList } from '@/errors/comments-errors';
 import CommentsRepository from '@/repositories/comments-repository';
-import { IComment } from '@/types/comments/comment';
 import PostsRepository from '@/repositories/posts-repository';
 import { PostsErrorsList } from '@/errors/posts-errors';
+import { ICommentPayload } from '@/types/comments/commentPayload';
+import { ICommentDB } from '@/types/comments/comment';
+import { Types } from 'mongoose';
 
-const createCommentForPost = async (postId: ObjectId, newComment: ICommentBody, userId: ObjectId): Promise<WithId<IComment>> => {
+type MObjectId = Types.ObjectId;
+
+const createCommentForPost = async (postId: MObjectId, newComment: { content: string }, userId: MObjectId): Promise<ICommentDB> => {
   if (!ObjectId.isValid(postId)) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -24,22 +24,21 @@ const createCommentForPost = async (postId: ObjectId, newComment: ICommentBody, 
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
-  const userInfo = await UsersRepository.findUserByFilter({ _id: new ObjectId(userId) });
+  const userInfo = await UsersRepository.findUserByFilter({ _id: userId });
 
-  const postComment: IComment = {
+  const postComment: ICommentPayload & { postId: MObjectId } = {
     content: newComment.content,
     postId,
     commentatorInfo: {
       userId,
       userLogin: userInfo!.login,
     },
-    createdAt: new Date(),
   };
 
   return await CommentsRepository.createComment(postComment);
 };
 
-const updateComment = async (commentId: ObjectId, newComment: ICommentBody, currentUserId: ObjectId): Promise<void> => {
+const updateComment = async (commentId: MObjectId, newComment: { content: string }, currentUserId: MObjectId): Promise<void> => {
   if (!ObjectId.isValid(commentId)) {
     throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -50,6 +49,7 @@ const updateComment = async (commentId: ObjectId, newComment: ICommentBody, curr
     throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
+  // both .toString() ?
   const isOwner = currentUserId === commentToUpdate.commentatorInfo.userId;
 
   if (!isOwner) {
@@ -59,7 +59,7 @@ const updateComment = async (commentId: ObjectId, newComment: ICommentBody, curr
   await CommentsRepository.updateComment(commentId, newComment);
 };
 
-const deleteComment = async (commentId: ObjectId, currentUserId: ObjectId): Promise<void> => {
+const deleteComment = async (commentId: MObjectId, currentUserId: MObjectId): Promise<void> => {
   if (!ObjectId.isValid(commentId)) {
     throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -70,6 +70,7 @@ const deleteComment = async (commentId: ObjectId, currentUserId: ObjectId): Prom
     throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 
+  // both .toString() ?
   const isOwner = currentUserId === commentToDelete.commentatorInfo.userId;
 
   if (!isOwner) {
