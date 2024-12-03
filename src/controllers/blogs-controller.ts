@@ -3,7 +3,7 @@ import BlogsService from '@/services/blogs-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
-import { ObjectId, WithId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import PostsService from '@/services/posts-service';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
@@ -16,11 +16,11 @@ import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import BlogsRepository from '@/repositories/blogs-repository';
 import { blogObjMapper } from '@/util/blogObjMapper';
 import { IBaseResponse } from '@/types/base-response';
-import { IBlog } from '@/types/blogs/blog';
 import PostsRepository from '@/repositories/posts-repository';
 import { postObjMapper } from '@/util/postObjMapper';
+import { IBlogView } from '@/types/blogs/blog';
 
-const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlog>>, next: NextFunction) => {
+const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlogView>>, next: NextFunction) => {
   try {
     const searchNameTerm = req.query.searchNameTerm || null;
     const sortBy = req.query.sortBy || 'createdAt';
@@ -44,7 +44,7 @@ const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: R
   }
 };
 
-const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response<IBlog>, next: NextFunction) => {
+const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response<IBlogView>, next: NextFunction) => {
   const { blogId } = req.params;
 
   try {
@@ -98,7 +98,7 @@ const getPostsForBlog = async (req: Request<{ blogId: ObjectId }, any, any, IBas
   }
 };
 
-const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Response<IBlog>, next: NextFunction) => {
+const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Response<IBlogView>, next: NextFunction) => {
   const newBlog = req.body;
 
   try {

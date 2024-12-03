@@ -1,20 +1,20 @@
-import { blogsCollection } from '@/DB';
+import { BlogModel } from '@/models/blogs-model';
 import { IBaseResponse } from '@/types/base-response';
-import { IBlog } from '@/types/blogs/blog';
+import { IBlogDB } from '@/types/blogs/blog';
+import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
-import { blogObjMapper } from '@/util/blogObjMapper';
 import { buildQuery } from '@/util/buildQuery';
-import { ObjectId, WithId} from 'mongodb';
+import { ObjectId } from 'mongodb';
 
-const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<IBaseResponse<WithId<IBlog>>> => {
-  const { sortOptions, skip, limit } = buildQuery<IBlog>({ pageNumber, pageSize, sortBy, sortDirection });
+const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<IBaseResponse<IBlogDB>> => {
+  const { sortOptions, skip, limit } = buildQuery<IBlogDB>({ pageNumber, pageSize, sortBy, sortDirection });
 
   const query = searchNameTerm ? { name: { $regex: searchNameTerm, $options: 'i' } } : {};
 
-  const items = await blogsCollection.find(query).sort(sortOptions).skip(skip).limit(limit).toArray();
+  const items = await BlogModel.find(query).sort(sortOptions).skip(skip).limit(limit);
 
-  const totalCount = await blogsCollection.countDocuments(query);
+  const totalCount = await BlogModel.countDocuments(query);
   const pagesCount = Math.ceil(totalCount / pageSize);
 
   return {
@@ -26,21 +26,22 @@ const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortD
   };
 };
 
-const getBlogById = async (blogId: ObjectId): Promise<WithId<IBlog> | null> => {
-  return await blogsCollection.findOne({ _id: new ObjectId(blogId) });
+const getBlogById = async (blogId: ObjectId): Promise<IBlogDB | null> => {
+  // return await BlogModel.findOne({ _id: blogId});
+  return await BlogModel.findById(blogId);
 };
 
-const createBlog = async (newBlog: IBlog): Promise<WithId<IBlog>> => {
-  const res = await blogsCollection.insertOne(newBlog);
-  return { ...newBlog, _id: res.insertedId };
+const createBlog = async (newBlog: ICreateBlogPayload): Promise<IBlogDB> => {
+  return await BlogModel.create(newBlog);
 };
 
-const updateBlog = async (blogId: ObjectId, newBlog: IUpdateBlogPayload): Promise<void> => {
-  await blogsCollection.updateOne({ _id: new ObjectId(blogId) }, { $set: newBlog });
+const updateBlog = async (blogId: ObjectId, updates: IUpdateBlogPayload): Promise<void> => {
+  // await BlogModel.updateOne({ _id: blogId }, updates);
+  await BlogModel.findOneAndUpdate({ _id: blogId }, updates);
 };
 
 const deleteBlog = async (blogId: ObjectId): Promise<void> => {
-  await blogsCollection.deleteOne({ _id: new ObjectId(blogId) });
+  await BlogModel.deleteOne({ _id: blogId });
 };
 
 export default {

@@ -1,10 +1,6 @@
-import { IBlog } from '@/types/blogs/blog';
-import { ObjectId } from 'mongodb';
+import { IBlogDB, IBlogView } from '@/types/blogs/blog';
 
-type BlogMongo = IBlog & { _id: ObjectId };
-
-// map the response and get rid of _id
-export function blogObjMapper(blog: BlogMongo): IBlog {
+export function blogObjMapper(blog: IBlogDB): IBlogView {
   return {
     id: blog._id,
     name: blog.name,

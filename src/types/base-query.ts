@@ -1,6 +1,8 @@
+import { SORT_DIRECTIONS } from '@/const/sort-directions';
+
 export interface IBaseQuery<T> {
   sortBy?: keyof T;
-  sortDirection?: 'asc' | 'desc';
+  sortDirection?: SORT_DIRECTIONS;
   pageNumber?: number;
   pageSize?: number;
 }
