@@ -1,7 +1,6 @@
-import { ISession, ISessionReturn } from '@/types/sessions/session';
-import { WithId } from 'mongodb';
+import { ISessionDB, ISessionView } from '@/types/sessions/session';
 
-export function deviceObjMapper(session: WithId<ISession>): ISessionReturn {
+export function deviceObjMapper(session: ISessionDB): ISessionView {
   return {
     ip: session.ipAddress,
     title: session.userAgent,

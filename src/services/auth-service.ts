@@ -12,7 +12,6 @@ import { add, isAfter } from 'date-fns';
 import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 import MailService from './mail-service';
 import { AuthErrorsList } from '@/errors/auth-errors';
-import { ObjectId } from 'mongodb';
 import { ACCESS_TOKEN_EXP_TIME, REFRESH_TOKEN_EXP_TIME } from '@/const/tokens-exp-time';
 import SessionsService from './sessions-service';
 import SessionsRepository from '@/repositories/sessions-repository';

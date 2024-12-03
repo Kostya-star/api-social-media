@@ -1,14 +1,17 @@
-import { ObjectId, Sort, WithId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { ErrorService } from './error-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateUserBody } from '@/types/users/createUserBody';
-import { IUser } from '@/types/users/user';
 import UsersRepository from '@/repositories/users-repository';
 import bcrypt from 'bcrypt';
 import { UsersErrorsList } from '@/errors/users-errors';
 import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
+import { IUserDB } from '@/types/users/user';
+import { Types } from 'mongoose';
 
-const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfirmationBody): Promise<WithId<IUser>> => {
+type MObjectId = Types.ObjectId;
+
+const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfirmationBody): Promise<IUserDB> => {
   const { email, login, password } = user;
 
   const [userWithSameLogin, userWithSameEmail] = await Promise.all([UsersRepository.findUserByFilter({ login }), UsersRepository.findUserByFilter({ email })]);
@@ -22,7 +25,7 @@ const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfi
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser: IUser = {
+  const newUser: Omit<IUserDB, '_id' | 'updatedAt'> = {
     login,
     email,
     hashedPassword,
@@ -38,7 +41,7 @@ const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfi
   return await UsersRepository.createUser(newUser);
 };
 
-const updateUserById = async (userId: ObjectId, newUser: Partial<IUser>): Promise<void> => {
+const updateUserById = async (userId: MObjectId, newUser: IEmailConfirmationBody): Promise<void> => {
   if (!ObjectId.isValid(userId)) {
     throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -52,7 +55,7 @@ const updateUserById = async (userId: ObjectId, newUser: Partial<IUser>): Promis
   await UsersRepository.updateUserById(userId, newUser);
 };
 
-const deleteUser = async (userId: ObjectId): Promise<void> => {
+const deleteUser = async (userId: MObjectId): Promise<void> => {
   if (!ObjectId.isValid(userId)) {
     throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }

@@ -1,11 +1,16 @@
-import { ObjectId } from 'mongodb';
 import { IEmailConfirmationBody } from './email-confirmation-body';
+import { Types } from 'mongoose';
 
-export interface IUser {
-  id?: ObjectId;
+export interface IUserDB {
+  _id: Types.ObjectId;
   login: string;
   email: string;
-  hashedPassword?: string;
-  emailConfirmation?: IEmailConfirmationBody;
+  hashedPassword: string;
+  emailConfirmation: IEmailConfirmationBody;
   createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IUserView extends Omit<IUserDB, '_id' | 'hashedPassword' | 'emailConfirmation' | 'updatedAt'> {
+  id: Types.ObjectId;
 }

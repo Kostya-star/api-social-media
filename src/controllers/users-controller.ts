@@ -5,13 +5,13 @@ import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { ICreateUserBody } from '@/types/users/createUserBody';
 import UsersService from '@/services/users-service';
-import { IUser } from '@/types/users/user';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
 import UsersRepository from '@/repositories/users-repository';
 import { IBaseResponse } from '@/types/base-response';
 import { userObjMapper } from '@/util/userObjMapper';
+import { IUserView } from '@/types/users/user';
 
-const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: Response<IBaseResponse<IUser>>, next: NextFunction) => {
+const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: Response<IBaseResponse<IUserView>>, next: NextFunction) => {
   try {
     const searchLoginTerm = req.query.searchLoginTerm || null;
     const searchEmailTerm = req.query.searchEmailTerm || null;
@@ -35,7 +35,7 @@ const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: R
   }
 };
 
-const adminCreatesUser = async (req: Request<any, any, ICreateUserBody>, res: Response<IUser | unknown>, next: NextFunction) => {
+const adminCreatesUser = async (req: Request<any, any, ICreateUserBody>, res: Response<IUserView | unknown>, next: NextFunction) => {
   const newUser = req.body;
 
   try {

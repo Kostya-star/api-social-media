@@ -1,16 +1,19 @@
-import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
 
-export interface ISession {
+export interface ISessionDB {
+  _id: Types.ObjectId;
   deviceId: string;
-  userId: ObjectId;
+  userId: Types.ObjectId;
   issuedAt: string;
   expiresAt: string;
   userAgent: string;
   ipAddress: string;
   lastActiveDate: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface ISessionReturn {
+export interface ISessionView {
   ip: string;
   title: string;
   lastActiveDate: string;

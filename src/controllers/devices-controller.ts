@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import SessionsRepository from '@/repositories/sessions-repository';
-import { ISessionReturn } from '@/types/sessions/session';
+import { ISessionView } from '@/types/sessions/session';
 import { deviceObjMapper } from '@/util/deviceObjMapper';
 import SessionsService from '@/services/sessions-service';
 
-const getUserDevices = async (req: Request, res: Response<ISessionReturn[]>, next: NextFunction) => {
+const getUserDevices = async (req: Request, res: Response<ISessionView[]>, next: NextFunction) => {
   try {
     const { userId } = req.refresh_token_decoded_payload;
 

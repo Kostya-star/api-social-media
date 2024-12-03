@@ -1,10 +1,6 @@
-import { IUser } from '@/types/users/user';
-import { ObjectId } from 'mongodb';
+import { IUserDB, IUserView } from '@/types/users/user';
 
-type UserMongo = IUser & { _id: ObjectId };
-
-// map the response and get rid of _id
-export function userObjMapper(user: UserMongo): IUser {
+export function userObjMapper(user: IUserDB): IUserView {
   return {
     id: user._id,
     login: user.login,

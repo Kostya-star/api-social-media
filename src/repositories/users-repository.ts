@@ -1,13 +1,16 @@
-import { usersCollection } from '@/DB';
+import { UserModel } from '@/models/users-model';
 import { IBaseResponse } from '@/types/base-response';
+import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
-import { IUser } from '@/types/users/user';
+import { IUserDB } from '@/types/users/user';
 import { buildQuery } from '@/util/buildQuery';
-import { Filter, ObjectId, WithId } from 'mongodb';
+import { RootFilterQuery, Types } from 'mongoose';
 
-const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResponse<WithId<IUser>>> => {
+type MObjectId = Types.ObjectId;
+
+const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResponse<IUserDB>> => {
   const { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection } = query;
-  const { sortOptions, skip, limit } = buildQuery<IUser>({ pageNumber, pageSize, sortBy, sortDirection });
+  const { sortOptions, skip, limit } = buildQuery<IUserDB>({ pageNumber, pageSize, sortBy, sortDirection });
 
   const searchConditions = [];
 
@@ -21,9 +24,9 @@ const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResp
 
   const queryFilter = searchConditions.length ? { $or: searchConditions } : {};
 
-  const items = await usersCollection.find(queryFilter).sort(sortOptions).skip(skip).limit(limit).toArray();
+  const items = await UserModel.find(queryFilter).sort(sortOptions).skip(skip).limit(limit);
 
-  const totalCount = await usersCollection.countDocuments(queryFilter);
+  const totalCount = await UserModel.countDocuments(queryFilter);
   const pagesCount = Math.ceil(totalCount / pageSize);
 
   return {
@@ -35,25 +38,24 @@ const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResp
   };
 };
 
-const getUserById = async (userId: ObjectId): Promise<WithId<IUser> | null> => {
-  return await usersCollection.findOne({ _id: new ObjectId(userId) });
+const getUserById = async (userId: MObjectId): Promise<IUserDB | null> => {
+  return await UserModel.findOne({ _id: userId });
 };
 
-const findUserByFilter = async (filter: Filter<IUser>): Promise<WithId<IUser> | null> => {
-  return await usersCollection.findOne(filter);
+const findUserByFilter = async (filter: RootFilterQuery<IUserDB>): Promise<IUserDB | null> => {
+  return await UserModel.findOne(filter);
 };
 
-const createUser = async (newUser: IUser): Promise<WithId<IUser>> => {
-  const res = await usersCollection.insertOne(newUser);
-  return { ...newUser, _id: res.insertedId };
+const createUser = async (newUser: Omit<IUserDB, '_id' | 'updatedAt'>): Promise<IUserDB> => {
+  return await UserModel.create(newUser);
 };
 
-const updateUserById = async (userId: ObjectId, newUser: Partial<IUser>): Promise<void> => {
-  await usersCollection.updateOne({ _id: new ObjectId(userId) }, { $set: newUser });
+const updateUserById = async (userId: MObjectId, updates: IEmailConfirmationBody): Promise<void> => {
+  await UserModel.updateOne({ _id: userId }, { $set: updates });
 };
 
-const deleteUser = async (userId: ObjectId): Promise<void> => {
-  await usersCollection.deleteOne({ _id: new ObjectId(userId) });
+const deleteUser = async (userId: MObjectId): Promise<void> => {
+  await UserModel.deleteOne({ _id: userId });
 };
 
 export default {
