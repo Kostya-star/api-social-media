@@ -59,7 +59,7 @@ const confirmRegistration = async (code: string): Promise<void> => {
     };
   }
 
-  await UsersService.updateUserById(user._id, { emailConfirmation: { ...user.emailConfirmation, isConfirmed: true } as IEmailConfirmationBody });
+  await UsersService.updateUserById(user._id, { ...user.emailConfirmation, isConfirmed: true } as IEmailConfirmationBody);
 };
 
 const resendCode = async (email: string): Promise<void> => {
@@ -81,7 +81,7 @@ const resendCode = async (email: string): Promise<void> => {
 
   const emailConfirmation = EmailConfirmationDTO();
 
-  await UsersService.updateUserById(user._id, { emailConfirmation });
+  await UsersService.updateUserById(user._id, emailConfirmation);
 
   const message = EmailMessageDTO(emailConfirmation.code!);
   await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", user.email, 'Registration Confirmation', message);
@@ -192,7 +192,7 @@ function EmailConfirmationDTO(): IEmailConfirmationBody {
   };
 }
 
-function EmailMessageDTO(code: string) {
+function EmailMessageDTO(code: string): string {
   return `<h1>Thanks for your registration</h1>
   <p>To finish, please follow the link and
       <a href='http://localhost:8000/auth/registration-confirmation?code=${code}'>confirm registration</a>

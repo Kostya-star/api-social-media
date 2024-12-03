@@ -4,9 +4,8 @@ import { IAuthLoginPayload } from '@/types/auth/auth-login-payload';
 import AuthService from '@/services/auth-service';
 import { ObjectId, WithId } from 'mongodb';
 import UsersRepository from '@/repositories/users-repository';
-import { IUser } from '@/types/users/user';
-import { userObjMapper } from '@/util/userObjMapper';
 import { ICreateUserBody } from '@/types/users/createUserBody';
+import { IUserDB } from '@/types/users/user';
 
 // user registers themselves without admin
 const selfRegistration = async (req: Request<any, any, ICreateUserBody>, res: Response, next: NextFunction) => {
@@ -110,7 +109,7 @@ const getMe = async (req: Request, res: Response<{ email: string; login: string;
   try {
     const userId = req.userId!;
 
-    const { email, login, _id } = (await UsersRepository.findUserByFilter({ _id: new ObjectId(userId) })) as WithId<IUser>;
+    const { email, login, _id } = (await UsersRepository.findUserByFilter({ _id: new ObjectId(userId) })) as IUserDB;
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ email, login, userId: _id });
   } catch (err) {

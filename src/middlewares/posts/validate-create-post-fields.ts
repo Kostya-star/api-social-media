@@ -1,16 +1,17 @@
-import { body, param, validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { PostsErrorsList } from '@/errors/posts-errors';
-import { TITLE_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, CONTENT_MAX_LENGTH } from '@/const/posts/posts';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
-// import { ObjectId } from 'mongodb';
-import { blogsCollection } from '@/DB';
 import { ObjectId } from 'mongodb';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { validateContent } from './validate-content';
 import { validateDescription } from './validate-description';
 import { validateTitle } from './validate-title';
+import { Types } from 'mongoose';
+import BlogsRepository from '@/repositories/blogs-repository';
+
+type MObjectId = Types.ObjectId;
 
 export const validateCreatePostFields = [
   validateTitle(),
@@ -25,12 +26,12 @@ export const validateCreatePostFields = [
     .withMessage(PostsErrorsList.BLOG_ID_EMPTY)
 
     // check if a blog with id of 'blogId' exists
-    .custom(async (blogId: ObjectId) => {
+    .custom(async (blogId: MObjectId) => {
       if (!ObjectId.isValid(blogId)) {
         throw new Error(BlogsErrorsList.NOT_FOUND);
       }
 
-      const blog = await blogsCollection.findOne({ _id: new ObjectId(blogId) });
+      const blog = await BlogsRepository.getBlogById(blogId)
 
       if (!blog) {
         throw new Error(BlogsErrorsList.NOT_FOUND);
