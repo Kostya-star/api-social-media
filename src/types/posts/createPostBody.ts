@@ -1,8 +1,8 @@
-import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
 
 export interface ICreatePostBody {
   title: string;
   shortDescription: string;
   content: string;
-  blogId: ObjectId;
+  blogId: Types.ObjectId;
 }

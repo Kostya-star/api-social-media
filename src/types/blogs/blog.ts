@@ -1,7 +1,7 @@
-import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
 
 export interface IBlogDB {
-  _id: ObjectId;
+  _id: Types.ObjectId;
   name: string;
   description: string;
   websiteUrl: string;
@@ -11,5 +11,5 @@ export interface IBlogDB {
 }
 
 export interface IBlogView extends Omit<IBlogDB, '_id' | 'updatedAt'> {
-  id?: ObjectId;
+  id?: Types.ObjectId;
 }

@@ -5,7 +5,9 @@ import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { buildQuery } from '@/util/buildQuery';
-import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
+
+type ObjectId = Types.ObjectId;
 
 const getAllBlogs = async ({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<IBaseResponse<IBlogDB>> => {
   const { sortOptions, skip, limit } = buildQuery<IBlogDB>({ pageNumber, pageSize, sortBy, sortDirection });

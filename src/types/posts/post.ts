@@ -1,13 +1,16 @@
-import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
 
-export interface IPost {
-  // _id?: ObjectId;
-  id?: ObjectId;
+export interface IPostDB {
+  _id: Types.ObjectId;
   title: string;
   shortDescription: string;
   content: string;
-  // blogId: ObjectId;
-  blogId: ObjectId;
+  blogId: Types.ObjectId;
   blogName: string;
-  createdAt: Date
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IPostView extends Omit<IPostDB, '_id' | 'updatedAt'> {
+  id: Types.ObjectId;
 }

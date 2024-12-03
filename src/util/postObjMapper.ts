@@ -1,10 +1,6 @@
-import { IPost } from '@/types/posts/post';
-import { ObjectId } from 'mongodb';
+import { IPostDB, IPostView } from '@/types/posts/post';
 
-type PostMongo = IPost & { _id: ObjectId };
-
-// map the response and get rid of _id
-export function postObjMapper(post: PostMongo): IPost {
+export function postObjMapper(post: IPostDB): IPostView {
   return {
     id: post._id,
     title: post.title,

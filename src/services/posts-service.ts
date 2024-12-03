@@ -1,22 +1,25 @@
-import { IPost } from '@/types/posts/post';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { IUpdatePostBody } from '@/types/posts/updatePostBody';
-import { ObjectId, WithId } from 'mongodb';
 import PostsRepository from '@/repositories/posts-repository';
 import { ErrorService } from './error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import BlogsRepository from '@/repositories/blogs-repository';
+import { IPostDB } from '@/types/posts/post';
+import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
 
-const createPost = async (post: ICreatePostBody): Promise<WithId<IPost>> => {
+type MObjectId = Types.ObjectId;
+
+const createPost = async (post: ICreatePostBody): Promise<IPostDB> => {
   // no errors should occur here coz previusly it was assured the post.blogId should exist and be valid
   const blogName = (await BlogsRepository.getBlogById(post.blogId))!.name;
 
-  const newPost: IPost = { ...post, createdAt: new Date(), blogName };
+  const newPost: ICreatePostBody & { blogName: string } = { ...post, blogName };
   return await PostsRepository.createPost(newPost);
 };
 
-const updatePost = async (postId: ObjectId, newPost: IUpdatePostBody): Promise<void> => {
+const updatePost = async (postId: MObjectId, newPost: IUpdatePostBody): Promise<void> => {
   if (!ObjectId.isValid(postId)) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -30,7 +33,7 @@ const updatePost = async (postId: ObjectId, newPost: IUpdatePostBody): Promise<v
   await PostsRepository.updatePost(postId, newPost);
 };
 
-const deletePost = async (postId: ObjectId): Promise<void> => {
+const deletePost = async (postId: MObjectId): Promise<void> => {
   if (!ObjectId.isValid(postId)) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }

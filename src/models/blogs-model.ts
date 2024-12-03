@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 
 const blogSchema = new mongoose.Schema<IBlogDB>(
   {
-    name: { type: String, require: true },
-    description: { type: String, require: true },
-    websiteUrl: { type: String, require: true },
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    websiteUrl: { type: String, required: true },
     isMembership: { type: Boolean, default: false },
   },
   {

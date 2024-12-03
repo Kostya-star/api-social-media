@@ -7,7 +7,6 @@ import { ObjectId } from 'mongodb';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { IBaseQuery } from '@/types/base-query';
-import { IPost } from '@/types/posts/post';
 import PostsRepository from '@/repositories/posts-repository';
 import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
@@ -18,8 +17,12 @@ import { IComment } from '@/types/comments/comment';
 import CommentsService from '@/services/comments-service';
 import { commentObjMapper } from '@/util/commentObjMapper';
 import CommentsRepository from '@/repositories/comments-repository';
+import { IPostDB, IPostView } from '@/types/posts/post';
+import { Types } from 'mongoose';
 
-const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPost>>, res: Response<IBaseResponse<IPost>>, next: NextFunction) => {
+type MObjectId = Types.ObjectId;
+
+const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) => {
   try {
     const sortBy = req.query.sortBy || 'createdAt';
     const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
@@ -34,7 +37,7 @@ const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPost>>, res: 
   }
 };
 
-const getPostById = async (req: Request<{ postId: ObjectId }>, res: Response<IPost>, next: NextFunction) => {
+const getPostById = async (req: Request<{ postId: MObjectId }>, res: Response<IPostView>, next: NextFunction) => {
   const { postId } = req.params;
 
   try {
@@ -54,7 +57,7 @@ const getPostById = async (req: Request<{ postId: ObjectId }>, res: Response<IPo
   }
 };
 
-const getCommentsForPosts = async (req: Request<{ postId: ObjectId }, any, any, IBaseQuery<IComment>>, res: Response<IBaseResponse<IComment>>, next: NextFunction) => {
+const getCommentsForPosts = async (req: Request<{ postId: MObjectId }, any, any, IBaseQuery<IComment>>, res: Response<IBaseResponse<IComment>>, next: NextFunction) => {
   try {
     const postId = req.params.postId
 
@@ -82,7 +85,7 @@ const getCommentsForPosts = async (req: Request<{ postId: ObjectId }, any, any, 
   }
 };
 
-const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response<IPost>, next: NextFunction) => {
+const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response<IPostView>, next: NextFunction) => {
   const newPost = req.body;
 
   try {
@@ -94,7 +97,7 @@ const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response
   }
 };
 
-const createCommentForPost = async (req: Request<{ postId: ObjectId }, any, ICommentBody>, res: Response<IComment>, next: NextFunction) => {
+const createCommentForPost = async (req: Request<{ postId: MObjectId }, any, ICommentBody>, res: Response<IComment>, next: NextFunction) => {
   const newComment = req.body;
   const postId = req.params.postId;
   const userId = req.userId!;
@@ -108,7 +111,7 @@ const createCommentForPost = async (req: Request<{ postId: ObjectId }, any, ICom
   }
 };
 
-const updatePost = async (req: Request<{ postId: ObjectId }, any, IUpdatePostBody>, res: Response<void>, next: NextFunction) => {
+const updatePost = async (req: Request<{ postId: MObjectId }, any, IUpdatePostBody>, res: Response<void>, next: NextFunction) => {
   const postId = req.params.postId;
   const newPost = req.body;
 
@@ -121,7 +124,7 @@ const updatePost = async (req: Request<{ postId: ObjectId }, any, IUpdatePostBod
   }
 };
 
-const deletePost = async (req: Request<{ postId: ObjectId }>, res: Response<void>, next: NextFunction) => {
+const deletePost = async (req: Request<{ postId: MObjectId }>, res: Response<void>, next: NextFunction) => {
   const postId = req.params.postId;
 
   try {
