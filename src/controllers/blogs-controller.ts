@@ -10,7 +10,6 @@ import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { ErrorService } from '@/services/error-service';
 import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 import { IBaseQuery } from '@/types/base-query';
-import { IPost } from '@/types/posts/post';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import BlogsRepository from '@/repositories/blogs-repository';
@@ -19,6 +18,7 @@ import { IBaseResponse } from '@/types/base-response';
 import PostsRepository from '@/repositories/posts-repository';
 import { postObjMapper } from '@/util/postObjMapper';
 import { IBlogView } from '@/types/blogs/blog';
+import { IPostDB, IPostView } from '@/types/posts/post';
 
 const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlogView>>, next: NextFunction) => {
   try {
@@ -64,7 +64,7 @@ const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response<IBl
   }
 };
 
-const getPostsForBlog = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPost>>, res: Response<IBaseResponse<IPost>>, next: NextFunction) => {
+const getPostsForBlog = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) => {
   const { blogId } = req.params;
 
   try {
@@ -110,7 +110,7 @@ const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Respo
   }
 };
 
-const createPostForBlog = async (req: Request<{ blogId: ObjectId }, any, Omit<ICreatePostBody, 'blogId'>>, res: Response<IPost>, next: NextFunction) => {
+const createPostForBlog = async (req: Request<{ blogId: ObjectId }, any, Omit<ICreatePostBody, 'blogId'>>, res: Response<IPostView>, next: NextFunction) => {
   const blogId = req.params.blogId;
   const newPost = { ...req.body, blogId };
 
