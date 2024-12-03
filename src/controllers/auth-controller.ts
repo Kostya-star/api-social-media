@@ -109,7 +109,7 @@ const getMe = async (req: Request, res: Response<{ email: string; login: string;
   try {
     const userId = req.userId!;
 
-    const { email, login, _id } = (await UsersRepository.findUserByFilter({ _id: new ObjectId(userId) })) as IUserDB;
+    const { email, login, _id } = (await UsersRepository.findUserByFilter({ _id: userId})) as IUserDB;
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ email, login, userId: _id });
   } catch (err) {

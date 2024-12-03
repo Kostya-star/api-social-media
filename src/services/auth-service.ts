@@ -59,7 +59,7 @@ const confirmRegistration = async (code: string): Promise<void> => {
     };
   }
 
-  await UsersService.updateUserById(user._id, { ...user.emailConfirmation, isConfirmed: true } as IEmailConfirmationBody);
+  await UsersService.updateUserById(user._id, { emailConfirmation: { ...user.emailConfirmation, isConfirmed: true } as IEmailConfirmationBody});
 };
 
 const resendCode = async (email: string): Promise<void> => {
@@ -81,7 +81,7 @@ const resendCode = async (email: string): Promise<void> => {
 
   const emailConfirmation = EmailConfirmationDTO();
 
-  await UsersService.updateUserById(user._id, emailConfirmation);
+  await UsersService.updateUserById(user._id, { emailConfirmation });
 
   const message = EmailMessageDTO(emailConfirmation.code!);
   await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", user.email, 'Registration Confirmation', message);

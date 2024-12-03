@@ -50,8 +50,9 @@ const createUser = async (newUser: Omit<IUserDB, '_id' | 'updatedAt'>): Promise<
   return await UserModel.create(newUser);
 };
 
-const updateUserById = async (userId: MObjectId, updates: IEmailConfirmationBody): Promise<void> => {
-  await UserModel.updateOne({ _id: userId }, { $set: updates });
+const updateUserById = async (userId: MObjectId, updates: Partial<IUserDB>): Promise<void> => {
+  // console.log('updates', updates)
+  await UserModel.updateOne({ _id: userId }, updates);
 };
 
 const deleteUser = async (userId: MObjectId): Promise<void> => {

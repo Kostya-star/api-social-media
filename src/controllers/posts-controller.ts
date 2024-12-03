@@ -12,12 +12,12 @@ import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { postObjMapper } from '@/util/postObjMapper';
 import { IBaseResponse } from '@/types/base-response';
-import { IComment } from '@/types/comments/comment';
 import CommentsService from '@/services/comments-service';
 import { commentObjMapper } from '@/util/commentObjMapper';
 import CommentsRepository from '@/repositories/comments-repository';
 import { IPostDB, IPostView } from '@/types/posts/post';
 import { Types } from 'mongoose';
+import { ICommentDB, ICommentView } from '@/types/comments/comment';
 
 type MObjectId = Types.ObjectId;
 
@@ -56,9 +56,13 @@ const getPostById = async (req: Request<{ postId: MObjectId }>, res: Response<IP
   }
 };
 
-const getCommentsForPosts = async (req: Request<{ postId: MObjectId }, any, any, IBaseQuery<IComment>>, res: Response<IBaseResponse<IComment>>, next: NextFunction) => {
+const getCommentsForPosts = async (
+  req: Request<{ postId: MObjectId }, any, any, IBaseQuery<ICommentDB>>,
+  res: Response<IBaseResponse<ICommentView>>,
+  next: NextFunction
+) => {
   try {
-    const postId = req.params.postId
+    const postId = req.params.postId;
 
     if (!ObjectId.isValid(postId)) {
       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -75,8 +79,10 @@ const getCommentsForPosts = async (req: Request<{ postId: MObjectId }, any, any,
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
     const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    const { pagesCount, page, pageSize, totalCount, items } = await CommentsRepository
-      .getCommentsForPost({ sortBy, sortDirection, pageNumber, pageSize: _pageSize }, postId);
+    const { pagesCount, page, pageSize, totalCount, items } = await CommentsRepository.getCommentsForPost(
+      { sortBy, sortDirection, pageNumber, pageSize: _pageSize },
+      postId
+    );
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ pagesCount, page, pageSize, totalCount, items: items.map(commentObjMapper) });
   } catch (err) {
@@ -96,7 +102,7 @@ const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response
   }
 };
 
-const createCommentForPost = async (req: Request<{ postId: MObjectId }, any, { content: string }>, res: Response<IComment>, next: NextFunction) => {
+const createCommentForPost = async (req: Request<{ postId: MObjectId }, any, { content: string }>, res: Response<ICommentView>, next: NextFunction) => {
   const newComment = req.body;
   const postId = req.params.postId;
   const userId = req.userId!;

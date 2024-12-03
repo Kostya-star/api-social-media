@@ -6,10 +6,8 @@ const commentSchema = new mongoose.Schema<ICommentDB>(
     content: { type: String, required: true },
     postId: { type: Schema.Types.ObjectId, required: true },
     commentatorInfo: {
-      type: {
-        userId: { type: Schema.Types.ObjectId, required: true },
-        userLogin: { type: String, required: true },
-      }
+      userId: { type: Schema.Types.ObjectId, required: true },
+      userLogin: { type: String, required: true },
     },
   },
   {
