@@ -28,7 +28,7 @@ const selfRegistration = async (newUser: ICreateUserBody): Promise<void> => {
   const message = EmailMessageDTO('registration-confirmation', 'Confirm registration', 'code', emailConfirmation.code!);
 
   try {
-    await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", newUser.email, 'Registration Confirmation', message);
+    await MailService.sendMail("'Igor' kostya.danilov.99@mail.ru", newUser.email, 'Registration Confirmation', message);
   } catch (err) {
     await UsersService.deleteUser(createdUser._id);
     throw err;
@@ -86,7 +86,7 @@ const resendCode = async (email: string): Promise<void> => {
   await UsersService.updateUserById(user._id, { emailConfirmation });
 
   const message = EmailMessageDTO('registration-confirmation', 'Confirm registration', 'code', emailConfirmation.code!);
-  await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", user.email, 'Registration Confirmation', message);
+  await MailService.sendMail("'Petr' kostya.danilov.99@mail.ru", user.email, 'Registration Confirmation', message);
 };
 
 const login = async (
@@ -166,7 +166,7 @@ const recoverPassword = async (ToEmail: string): Promise<void> => {
 
   const message = EmailMessageDTO('password-recovery', 'Recover password', 'recoveryCode', passwordConfirmation.code!);
   
-  await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", ToEmail, 'Recover password', message);
+  await MailService.sendMail("'Kolya' kostya.danilov.99@mail.ru", ToEmail, 'Recover password', message);
 };
 
 const changePassword = async ({ newPassword, recoveryCode }: IChangeUserPasswordPayload): Promise<void> => {
@@ -174,7 +174,7 @@ const changePassword = async ({ newPassword, recoveryCode }: IChangeUserPassword
 
   if (!user) {
     throw {
-      field: 'code',
+      field: 'recoveryCode',
       message: AuthErrorsList.CODE_INCORRECT,
     };
   }
@@ -183,7 +183,7 @@ const changePassword = async ({ newPassword, recoveryCode }: IChangeUserPassword
 
   if (isExpired) {
     throw {
-      field: 'code',
+      field: 'recoveryCode',
       message: AuthErrorsList.CODE_EXPIRED,
     };
   }

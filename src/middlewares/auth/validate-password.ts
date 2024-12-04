@@ -2,8 +2,8 @@ import { USER_PASSWORD_MAX_LENGTH, USER_PASSWORD_MIN_LENGTH } from '@/const/user
 import { UsersErrorsList } from '@/errors/users-errors';
 import { body } from 'express-validator';
 
-export const validatePassword = () =>
-  body('password')
+export const validatePassword = (bodyStr: string) =>
+  body(bodyStr)
     .isString()
     .withMessage(UsersErrorsList.PASSWORD_IS_NOT_STRING)
     .trim()

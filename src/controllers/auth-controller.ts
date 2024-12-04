@@ -116,12 +116,24 @@ const recoverPassword = async (req: Request<any, any, { email: string }>, res: R
   }
 };
 
-const changePassword = async (req: Request<any, any, IChangeUserPasswordPayload>, res: Response<{ accessToken: string }>, next: NextFunction) => {
+const changePassword = async (req: Request<any, any, IChangeUserPasswordPayload>, res: Response, next: NextFunction) => {
   try {
     await AuthService.changePassword(req.body);
 
     res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
+  } catch (err: any) {
+    if (err.field) {
+      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
+        errorsMessages: [
+          {
+            field: err.field,
+            message: err.message,
+          },
+        ],
+      });
+      return;
+    }
+
     next(err);
   }
 };
