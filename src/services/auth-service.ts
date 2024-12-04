@@ -17,13 +17,15 @@ import SessionsService from './sessions-service';
 import SessionsRepository from '@/repositories/sessions-repository';
 import { IRefreshTokenDecodedPayload } from '@/types/refresh-token-decoded-payload';
 import { getISOFromUnixSeconds } from '@/util/get-iso-from-unix-secs';
+import { IChangeUserPasswordPayload } from '@/types/auth/auth-change-password-payload';
+import { IUserDB } from '@/types/users/user';
 
 const selfRegistration = async (newUser: ICreateUserBody): Promise<void> => {
   const emailConfirmation = EmailConfirmationDTO();
 
   const createdUser = await UsersService.createUser(newUser, emailConfirmation);
 
-  const message = EmailMessageDTO(emailConfirmation.code!);
+  const message = EmailMessageDTO('registration-confirmation', 'Confirm registration', 'code', emailConfirmation.code!);
 
   try {
     await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", newUser.email, 'Registration Confirmation', message);
@@ -39,14 +41,14 @@ const confirmRegistration = async (code: string): Promise<void> => {
   if (!user) {
     throw {
       field: 'code',
-      message: AuthErrorsList.CONFIRM_CODE_INCORRECT,
+      message: AuthErrorsList.CODE_INCORRECT,
     };
   }
 
   if (user.emailConfirmation!.isConfirmed) {
     throw {
       field: 'code',
-      message: AuthErrorsList.CONFIRM_CODE_BEEN_APPLIED,
+      message: AuthErrorsList.CODE_BEEN_APPLIED,
     };
   }
 
@@ -55,7 +57,7 @@ const confirmRegistration = async (code: string): Promise<void> => {
   if (isExpired) {
     throw {
       field: 'code',
-      message: AuthErrorsList.CONFIRM_CODE_EXPIRED,
+      message: AuthErrorsList.CODE_EXPIRED,
     };
   }
 
@@ -75,7 +77,7 @@ const resendCode = async (email: string): Promise<void> => {
   if (user.emailConfirmation!.isConfirmed) {
     throw {
       field: 'email',
-      message: AuthErrorsList.CONFIRM_CODE_BEEN_APPLIED,
+      message: AuthErrorsList.CODE_BEEN_APPLIED,
     };
   }
 
@@ -83,7 +85,7 @@ const resendCode = async (email: string): Promise<void> => {
 
   await UsersService.updateUserById(user._id, { emailConfirmation });
 
-  const message = EmailMessageDTO(emailConfirmation.code!);
+  const message = EmailMessageDTO('registration-confirmation', 'Confirm registration', 'code', emailConfirmation.code!);
   await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", user.email, 'Registration Confirmation', message);
 };
 
@@ -153,6 +155,49 @@ const refreshToken = async ({ userId, deviceId, iat }: IRefreshTokenDecodedPaylo
   return { accessToken, refreshToken };
 };
 
+const recoverPassword = async (ToEmail: string): Promise<void> => {
+  const user = await UsersRepository.findUserByFilter({ email: ToEmail });
+
+  const passwordConfirmation = EmailConfirmationDTO()
+
+  if (user) {
+    await UsersService.updateUserById(user._id, { passwordConfirmation });
+  } else return;
+
+  const message = EmailMessageDTO('password-recovery', 'Recover password', 'recoveryCode', passwordConfirmation.code!);
+  
+  await MailService.sendMail("'Constantin' kostya.danilov.99@mail.ru", ToEmail, 'Recover password', message);
+};
+
+const changePassword = async ({ newPassword, recoveryCode }: IChangeUserPasswordPayload): Promise<void> => {
+  const user = await UsersRepository.findUserByFilter({ 'passwordConfirmation.code': recoveryCode });
+
+  if (!user) {
+    throw {
+      field: 'code',
+      message: AuthErrorsList.CODE_INCORRECT,
+    };
+  }
+
+  const isExpired = isAfter(new Date(), user.passwordConfirmation.expDate as Date);
+
+  if (isExpired) {
+    throw {
+      field: 'code',
+      message: AuthErrorsList.CODE_EXPIRED,
+    };
+  }
+
+  const newHashedPassword = await bcrypt.hash(newPassword, 10);
+
+  const updates: Partial<IUserDB> = { 
+    hashedPassword: newHashedPassword,
+    passwordConfirmation: { code: null, expDate: null }
+  }
+
+  await UsersService.updateUserById(user._id, updates);
+};
+
 const logout = async ({ userId, deviceId, iat }: IRefreshTokenDecodedPayload): Promise<void> => {
   const user = await UsersRepository.getUserById(userId);
 
@@ -179,6 +224,8 @@ export default {
   resendCode,
   login,
   refreshToken,
+  recoverPassword,
+  changePassword,
   logout,
 };
 
@@ -192,10 +239,11 @@ function EmailConfirmationDTO(): IEmailConfirmationBody {
   };
 }
 
-function EmailMessageDTO(code: string): string {
-  return `<h1>Thanks for your registration</h1>
-  <p>To finish, please follow the link and
-      <a href='http://localhost:8000/auth/registration-confirmation?code=${code}'>confirm registration</a>
+function EmailMessageDTO(link: string, subj: string, queryParam: string, code: string): string {
+  return `
+  <h1>${subj}</h1>
+  <p>To finish, please follow the link below:
+      <a href='http://localhost:8000/auth/${link}?${queryParam}=${code}'>${subj}</a>
   </p>
   <b>You have 5 minutes!</b>
   `;

@@ -46,7 +46,7 @@ const findUserByFilter = async (filter: RootFilterQuery<IUserDB>): Promise<IUser
   return await UserModel.findOne(filter);
 };
 
-const createUser = async (newUser: Omit<IUserDB, '_id' | 'updatedAt'>): Promise<IUserDB> => {
+const createUser = async (newUser: Partial<IUserDB>): Promise<IUserDB> => {
   return await UserModel.create(newUser);
 };
 

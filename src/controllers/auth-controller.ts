@@ -6,6 +6,7 @@ import { ObjectId, WithId } from 'mongodb';
 import UsersRepository from '@/repositories/users-repository';
 import { ICreateUserBody } from '@/types/users/createUserBody';
 import { IUserDB } from '@/types/users/user';
+import { IChangeUserPasswordPayload } from '@/types/auth/auth-change-password-payload';
 
 // user registers themselves without admin
 const selfRegistration = async (req: Request<any, any, ICreateUserBody>, res: Response, next: NextFunction) => {
@@ -105,6 +106,26 @@ const refreshToken = async (req: Request, res: Response<{ accessToken: string }>
   }
 };
 
+const recoverPassword = async (req: Request<any, any, { email: string }>, res: Response<void>, next: NextFunction) => {
+  try {
+    await AuthService.recoverPassword(req.body.email);
+
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
+const changePassword = async (req: Request<any, any, IChangeUserPasswordPayload>, res: Response<{ accessToken: string }>, next: NextFunction) => {
+  try {
+    await AuthService.changePassword(req.body);
+
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getMe = async (req: Request, res: Response<{ email: string; login: string; userId: ObjectId }>, next: NextFunction) => {
   try {
     const userId = req.userId!;
@@ -134,6 +155,8 @@ export default {
   registrationEmailCodeResending,
   login,
   refreshToken,
+  recoverPassword,
+  changePassword,
   getMe,
   logout,
 };

@@ -7,10 +7,11 @@ export interface IUserDB {
   email: string;
   hashedPassword: string;
   emailConfirmation: IEmailConfirmationBody;
+  passwordConfirmation: Omit<IEmailConfirmationBody, 'isConfirmed'>;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface IUserView extends Omit<IUserDB, '_id' | 'hashedPassword' | 'emailConfirmation' | 'updatedAt'> {
+export interface IUserView extends Omit<IUserDB, '_id' | 'hashedPassword' | 'emailConfirmation' | 'updatedAt' | 'passwordConfirmation'> {
   id: Types.ObjectId;
 }

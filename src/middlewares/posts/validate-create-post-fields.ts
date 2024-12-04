@@ -10,6 +10,7 @@ import { validateDescription } from './validate-description';
 import { validateTitle } from './validate-title';
 import { Types } from 'mongoose';
 import BlogsRepository from '@/repositories/blogs-repository';
+import { checkFor400Error } from '../check-for-400-error';
 
 type MObjectId = Types.ObjectId;
 
@@ -31,7 +32,7 @@ export const validateCreatePostFields = [
         throw new Error(BlogsErrorsList.NOT_FOUND);
       }
 
-      const blog = await BlogsRepository.getBlogById(blogId)
+      const blog = await BlogsRepository.getBlogById(blogId);
 
       if (!blog) {
         throw new Error(BlogsErrorsList.NOT_FOUND);
@@ -39,16 +40,5 @@ export const validateCreatePostFields = [
       return true;
     }),
 
-  (req: Request<any, any, ICreatePostBody>, res: Response, next: NextFunction) => {
-    const errors = validationResult(req).array({ onlyFirstError: true }); // Use onlyFirstError to get one error per field
-    if (errors.length) {
-      const formattedErrors = errors.map((err: any) => ({
-        field: err.path,
-        message: err.msg,
-      }));
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({ errorsMessages: formattedErrors });
-      return;
-    }
-    next();
-  },
+  checkFor400Error<ICreatePostBody>,
 ];

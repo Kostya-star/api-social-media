@@ -9,7 +9,11 @@ const userSchema = new Schema<IUserDB>(
     emailConfirmation: {
       code: { type: String, default: null },
       expDate: { type: Date, default: null },
-      isConfirmed: { type: Boolean, default: false },
+      isConfirmed: { type: Boolean, default: true },
+    },
+    passwordConfirmation: {
+      code: { type: String, default: null },
+      expDate: { type: Date, default: null },
     },
   },
   {

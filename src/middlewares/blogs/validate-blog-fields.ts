@@ -4,6 +4,7 @@ import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { DESCRIPTION_MAX_SYMBOLS, WEBSITE_URL_REGEX, NAME_MAX_SYMBOLS, URL_MAX_SYMBOLS } from '@/const/blogs/blogs';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
+import { checkFor400Error } from '../check-for-400-error';
 
 export const validateBlogFields = [
   body('name')
@@ -35,16 +36,5 @@ export const validateBlogFields = [
     .isLength({ max: URL_MAX_SYMBOLS })
     .withMessage(BlogsErrorsList.URL_EXCEEDED_LENGTH),
 
-  (req: Request<any, any, ICreateBlogPayload>, res: Response, next: NextFunction) => {
-    const errors = validationResult(req).array({ onlyFirstError: true }); // Use onlyFirstError to get one error per field
-    if (errors.length) {
-      const formattedErrors = errors.map((err: any) => ({
-        field: err.path,
-        message: err.msg,
-      }));
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({ errorsMessages: formattedErrors });
-      return;
-    }
-    next();
-  },
+  checkFor400Error<ICreateBlogPayload>,
 ];

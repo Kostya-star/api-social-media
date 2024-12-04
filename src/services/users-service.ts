@@ -25,17 +25,12 @@ const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfi
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser: Omit<IUserDB, '_id' | 'updatedAt'> = {
+  const newUser: Partial<IUserDB> = {
     login,
     email,
     hashedPassword,
-    // default values when created by admin
-    emailConfirmation: emailConfirmation || {
-      code: null,
-      expDate: null,
-      isConfirmed: true,
-    },
-    createdAt: new Date(),
+    // default values emailConfirmation and passowrdConfirmation fields are automatically added by mongoose if missing
+    emailConfirmation,
   };
 
   return await UsersRepository.createUser(newUser);
