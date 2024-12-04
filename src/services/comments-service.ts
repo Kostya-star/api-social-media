@@ -50,7 +50,7 @@ const updateComment = async (commentId: MObjectId, newComment: { content: string
   }
 
   // both .toString() ?
-  const isOwner = currentUserId === commentToUpdate.commentatorInfo.userId;
+  const isOwner = currentUserId.toString() === commentToUpdate.commentatorInfo.userId.toString();
 
   if (!isOwner) {
     throw ErrorService(HTTP_ERROR_MESSAGES.FORBIDDEN_403, HTTP_STATUS_CODES.FORBIDDEN_403);
@@ -71,7 +71,7 @@ const deleteComment = async (commentId: MObjectId, currentUserId: MObjectId): Pr
   }
 
   // both .toString() ?
-  const isOwner = currentUserId === commentToDelete.commentatorInfo.userId;
+  const isOwner = currentUserId.toString() === commentToDelete.commentatorInfo.userId.toString();
 
   if (!isOwner) {
     throw ErrorService(HTTP_ERROR_MESSAGES.FORBIDDEN_403, HTTP_STATUS_CODES.FORBIDDEN_403);
