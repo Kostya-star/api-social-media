@@ -106,15 +106,15 @@ const login = async (
 
   const deviceId = uuidv4();
 
-  const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, /*{ expiresIn: ACCESS_TOKEN_EXP_TIME }*/);
-  const refreshToken = jwt.sign({ userId: user._id, deviceId }, process.env.REFRESH_TOKEN_SECRET!, /*{ expiresIn: REFRESH_TOKEN_EXP_TIME }*/);
+  const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: ACCESS_TOKEN_EXP_TIME });
+  const refreshToken = jwt.sign({ userId: user._id, deviceId }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: REFRESH_TOKEN_EXP_TIME });
 
-  // const { iat, exp } = jwt.decode(refreshToken) as IRefreshTokenDecodedPayload;
+  const { iat, exp } = jwt.decode(refreshToken) as IRefreshTokenDecodedPayload;
 
-  // const iatISO = getISOFromUnixSeconds(iat)
-  // const expISO = getISOFromUnixSeconds(exp)
+  const iatISO = getISOFromUnixSeconds(iat)
+  const expISO = getISOFromUnixSeconds(exp)
 
-  // await SessionsService.createSession({ deviceId, userId: user._id, issuedAt: iatISO, expiresAt: expISO, userAgent, ipAddress, lastActiveDate: iatISO });
+  await SessionsService.createSession({ deviceId, userId: user._id, issuedAt: iatISO, expiresAt: expISO, userAgent, ipAddress, lastActiveDate: iatISO });
 
   return { accessToken, refreshToken };
 };
