@@ -8,7 +8,7 @@ import UsersService from '@/services/users-service';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
 import UsersRepository from '@/repositories/users-repository';
 import { IBaseResponse } from '@/types/base-response';
-import { userObjMapper } from '@/util/userObjMapper';
+import { userObjMapper } from '@/util/mappers/userObjMapper';
 import { IUserView } from '@/types/users/user';
 
 const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: Response<IBaseResponse<IUserView>>, next: NextFunction) => {

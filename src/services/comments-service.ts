@@ -9,11 +9,9 @@ import PostsRepository from '@/repositories/posts-repository';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { ICommentPayload } from '@/types/comments/commentPayload';
 import { ICommentDB } from '@/types/comments/comment';
-import { Types } from 'mongoose';
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
-type MObjectId = Types.ObjectId;
-
-const createCommentForPost = async (postId: MObjectId, newComment: { content: string }, userId: MObjectId): Promise<ICommentDB> => {
+const createCommentForPost = async (postId: MongooseObjtId, newComment: { content: string }, userId: MongooseObjtId): Promise<ICommentDB> => {
   if (!ObjectId.isValid(postId)) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -26,7 +24,7 @@ const createCommentForPost = async (postId: MObjectId, newComment: { content: st
 
   const userInfo = await UsersRepository.findUserByFilter({ _id: userId });
 
-  const postComment: ICommentPayload & { postId: MObjectId } = {
+  const postComment: ICommentPayload & { postId: MongooseObjtId } = {
     content: newComment.content,
     postId,
     commentatorInfo: {
@@ -38,7 +36,7 @@ const createCommentForPost = async (postId: MObjectId, newComment: { content: st
   return await CommentsRepository.createComment(postComment);
 };
 
-const updateComment = async (commentId: MObjectId, newComment: { content: string }, currentUserId: MObjectId): Promise<void> => {
+const updateComment = async (commentId: MongooseObjtId, newComment: { content: string }, currentUserId: MongooseObjtId): Promise<void> => {
   if (!ObjectId.isValid(commentId)) {
     throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -59,7 +57,7 @@ const updateComment = async (commentId: MObjectId, newComment: { content: string
   await CommentsRepository.updateComment(commentId, newComment);
 };
 
-const deleteComment = async (commentId: MObjectId, currentUserId: MObjectId): Promise<void> => {
+const deleteComment = async (commentId: MongooseObjtId, currentUserId: MongooseObjtId): Promise<void> => {
   if (!ObjectId.isValid(commentId)) {
     throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }

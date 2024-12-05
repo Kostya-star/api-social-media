@@ -10,16 +10,14 @@ import { IBaseQuery } from '@/types/base-query';
 import PostsRepository from '@/repositories/posts-repository';
 import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
-import { postObjMapper } from '@/util/postObjMapper';
+import { postObjMapper } from '@/util/mappers/postObjMapper';
 import { IBaseResponse } from '@/types/base-response';
 import CommentsService from '@/services/comments-service';
-import { commentObjMapper } from '@/util/commentObjMapper';
+import { commentObjMapper } from '@/util/mappers/commentObjMapper';
 import CommentsRepository from '@/repositories/comments-repository';
 import { IPostDB, IPostView } from '@/types/posts/post';
-import { Types } from 'mongoose';
 import { ICommentDB, ICommentView } from '@/types/comments/comment';
-
-type MObjectId = Types.ObjectId;
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
 const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) => {
   try {
@@ -36,7 +34,7 @@ const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPostDB>>, res
   }
 };
 
-const getPostById = async (req: Request<{ postId: MObjectId }>, res: Response<IPostView>, next: NextFunction) => {
+const getPostById = async (req: Request<{ postId: MongooseObjtId }>, res: Response<IPostView>, next: NextFunction) => {
   const { postId } = req.params;
 
   try {
@@ -57,7 +55,7 @@ const getPostById = async (req: Request<{ postId: MObjectId }>, res: Response<IP
 };
 
 const getCommentsForPosts = async (
-  req: Request<{ postId: MObjectId }, any, any, IBaseQuery<ICommentDB>>,
+  req: Request<{ postId: MongooseObjtId }, any, any, IBaseQuery<ICommentDB>>,
   res: Response<IBaseResponse<ICommentView>>,
   next: NextFunction
 ) => {
@@ -102,7 +100,7 @@ const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response
   }
 };
 
-const createCommentForPost = async (req: Request<{ postId: MObjectId }, any, { content: string }>, res: Response<ICommentView>, next: NextFunction) => {
+const createCommentForPost = async (req: Request<{ postId: MongooseObjtId }, any, { content: string }>, res: Response<ICommentView>, next: NextFunction) => {
   const newComment = req.body;
   const postId = req.params.postId;
   const userId = req.userId!;
@@ -116,7 +114,7 @@ const createCommentForPost = async (req: Request<{ postId: MObjectId }, any, { c
   }
 };
 
-const updatePost = async (req: Request<{ postId: MObjectId }, any, IUpdatePostBody>, res: Response<void>, next: NextFunction) => {
+const updatePost = async (req: Request<{ postId: MongooseObjtId }, any, IUpdatePostBody>, res: Response<void>, next: NextFunction) => {
   const postId = req.params.postId;
   const newPost = req.body;
 
@@ -129,7 +127,7 @@ const updatePost = async (req: Request<{ postId: MObjectId }, any, IUpdatePostBo
   }
 };
 
-const deletePost = async (req: Request<{ postId: MObjectId }>, res: Response<void>, next: NextFunction) => {
+const deletePost = async (req: Request<{ postId: MongooseObjtId }>, res: Response<void>, next: NextFunction) => {
   const postId = req.params.postId;
 
   try {

@@ -9,6 +9,4 @@ export enum CollectionsNames {
   COMMENTS = 'comments',
   SESSIONS = 'sessions',
   REQUESTS_RATE = 'requests-rate',
-
-  REVOKED_TOKENS = 'revoked-tokens',
 }

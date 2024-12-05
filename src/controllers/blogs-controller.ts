@@ -13,10 +13,10 @@ import { IBaseQuery } from '@/types/base-query';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import BlogsRepository from '@/repositories/blogs-repository';
-import { blogObjMapper } from '@/util/blogObjMapper';
+import { blogObjMapper } from '@/util/mappers/blogObjMapper';
 import { IBaseResponse } from '@/types/base-response';
 import PostsRepository from '@/repositories/posts-repository';
-import { postObjMapper } from '@/util/postObjMapper';
+import { postObjMapper } from '@/util/mappers/postObjMapper';
 import { IBlogView } from '@/types/blogs/blog';
 import { IPostDB, IPostView } from '@/types/posts/post';
 
@@ -64,7 +64,11 @@ const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response<IBl
   }
 };
 
-const getPostsForBlog = async (req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) => {
+const getPostsForBlog = async (
+  req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPostDB>>,
+  res: Response<IBaseResponse<IPostView>>,
+  next: NextFunction
+) => {
   const { blogId } = req.params;
 
   try {

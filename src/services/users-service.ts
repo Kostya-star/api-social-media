@@ -7,9 +7,7 @@ import bcrypt from 'bcrypt';
 import { UsersErrorsList } from '@/errors/users-errors';
 import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 import { IUserDB } from '@/types/users/user';
-import { Types } from 'mongoose';
-
-type MObjectId = Types.ObjectId;
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
 const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfirmationBody): Promise<IUserDB> => {
   const { email, login, password } = user;
@@ -36,7 +34,7 @@ const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfi
   return await UsersRepository.createUser(newUser);
 };
 
-const updateUserById = async (userId: MObjectId, newUser: Partial<IUserDB>): Promise<void> => {
+const updateUserById = async (userId: MongooseObjtId, newUser: Partial<IUserDB>): Promise<void> => {
   if (!ObjectId.isValid(userId)) {
     throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -50,7 +48,7 @@ const updateUserById = async (userId: MObjectId, newUser: Partial<IUserDB>): Pro
   await UsersRepository.updateUserById(userId, newUser);
 };
 
-const deleteUser = async (userId: MObjectId): Promise<void> => {
+const deleteUser = async (userId: MongooseObjtId): Promise<void> => {
   if (!ObjectId.isValid(userId)) {
     throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }

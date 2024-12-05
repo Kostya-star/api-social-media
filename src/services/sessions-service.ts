@@ -4,9 +4,7 @@ import { ErrorService } from './error-service';
 import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateSessionPayload } from '@/types/sessions/create-session-payload';
-import { Types } from 'mongoose';
-
-type MObjectId = Types.ObjectId;
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
 const createSession = async (session: ICreateSessionPayload): Promise<ISessionDB> => {
   return await SessionsRepository.createSession(session);
@@ -16,11 +14,11 @@ const updateSession = async (sessionId: string, updates: Partial<ICreateSessionP
   await SessionsRepository.updateSession(sessionId, updates);
 };
 
-const deleteSessionsExceptCurrent = async (userId: MObjectId, sessionId: string) => {
+const deleteSessionsExceptCurrent = async (userId: MongooseObjtId, sessionId: string) => {
   await SessionsRepository.deleteSessionsExceptCurrent(userId, sessionId);
 };
 
-const deleteSessionById = async (currUserId: MObjectId, deviceId: string) => {
+const deleteSessionById = async (currUserId: MongooseObjtId, deviceId: string) => {
   const session = await SessionsRepository.findSessionById(deviceId);
 
   if (!session) {

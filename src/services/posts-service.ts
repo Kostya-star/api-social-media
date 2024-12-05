@@ -7,9 +7,7 @@ import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import BlogsRepository from '@/repositories/blogs-repository';
 import { IPostDB } from '@/types/posts/post';
 import { ObjectId } from 'mongodb';
-import { Types } from 'mongoose';
-
-type MObjectId = Types.ObjectId;
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
 const createPost = async (post: ICreatePostBody): Promise<IPostDB> => {
   // no errors should occur here coz previusly it was assured the post.blogId should exist and be valid
@@ -19,7 +17,7 @@ const createPost = async (post: ICreatePostBody): Promise<IPostDB> => {
   return await PostsRepository.createPost(newPost);
 };
 
-const updatePost = async (postId: MObjectId, newPost: IUpdatePostBody): Promise<void> => {
+const updatePost = async (postId: MongooseObjtId, newPost: IUpdatePostBody): Promise<void> => {
   if (!ObjectId.isValid(postId)) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -33,7 +31,7 @@ const updatePost = async (postId: MObjectId, newPost: IUpdatePostBody): Promise<
   await PostsRepository.updatePost(postId, newPost);
 };
 
-const deletePost = async (postId: MObjectId): Promise<void> => {
+const deletePost = async (postId: MongooseObjtId): Promise<void> => {
   if (!ObjectId.isValid(postId)) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }

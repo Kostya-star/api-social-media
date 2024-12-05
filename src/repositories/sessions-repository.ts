@@ -1,11 +1,9 @@
 import { SessionModel } from '@/models/devices-model';
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { ICreateSessionPayload } from '@/types/sessions/create-session-payload';
 import { ISessionDB } from '@/types/sessions/session';
-import { Types } from 'mongoose';
 
-type MObjectId = Types.ObjectId;
-
-const findUserSessions = async (userId: MObjectId): Promise<ISessionDB[]> => {
+const findUserSessions = async (userId: MongooseObjtId): Promise<ISessionDB[]> => {
   return await SessionModel.find({ userId });
 };
 
@@ -21,7 +19,7 @@ const updateSession = async (deviceId: string, updates: Partial<ICreateSessionPa
   await SessionModel.updateOne({ deviceId }, updates);
 };
 
-const deleteSessionsExceptCurrent = async (userId: MObjectId, sessionId: string) => {
+const deleteSessionsExceptCurrent = async (userId: MongooseObjtId, sessionId: string) => {
   await SessionModel.deleteMany({ userId, deviceId: { $ne: sessionId } });
 };
 

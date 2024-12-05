@@ -6,15 +6,13 @@ import { ErrorService } from './error-service';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { IBlogDB } from '@/types/blogs/blog';
-import { Types } from 'mongoose';
-
-type MObjectId = Types.ObjectId;
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
 const createBlog = async (blog: ICreateBlogPayload): Promise<IBlogDB> => {
   return await BlogsRepository.createBlog(blog);
 };
 
-const updateBlog = async (blogId: MObjectId, newBlog: IUpdateBlogPayload): Promise<void> => {
+const updateBlog = async (blogId: MongooseObjtId, newBlog: IUpdateBlogPayload): Promise<void> => {
   if (!ObjectId.isValid(blogId)) {
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
@@ -28,7 +26,7 @@ const updateBlog = async (blogId: MObjectId, newBlog: IUpdateBlogPayload): Promi
   await BlogsRepository.updateBlog(blogId, newBlog);
 };
 
-const deleteBlog = async (blogId: MObjectId): Promise<void> => {
+const deleteBlog = async (blogId: MongooseObjtId): Promise<void> => {
   if (!ObjectId.isValid(blogId)) {
     throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }

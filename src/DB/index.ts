@@ -7,7 +7,6 @@ const connection = `${MONGO_URI}/${dbName}`;
 
 export async function connectToDb() {
   try {
-    console.log(connection)
     await mongoose.connect(connection);
     console.log('Successfully connected to MongoDB!');
   } catch (err) {

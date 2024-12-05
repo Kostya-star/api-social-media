@@ -4,14 +4,12 @@ import { ObjectId } from 'mongodb';
 import CommentsRepository from '@/repositories/comments-repository';
 import { ErrorService } from '@/services/error-service';
 import { CommentsErrorsList } from '@/errors/comments-errors';
-import { commentObjMapper } from '@/util/commentObjMapper';
+import { commentObjMapper } from '@/util/mappers/commentObjMapper';
 import CommentsService from '@/services/comments-service';
-import { Types } from 'mongoose';
 import { ICommentView } from '@/types/comments/comment';
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
-type MObjectId = Types.ObjectId;
-
-const getCommentById = async (req: Request<{ commentId: MObjectId }>, res: Response<ICommentView>, next: NextFunction) => {
+const getCommentById = async (req: Request<{ commentId: MongooseObjtId }>, res: Response<ICommentView>, next: NextFunction) => {
   try {
     const commentId = req.params.commentId;
 
@@ -31,7 +29,7 @@ const getCommentById = async (req: Request<{ commentId: MObjectId }>, res: Respo
   }
 };
 
-const updateComment = async (req: Request<{ commentId: MObjectId }, any, { content: string }>, res: Response<void>, next: NextFunction) => {
+const updateComment = async (req: Request<{ commentId: MongooseObjtId }, any, { content: string }>, res: Response<void>, next: NextFunction) => {
   const commentId = req.params.commentId;
   const newComment = req.body;
 
@@ -46,7 +44,7 @@ const updateComment = async (req: Request<{ commentId: MObjectId }, any, { conte
   }
 };
 
-const deleteComment = async (req: Request<{ commentId: MObjectId }, any>, res: Response<void>, next: NextFunction) => {
+const deleteComment = async (req: Request<{ commentId: MongooseObjtId }, any>, res: Response<void>, next: NextFunction) => {
   const commentId = req.params.commentId;
   const currentUserId = req.userId!;
 

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import SessionsRepository from '@/repositories/sessions-repository';
 import { ISessionView } from '@/types/sessions/session';
-import { deviceObjMapper } from '@/util/deviceObjMapper';
+import { deviceObjMapper } from '@/util/mappers/deviceObjMapper';
 import SessionsService from '@/services/sessions-service';
 
 const getUserDevices = async (req: Request, res: Response<ISessionView[]>, next: NextFunction) => {

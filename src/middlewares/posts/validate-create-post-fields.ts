@@ -8,11 +8,9 @@ import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { validateContent } from './validate-content';
 import { validateDescription } from './validate-description';
 import { validateTitle } from './validate-title';
-import { Types } from 'mongoose';
 import BlogsRepository from '@/repositories/blogs-repository';
 import { checkFor400Error } from '../check-for-400-error';
-
-type MObjectId = Types.ObjectId;
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
 export const validateCreatePostFields = [
   validateTitle(),
@@ -27,7 +25,7 @@ export const validateCreatePostFields = [
     .withMessage(PostsErrorsList.BLOG_ID_EMPTY)
 
     // check if a blog with id of 'blogId' exists
-    .custom(async (blogId: MObjectId) => {
+    .custom(async (blogId: MongooseObjtId) => {
       if (!ObjectId.isValid(blogId)) {
         throw new Error(BlogsErrorsList.NOT_FOUND);
       }

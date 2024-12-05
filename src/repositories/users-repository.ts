@@ -1,12 +1,10 @@
 import { UserModel } from '@/models/users-model';
 import { IBaseResponse } from '@/types/base-response';
-import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
 import { IUserDB } from '@/types/users/user';
 import { buildQuery } from '@/util/buildQuery';
-import { RootFilterQuery, Types } from 'mongoose';
-
-type MObjectId = Types.ObjectId;
+import { RootFilterQuery } from 'mongoose';
 
 const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResponse<IUserDB>> => {
   const { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection } = query;
@@ -38,7 +36,7 @@ const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResp
   };
 };
 
-const getUserById = async (userId: MObjectId): Promise<IUserDB | null> => {
+const getUserById = async (userId: MongooseObjtId): Promise<IUserDB | null> => {
   return await UserModel.findOne({ _id: userId });
 };
 
@@ -50,12 +48,12 @@ const createUser = async (newUser: Partial<IUserDB>): Promise<IUserDB> => {
   return await UserModel.create(newUser);
 };
 
-const updateUserById = async (userId: MObjectId, updates: Partial<IUserDB>): Promise<void> => {
+const updateUserById = async (userId: MongooseObjtId, updates: Partial<IUserDB>): Promise<void> => {
   // console.log('updates', updates)
   await UserModel.updateOne({ _id: userId }, updates);
 };
 
-const deleteUser = async (userId: MObjectId): Promise<void> => {
+const deleteUser = async (userId: MongooseObjtId): Promise<void> => {
   await UserModel.deleteOne({ _id: userId });
 };
 

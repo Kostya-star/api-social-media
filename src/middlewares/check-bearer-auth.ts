@@ -3,9 +3,7 @@ import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { Types } from 'mongoose';
-
-type MObjectId = Types.ObjectId;
+import { MongooseObjtId } from '@/types/mongoose-object-id';
 
 export const checkBearerAuth = (req: Request<any>, res: Response, next: NextFunction) => {
   try {
@@ -19,7 +17,7 @@ export const checkBearerAuth = (req: Request<any>, res: Response, next: NextFunc
 
     if (!token) throw Error;
 
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as { userId: MObjectId };
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as { userId: MongooseObjtId };
 
     if (!decodedToken.userId) throw Error;
 
