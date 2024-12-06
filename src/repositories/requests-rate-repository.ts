@@ -14,7 +14,7 @@ export const getUpdatedRate = async ({ ip, url }: ICreateReqRatePayload, newTime
     { upsert: true }
   );
 
-  return ReqRateModel.findOneAndUpdate(
+  return await ReqRateModel.findOneAndUpdate(
     { ip, url },
     { $push: { timestamps: newTimestamp } }, // Add the current timestamp
     { upsert: true, returnDocument: 'after' } // Return the updated document

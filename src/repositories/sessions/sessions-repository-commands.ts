@@ -3,16 +3,13 @@ import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { ICreateSessionPayload } from '@/types/sessions/create-session-payload';
 import { ISessionDB } from '@/types/sessions/session';
 
-const findUserSessions = async (userId: MongooseObjtId): Promise<ISessionDB[]> => {
-  return await SessionModel.find({ userId });
-};
-
 const findSessionById = async (deviceId: string): Promise<ISessionDB | null> => {
   return await SessionModel.findOne({ deviceId });
 };
 
-const createSession = async (session: ICreateSessionPayload): Promise<ISessionDB> => {
-  return await SessionModel.create(session);
+const createSession = async (session: ICreateSessionPayload): Promise<MongooseObjtId> => {
+  const item = await SessionModel.create(session);
+  return item._id
 };
 
 const updateSession = async (deviceId: string, updates: Partial<ICreateSessionPayload>) => {
@@ -29,7 +26,6 @@ const deleteSessionById = async (deviceId: string) => {
 
 export default {
   findSessionById,
-  findUserSessions,
   createSession,
   updateSession,
   deleteSessionsExceptCurrent,

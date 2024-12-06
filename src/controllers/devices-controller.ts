@@ -1,17 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import SessionsRepository from '@/repositories/sessions-repository';
 import { ISessionView } from '@/types/sessions/session';
-import { deviceObjMapper } from '@/util/mappers/deviceObjMapper';
 import SessionsService from '@/services/sessions-service';
+import SessionsRepositoryQuery from '@/repositories/sessions/sessions-repository-query';
 
 const getUserDevices = async (req: Request, res: Response<ISessionView[]>, next: NextFunction) => {
   try {
     const { userId } = req.refresh_token_decoded_payload;
 
-    const devices = await SessionsRepository.findUserSessions(userId);
+    const devices = await SessionsRepositoryQuery.findUserSessions(userId);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(devices.map(deviceObjMapper));
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(devices);
   } catch (err) {
     next(err);
   }

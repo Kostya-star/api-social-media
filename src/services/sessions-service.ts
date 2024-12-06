@@ -1,12 +1,11 @@
-import SessionsRepository from '@/repositories/sessions-repository';
-import { ISessionDB } from '@/types/sessions/session';
+import SessionsRepository from '@/repositories/sessions/sessions-repository-commands';
 import { ErrorService } from './error-service';
 import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateSessionPayload } from '@/types/sessions/create-session-payload';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 
-const createSession = async (session: ICreateSessionPayload): Promise<ISessionDB> => {
+const createSession = async (session: ICreateSessionPayload): Promise<MongooseObjtId> => {
   return await SessionsRepository.createSession(session);
 };
 
