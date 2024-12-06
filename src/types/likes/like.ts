@@ -9,3 +9,11 @@ export interface ILikeDB {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ILikesInfoView {
+  likesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus: LikeStatus;
+  };
+}

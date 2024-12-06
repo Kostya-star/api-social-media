@@ -1,4 +1,4 @@
-import { SessionModel } from '@/models/devices-model';
+import { SessionModel } from '@/DB/models/devices-model';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { ICreateSessionPayload } from '@/types/sessions/create-session-payload';
 import { ISessionDB } from '@/types/sessions/session';
@@ -9,7 +9,7 @@ const findSessionById = async (deviceId: string): Promise<ISessionDB | null> => 
 
 const createSession = async (session: ICreateSessionPayload): Promise<MongooseObjtId> => {
   const item = await SessionModel.create(session);
-  return item._id
+  return item._id;
 };
 
 const updateSession = async (deviceId: string, updates: Partial<ICreateSessionPayload>) => {

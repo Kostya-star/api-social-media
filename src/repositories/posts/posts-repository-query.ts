@@ -2,7 +2,7 @@ import { IBaseQuery } from '@/types/base-query';
 import { buildQuery } from '@/util/buildQuery';
 import { IBaseResponse } from '@/types/base-response';
 import { IPostDB, IPostView } from '@/types/posts/post';
-import { PostModel } from '@/models/posts-model';
+import { PostModel } from '@/DB/models/posts-model';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { postObjMapper } from '@/util/mappers/postObjMapper';
 

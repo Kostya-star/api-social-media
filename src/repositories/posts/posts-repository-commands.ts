@@ -1,6 +1,6 @@
 import { IUpdatePostBody } from '@/types/posts/updatePostBody';
 import { IPostDB } from '@/types/posts/post';
-import { PostModel } from '@/models/posts-model';
+import { PostModel } from '@/DB/models/posts-model';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 
@@ -10,7 +10,7 @@ const getPostById = async (postId: MongooseObjtId): Promise<IPostDB | null> => {
 
 const createPost = async (newPost: ICreatePostBody & { blogName: string }): Promise<MongooseObjtId> => {
   const post = await PostModel.create(newPost);
-  return post._id
+  return post._id;
 };
 
 const updatePost = async (postId: MongooseObjtId, updates: IUpdatePostBody): Promise<void> => {

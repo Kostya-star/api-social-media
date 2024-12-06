@@ -1,4 +1,4 @@
-import { BlogModel } from '@/models/blogs-model';
+import { BlogModel } from '@/DB/models/blogs-model';
 import { IBlogDB } from '@/types/blogs/blog';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
@@ -11,7 +11,7 @@ const getBlogById = async (blogId: MongooseObjtId): Promise<IBlogDB | null> => {
 
 const createBlog = async (newBlog: ICreateBlogPayload): Promise<MongooseObjtId> => {
   const blog = await BlogModel.create(newBlog);
-  return blog._id
+  return blog._id;
 };
 
 const updateBlog = async (blogId: MongooseObjtId, updates: IUpdateBlogPayload): Promise<void> => {

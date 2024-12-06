@@ -1,4 +1,4 @@
-import { UserModel } from '@/models/users-model';
+import { UserModel } from '@/DB/models/users-model';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { IUserDB } from '@/types/users/user';
 import { RootFilterQuery } from 'mongoose';

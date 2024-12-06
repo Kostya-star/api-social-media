@@ -1,4 +1,6 @@
 import { Types } from 'mongoose';
+import { ILikesInfoView } from '../likes/like';
+import { LikeStatus } from '@/const/likes/like-status';
 
 export interface ICommentDB {
   _id: Types.ObjectId;
@@ -12,6 +14,6 @@ export interface ICommentDB {
   updatedAt: Date;
 }
 
-export interface ICommentView extends Omit<ICommentDB, '_id' | 'updatedAt' | 'postId'> {
+export interface ICommentView extends Omit<ICommentDB, '_id' | 'updatedAt' | 'postId'>, ILikesInfoView {
   id: Types.ObjectId;
 }

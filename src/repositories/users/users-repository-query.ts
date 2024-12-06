@@ -1,4 +1,4 @@
-import { UserModel } from '@/models/users-model';
+import { UserModel } from '@/DB/models/users-model';
 import { IBaseResponse } from '@/types/base-response';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';

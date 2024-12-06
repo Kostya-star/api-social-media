@@ -13,12 +13,13 @@ import { LikeStatus } from '@/const/likes/like-status';
 const getCommentById = async (req: Request<{ commentId: MongooseObjtId }>, res: Response<ICommentView>, next: NextFunction) => {
   try {
     const commentId = req.params.commentId;
+    const userId = req.userId;
 
     if (!ObjectId.isValid(commentId)) {
       throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const comment = await CommentsRepositoryQuery.getCommentById(commentId);
+    const comment = await CommentsRepositoryQuery.getCommentById(commentId, userId);
 
     if (!comment) {
       throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

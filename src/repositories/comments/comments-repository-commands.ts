@@ -1,4 +1,4 @@
-import { CommentModel } from '@/models/comments-model';
+import { CommentModel } from '@/DB/models/comments-model';
 import { ICommentDB } from '@/types/comments/comment';
 import { ICommentPayload } from '@/types/comments/commentPayload';
 import { MongooseObjtId } from '@/types/mongoose-object-id';

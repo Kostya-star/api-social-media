@@ -1,4 +1,4 @@
-import { SessionModel } from '@/models/devices-model';
+import { SessionModel } from '@/DB/models/devices-model';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { ISessionView } from '@/types/sessions/session';
 import { deviceObjMapper } from '@/util/mappers/deviceObjMapper';

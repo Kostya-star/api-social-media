@@ -1,4 +1,4 @@
-import { ReqRateModel } from '@/models/req-rate-model';
+import { ReqRateModel } from '@/DB/models/req-rate-model';
 import { IReqRateLimiter } from '@/types/req-rate-limiter';
 import { WithId } from 'mongodb';
 

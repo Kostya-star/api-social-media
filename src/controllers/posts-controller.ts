@@ -54,13 +54,14 @@ const getPostById = async (req: Request<{ postId: MongooseObjtId }>, res: Respon
   }
 };
 
-const getCommentsForPosts = async (
+const getCommentsForPost = async (
   req: Request<{ postId: MongooseObjtId }, any, any, IBaseQuery<ICommentDB>>,
   res: Response<IBaseResponse<ICommentView>>,
   next: NextFunction
 ) => {
   try {
     const postId = req.params.postId;
+    const userId = req.userId;
 
     if (!ObjectId.isValid(postId)) {
       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -79,7 +80,8 @@ const getCommentsForPosts = async (
 
     const resp = await CommentsRepositoryQuery.getCommentsForPost(
       { sortBy, sortDirection, pageNumber, pageSize },
-      postId
+      postId,
+      userId
     );
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
@@ -151,7 +153,7 @@ const deletePost = async (req: Request<{ postId: MongooseObjtId }>, res: Respons
 
 export default {
   getAllPosts,
-  getCommentsForPosts,
+  getCommentsForPost,
   getPostById,
   createPost,
   createCommentForPost,

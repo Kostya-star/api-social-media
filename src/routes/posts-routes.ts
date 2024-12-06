@@ -5,6 +5,7 @@ import { validateCreatePostFields } from '@/middlewares/posts/validate-create-po
 import { APP_ROUTES } from '@/routing';
 import { checkBearerAuth } from '@/middlewares/check-bearer-auth';
 import { validateCommentFields } from '@/middlewares/comments/validate-comment-fields';
+import { attachAccessTokenToReq } from '@/middlewares/attach-access-token-to-req';
 
 export const postsRoutes = Router();
 
@@ -12,7 +13,7 @@ postsRoutes.get('/', postsControllers.getAllPosts);
 postsRoutes.get('/:postId', postsControllers.getPostById);
 postsRoutes.post('/', checkBasicAuth, validateCreatePostFields, postsControllers.createPost);
 
-postsRoutes.get(`/:postId${APP_ROUTES.COMMENTS}`, postsControllers.getCommentsForPosts);
+postsRoutes.get(`/:postId${APP_ROUTES.COMMENTS}`, attachAccessTokenToReq, postsControllers.getCommentsForPost);
 postsRoutes.post(`/:postId${APP_ROUTES.COMMENTS}`, checkBearerAuth, validateCommentFields, postsControllers.createCommentForPost);
 
 postsRoutes.put('/:postId', checkBasicAuth, validateCreatePostFields, postsControllers.updatePost);

@@ -1,4 +1,4 @@
-import { BlogModel } from '@/models/blogs-model';
+import { BlogModel } from '@/DB/models/blogs-model';
 import { IBaseResponse } from '@/types/base-response';
 import { IBlogDB, IBlogView } from '@/types/blogs/blog';
 import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
