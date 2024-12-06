@@ -12,12 +12,12 @@ import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { IBaseResponse } from '@/types/base-response';
 import CommentsService from '@/services/comments-service';
-import { commentObjMapper } from '@/util/mappers/commentObjMapper';
-import CommentsRepository from '@/repositories/comments-repository';
 import { IPostDB, IPostView } from '@/types/posts/post';
 import { ICommentDB, ICommentView } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
+import CommentsRepositoryQuery from '@/repositories/comments/comments-repository-query';
+import { CommentsErrorsList } from '@/errors/comments-errors';
 
 const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) => {
   try {
@@ -75,14 +75,14 @@ const getCommentsForPosts = async (
     const sortBy = req.query.sortBy || 'createdAt';
     const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    const { pagesCount, page, pageSize, totalCount, items } = await CommentsRepository.getCommentsForPost(
-      { sortBy, sortDirection, pageNumber, pageSize: _pageSize },
+    const resp = await CommentsRepositoryQuery.getCommentsForPost(
+      { sortBy, sortDirection, pageNumber, pageSize },
       postId
     );
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ pagesCount, page, pageSize, totalCount, items: items.map(commentObjMapper) });
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
   } catch (err) {
     next(err);
   }
@@ -111,9 +111,14 @@ const createCommentForPost = async (req: Request<{ postId: MongooseObjtId }, any
   const userId = req.userId!;
 
   try {
-    const comment = await CommentsService.createCommentForPost(postId, newComment, userId);
+    const commentId = await CommentsService.createCommentForPost(postId, newComment, userId);
+    const comment = await CommentsRepositoryQuery.getCommentById(commentId);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(commentObjMapper(comment));
+    if (!comment) {
+      throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(comment);
   } catch (err) {
     next(err);
   }

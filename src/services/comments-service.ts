@@ -4,14 +4,13 @@ import UsersRepository from '@/repositories/users-repository';
 import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { ObjectId } from 'mongodb';
 import { CommentsErrorsList } from '@/errors/comments-errors';
-import CommentsRepository from '@/repositories/comments-repository';
+import CommentsRepository from '@/repositories/comments/comments-repository-commands';
 import PostsRepository from '@/repositories/posts/posts-repository-commands';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { ICommentPayload } from '@/types/comments/commentPayload';
-import { ICommentDB } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 
-const createCommentForPost = async (postId: MongooseObjtId, newComment: { content: string }, userId: MongooseObjtId): Promise<ICommentDB> => {
+const createCommentForPost = async (postId: MongooseObjtId, newComment: { content: string }, userId: MongooseObjtId): Promise<MongooseObjtId> => {
   if (!ObjectId.isValid(postId)) {
     throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
