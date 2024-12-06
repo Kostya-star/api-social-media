@@ -12,14 +12,13 @@ import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 import { IBaseQuery } from '@/types/base-query';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
-import BlogsRepository from '@/repositories/blogs/blogs-repository-commands';
-import { blogObjMapper } from '@/util/mappers/blogObjMapper';
 import { IBaseResponse } from '@/types/base-response';
-import PostsRepository from '@/repositories/posts-repository';
 import { postObjMapper } from '@/util/mappers/postObjMapper';
 import { IBlogView } from '@/types/blogs/blog';
 import { IPostDB, IPostView } from '@/types/posts/post';
 import BlogsRepositoryQuery from '@/repositories/blogs/blogs-repository-query';
+import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
+import { PostsErrorsList } from '@/errors/posts-errors';
 
 const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlogView>>, next: NextFunction) => {
   try {
@@ -27,14 +26,14 @@ const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: R
     const sortBy = req.query.sortBy || 'createdAt';
     const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
     const resp = await BlogsRepositoryQuery.getAllBlogs({
       searchNameTerm,
       sortBy,
       sortDirection,
       pageNumber,
-      pageSize: _pageSize,
+      pageSize,
     });
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
@@ -74,7 +73,7 @@ const getPostsForBlog = async (
     const sortBy = req.query.sortBy || 'createdAt';
     const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
     if (!ObjectId.isValid(blogId)) {
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -86,14 +85,12 @@ const getPostsForBlog = async (
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const { pagesCount, page, pageSize, totalCount, items } = await PostsRepository.getPostsForBlog(blogId, {
+    const resp = await PostsRepositoryQuery.getPostsForBlog(blogId, {
       sortBy,
       sortDirection,
       pageNumber,
-      pageSize: _pageSize,
+      pageSize,
     });
-
-    const resp = { pagesCount, page, pageSize, totalCount, items: items.map(postObjMapper) };
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
   } catch (err) {
@@ -127,15 +124,20 @@ const createPostForBlog = async (req: Request<{ blogId: ObjectId }, any, Omit<IC
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const blog = await BlogsRepository.getBlogById(blogId);
+    const blog = await BlogsRepositoryQuery.getBlogById(blogId);
 
     if (!blog) {
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const createdBlog = await PostsService.createPost(newPost);
+    const postId = await PostsService.createPost(newPost);
+    const post = await PostsRepositoryQuery.getPostById(postId);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(postObjMapper(createdBlog));
+    if (!post) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(post);
   } catch (err) {
     next(err);
   }

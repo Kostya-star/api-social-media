@@ -1,15 +1,14 @@
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { IUpdatePostBody } from '@/types/posts/updatePostBody';
-import PostsRepository from '@/repositories/posts-repository';
+import PostsRepository from '@/repositories/posts/posts-repository-commands';
 import { ErrorService } from './error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import BlogsRepository from '@/repositories/blogs/blogs-repository-commands';
-import { IPostDB } from '@/types/posts/post';
 import { ObjectId } from 'mongodb';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 
-const createPost = async (post: ICreatePostBody): Promise<IPostDB> => {
+const createPost = async (post: ICreatePostBody): Promise<MongooseObjtId> => {
   // no errors should occur here coz previusly it was assured the post.blogId should exist and be valid
   const blogName = (await BlogsRepository.getBlogById(post.blogId))!.name;
 

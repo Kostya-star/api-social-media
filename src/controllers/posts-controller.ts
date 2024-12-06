@@ -7,10 +7,9 @@ import { ObjectId } from 'mongodb';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { IBaseQuery } from '@/types/base-query';
-import PostsRepository from '@/repositories/posts-repository';
+import PostsRepository from '@/repositories/posts/posts-repository-commands';
 import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
-import { postObjMapper } from '@/util/mappers/postObjMapper';
 import { IBaseResponse } from '@/types/base-response';
 import CommentsService from '@/services/comments-service';
 import { commentObjMapper } from '@/util/mappers/commentObjMapper';
@@ -18,17 +17,18 @@ import CommentsRepository from '@/repositories/comments-repository';
 import { IPostDB, IPostView } from '@/types/posts/post';
 import { ICommentDB, ICommentView } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
+import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
 
 const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) => {
   try {
     const sortBy = req.query.sortBy || 'createdAt';
     const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    const { pagesCount, page, pageSize, totalCount, items } = await PostsRepository.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize: _pageSize });
+    const resp = await PostsRepositoryQuery.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ pagesCount, page, pageSize, totalCount, items: items.map(postObjMapper) });
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
   } catch (err) {
     next(err);
   }
@@ -42,13 +42,13 @@ const getPostById = async (req: Request<{ postId: MongooseObjtId }>, res: Respon
       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const post = await PostsRepository.getPostById(postId);
+    const post = await PostsRepositoryQuery.getPostById(postId);
 
     if (!post) {
       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(postObjMapper(post));
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(post);
   } catch (err) {
     next(err);
   }
@@ -92,9 +92,14 @@ const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response
   const newPost = req.body;
 
   try {
-    const post = await PostsService.createPost(newPost);
+    const postId = await PostsService.createPost(newPost);
+    const post = await PostsRepositoryQuery.getPostById(postId);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(postObjMapper(post));
+    if (!post) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(post);
   } catch (err) {
     next(err);
   }

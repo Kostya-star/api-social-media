@@ -1,15 +1,12 @@
-import { IUpdatePostBody } from '@/types/posts/updatePostBody';
 import { IBaseQuery } from '@/types/base-query';
 import { buildQuery } from '@/util/buildQuery';
 import { IBaseResponse } from '@/types/base-response';
-import { IPostDB } from '@/types/posts/post';
+import { IPostDB, IPostView } from '@/types/posts/post';
 import { PostModel } from '@/models/posts-model';
-import { Types } from 'mongoose';
-import { ICreatePostBody } from '@/types/posts/createPostBody';
+import { MongooseObjtId } from '@/types/mongoose-object-id';
+import { postObjMapper } from '@/util/mappers/postObjMapper';
 
-type ObjectId = Types.ObjectId;
-
-const getAllPosts = async ({ pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPostDB>>): Promise<IBaseResponse<IPostDB>> => {
+const getAllPosts = async ({ pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPostDB>>): Promise<IBaseResponse<IPostView>> => {
   const { sortOptions, skip, limit } = buildQuery<IPostDB>({ pageNumber, pageSize, sortBy, sortDirection });
 
   const items = await PostModel.find({}).sort(sortOptions).skip(skip).limit(limit);
@@ -22,18 +19,19 @@ const getAllPosts = async ({ pageNumber, pageSize, sortBy, sortDirection }: Requ
     page: pageNumber,
     pageSize,
     totalCount,
-    items,
+    items: items.map(postObjMapper),
   };
 };
 
-const getPostById = async (postId: ObjectId): Promise<IPostDB | null> => {
-  return await PostModel.findOne({ _id: postId });
+const getPostById = async (postId: MongooseObjtId): Promise<IPostView | null> => {
+  const post = await PostModel.findOne({ _id: postId });
+  return post ? postObjMapper(post) : null;
 };
 
 const getPostsForBlog = async (
-  blogId: ObjectId,
+  blogId: MongooseObjtId,
   { pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPostDB>>
-): Promise<IBaseResponse<IPostDB>> => {
+): Promise<IBaseResponse<IPostView>> => {
   const { sortOptions, skip, limit } = buildQuery<IPostDB>({ pageNumber, pageSize, sortBy, sortDirection });
 
   const posts = await PostModel.find({ blogId }).sort(sortOptions).skip(skip).limit(limit);
@@ -46,27 +44,12 @@ const getPostsForBlog = async (
     page: pageNumber,
     pageSize,
     totalCount,
-    items: posts,
+    items: posts.map(postObjMapper),
   };
-};
-
-const createPost = async (post: ICreatePostBody & { blogName: string }): Promise<IPostDB> => {
-  return await PostModel.create(post);
-};
-
-const updatePost = async (postId: ObjectId, updates: IUpdatePostBody): Promise<void> => {
-  await PostModel.updateOne({ _id: postId }, updates);
-};
-
-const deletePost = async (postId: ObjectId): Promise<void> => {
-  await PostModel.deleteOne({ _id: postId });
 };
 
 export default {
   getAllPosts,
   getPostById,
   getPostsForBlog,
-  createPost,
-  updatePost,
-  deletePost,
 };

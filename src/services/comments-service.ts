@@ -5,7 +5,7 @@ import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { ObjectId } from 'mongodb';
 import { CommentsErrorsList } from '@/errors/comments-errors';
 import CommentsRepository from '@/repositories/comments-repository';
-import PostsRepository from '@/repositories/posts-repository';
+import PostsRepository from '@/repositories/posts/posts-repository-commands';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { ICommentPayload } from '@/types/comments/commentPayload';
 import { ICommentDB } from '@/types/comments/comment';
