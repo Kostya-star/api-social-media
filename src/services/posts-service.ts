@@ -4,7 +4,7 @@ import PostsRepository from '@/repositories/posts-repository';
 import { ErrorService } from './error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import BlogsRepository from '@/repositories/blogs-repository';
+import BlogsRepository from '@/repositories/blogs/blogs-repository-commands';
 import { IPostDB } from '@/types/posts/post';
 import { ObjectId } from 'mongodb';
 import { MongooseObjtId } from '@/types/mongoose-object-id';

@@ -8,7 +8,7 @@ import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { validateContent } from './validate-content';
 import { validateDescription } from './validate-description';
 import { validateTitle } from './validate-title';
-import BlogsRepository from '@/repositories/blogs-repository';
+import BlogsRepository from '@/repositories/blogs/blogs-repository-commands';
 import { checkFor400Error } from '../check-for-400-error';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 

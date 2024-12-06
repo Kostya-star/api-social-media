@@ -1,14 +1,14 @@
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { ObjectId } from 'mongodb';
-import BlogsRepository from '@/repositories/blogs-repository';
+import BlogsRepository from '@/repositories/blogs/blogs-repository-commands';
 import { ErrorService } from './error-service';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { IBlogDB } from '@/types/blogs/blog';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 
-const createBlog = async (blog: ICreateBlogPayload): Promise<IBlogDB> => {
+const createBlog = async (blog: ICreateBlogPayload): Promise<MongooseObjtId> => {
   return await BlogsRepository.createBlog(blog);
 };
 

@@ -12,13 +12,14 @@ import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 import { IBaseQuery } from '@/types/base-query';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
-import BlogsRepository from '@/repositories/blogs-repository';
+import BlogsRepository from '@/repositories/blogs/blogs-repository-commands';
 import { blogObjMapper } from '@/util/mappers/blogObjMapper';
 import { IBaseResponse } from '@/types/base-response';
 import PostsRepository from '@/repositories/posts-repository';
 import { postObjMapper } from '@/util/mappers/postObjMapper';
 import { IBlogView } from '@/types/blogs/blog';
 import { IPostDB, IPostView } from '@/types/posts/post';
+import BlogsRepositoryQuery from '@/repositories/blogs/blogs-repository-query';
 
 const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlogView>>, next: NextFunction) => {
   try {
@@ -28,15 +29,13 @@ const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: R
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
     const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    const { pagesCount, page, pageSize, totalCount, items } = await BlogsRepository.getAllBlogs({
+    const resp = await BlogsRepositoryQuery.getAllBlogs({
       searchNameTerm,
       sortBy,
       sortDirection,
       pageNumber,
       pageSize: _pageSize,
     });
-
-    const resp = { pagesCount, page, pageSize, totalCount, items: items.map(blogObjMapper) };
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
   } catch (err) {
@@ -52,13 +51,13 @@ const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response<IBl
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const blog = await BlogsRepository.getBlogById(blogId);
+    const blog = await BlogsRepositoryQuery.getBlogById(blogId);
 
     if (!blog) {
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blogObjMapper(blog));
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blog);
   } catch (err) {
     next(err);
   }
@@ -81,7 +80,7 @@ const getPostsForBlog = async (
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const blog = await BlogsRepository.getBlogById(blogId);
+    const blog = await BlogsRepositoryQuery.getBlogById(blogId);
 
     if (!blog) {
       throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -106,9 +105,14 @@ const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Respo
   const newBlog = req.body;
 
   try {
-    const blog = await BlogsService.createBlog(newBlog);
+    const blogId = await BlogsService.createBlog(newBlog);
+    const blog = await BlogsRepositoryQuery.getBlogById(blogId);
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(blogObjMapper(blog));
+    if (!blog) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(blog);
   } catch (err) {
     next(err);
   }
