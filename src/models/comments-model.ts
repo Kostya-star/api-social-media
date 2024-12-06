@@ -1,3 +1,4 @@
+import { LikeStatus } from '@/const/likes/like-status';
 import { ICommentDB } from '@/types/comments/comment';
 import mongoose, { Schema } from 'mongoose';
 
@@ -9,6 +10,11 @@ const commentSchema = new mongoose.Schema<ICommentDB>(
       userId: { type: Schema.Types.ObjectId, required: true },
       userLogin: { type: String, required: true },
     },
+    // likesInfo: {
+    //   likesCount: { type: Number, required: true },
+    //   dislikesCount: { type: Number, required: true },
+    //   myStatus: { type: String, enum: LikeStatus, required: true };
+    // }
   },
   {
     timestamps: true,

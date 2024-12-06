@@ -61,6 +61,7 @@ const getCommentsForPosts = async (
 ) => {
   try {
     const postId = req.params.postId;
+    const userId = req.userId;
 
     if (!ObjectId.isValid(postId)) {
       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -79,7 +80,8 @@ const getCommentsForPosts = async (
 
     const { pagesCount, page, pageSize, totalCount, items } = await CommentsRepository.getCommentsForPost(
       { sortBy, sortDirection, pageNumber, pageSize: _pageSize },
-      postId
+      postId,
+      userId
     );
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ pagesCount, page, pageSize, totalCount, items: items.map(commentObjMapper) });

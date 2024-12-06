@@ -1,3 +1,4 @@
+import { LikeStatus } from '@/const/likes/like-status';
 import { ICommentDB, ICommentView } from '@/types/comments/comment';
 
 export function commentObjMapper(comment: ICommentDB): ICommentView {
@@ -7,6 +8,11 @@ export function commentObjMapper(comment: ICommentDB): ICommentView {
     commentatorInfo: {
       userId: comment.commentatorInfo.userId,
       userLogin: comment.commentatorInfo.userLogin,
+    },
+    likesInfo: {
+      likesCount: comment.likesInfo?.likesCount || 0,
+      dislikesCount: comment.likesInfo?.dislikesCount || 0,
+      myStatus: comment.likesInfo?.myStatus || LikeStatus.None
     },
     createdAt: comment.createdAt,
   };
