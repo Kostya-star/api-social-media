@@ -1,2 +1,2 @@
-export const ACCESS_TOKEN_EXP_TIME = 300
-export const REFRESH_TOKEN_EXP_TIME = 600 
+export const ACCESS_TOKEN_EXP_TIME = 10 
+export const REFRESH_TOKEN_EXP_TIME = 20 

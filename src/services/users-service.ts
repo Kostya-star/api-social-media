@@ -2,14 +2,14 @@ import { ObjectId } from 'mongodb';
 import { ErrorService } from './error-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateUserBody } from '@/types/users/createUserBody';
-import UsersRepository from '@/repositories/users-repository';
+import UsersRepository from '@/repositories/users/users-repository-commands';
 import bcrypt from 'bcrypt';
 import { UsersErrorsList } from '@/errors/users-errors';
 import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 import { IUserDB } from '@/types/users/user';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 
-const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfirmationBody): Promise<IUserDB> => {
+const createUser = async (user: ICreateUserBody, emailConfirmation?: IEmailConfirmationBody): Promise<MongooseObjtId> => {
   const { email, login, password } = user;
 
   const [userWithSameLogin, userWithSameEmail] = await Promise.all([UsersRepository.findUserByFilter({ login }), UsersRepository.findUserByFilter({ email })]);

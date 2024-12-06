@@ -1,7 +1,7 @@
 import { ErrorService } from './error-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { IAuthLoginPayload } from '@/types/auth/auth-login-payload';
-import UsersRepository from '@/repositories/users-repository';
+import UsersRepository from '@/repositories/users/users-repository-commands';
 import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -61,7 +61,7 @@ const confirmRegistration = async (code: string): Promise<void> => {
     };
   }
 
-  await UsersService.updateUserById(user._id, { emailConfirmation: { ...user.emailConfirmation, isConfirmed: true } as IEmailConfirmationBody});
+  await UsersService.updateUserById(user._id, { emailConfirmation: { ...user.emailConfirmation, isConfirmed: true } as IEmailConfirmationBody });
 };
 
 const resendCode = async (email: string): Promise<void> => {
@@ -113,8 +113,8 @@ const login = async (
 
   const { iat, exp } = jwt.decode(refreshToken) as IRefreshTokenDecodedPayload;
 
-  const iatISO = getISOFromUnixSeconds(iat)
-  const expISO = getISOFromUnixSeconds(exp)
+  const iatISO = getISOFromUnixSeconds(iat);
+  const expISO = getISOFromUnixSeconds(exp);
 
   await SessionsService.createSession({ deviceId, userId: user._id, issuedAt: iatISO, expiresAt: expISO, userAgent, ipAddress, lastActiveDate: iatISO });
 
@@ -145,8 +145,8 @@ const refreshToken = async ({ userId, deviceId, iat }: IRefreshTokenDecodedPaylo
   {
     const { iat, exp } = jwt.decode(refreshToken) as IRefreshTokenDecodedPayload;
 
-    const iatISO = getISOFromUnixSeconds(iat)
-    const expISO = getISOFromUnixSeconds(exp)
+    const iatISO = getISOFromUnixSeconds(iat);
+    const expISO = getISOFromUnixSeconds(exp);
 
     // revoke the token by updating the issuedAt prop of the session
     await SessionsService.updateSession(deviceId, { issuedAt: iatISO, lastActiveDate: iatISO, expiresAt: expISO });
@@ -158,14 +158,14 @@ const refreshToken = async ({ userId, deviceId, iat }: IRefreshTokenDecodedPaylo
 const recoverPassword = async (ToEmail: string): Promise<void> => {
   const user = await UsersRepository.findUserByFilter({ email: ToEmail });
 
-  const passwordConfirmation = EmailConfirmationDTO()
+  const passwordConfirmation = EmailConfirmationDTO();
 
   if (user) {
     await UsersService.updateUserById(user._id, { passwordConfirmation });
   } else return;
 
   const message = EmailMessageDTO('password-recovery', 'Recover password', 'recoveryCode', passwordConfirmation.code!);
-  
+
   await MailService.sendMail("'Kolya' kostya.danilov.99@mail.ru", ToEmail, 'Recover password', message);
 };
 
@@ -190,10 +190,10 @@ const changePassword = async ({ newPassword, recoveryCode }: IChangeUserPassword
 
   const newHashedPassword = await bcrypt.hash(newPassword, 10);
 
-  const updates: Partial<IUserDB> = { 
+  const updates: Partial<IUserDB> = {
     hashedPassword: newHashedPassword,
-    passwordConfirmation: { code: null, expDate: null }
-  }
+    passwordConfirmation: { code: null, expDate: null },
+  };
 
   await UsersService.updateUserById(user._id, updates);
 };

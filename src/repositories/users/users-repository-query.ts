@@ -2,11 +2,11 @@ import { UserModel } from '@/models/users-model';
 import { IBaseResponse } from '@/types/base-response';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
-import { IUserDB } from '@/types/users/user';
+import { IUserDB, IUserView } from '@/types/users/user';
 import { buildQuery } from '@/util/buildQuery';
-import { RootFilterQuery } from 'mongoose';
+import { userObjMapper } from '@/util/mappers/userObjMapper';
 
-const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResponse<IUserDB>> => {
+const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResponse<IUserView>> => {
   const { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection } = query;
   const { sortOptions, skip, limit } = buildQuery<IUserDB>({ pageNumber, pageSize, sortBy, sortDirection });
 
@@ -32,36 +32,16 @@ const getAllUsers = async (query: Required<GetAllUsersQuery>): Promise<IBaseResp
     page: pageNumber,
     pageSize,
     totalCount,
-    items,
+    items: items.map(userObjMapper),
   };
 };
 
-const getUserById = async (userId: MongooseObjtId): Promise<IUserDB | null> => {
-  return await UserModel.findOne({ _id: userId });
-};
-
-const findUserByFilter = async (filter: RootFilterQuery<IUserDB>): Promise<IUserDB | null> => {
-  return await UserModel.findOne(filter);
-};
-
-const createUser = async (newUser: Partial<IUserDB>): Promise<IUserDB> => {
-  return await UserModel.create(newUser);
-};
-
-const updateUserById = async (userId: MongooseObjtId, updates: Partial<IUserDB>): Promise<void> => {
-  // console.log('updates', updates)
-  await UserModel.updateOne({ _id: userId }, updates);
-};
-
-const deleteUser = async (userId: MongooseObjtId): Promise<void> => {
-  await UserModel.deleteOne({ _id: userId });
+const getUserById = async (userId: MongooseObjtId): Promise<IUserView | null> => {
+  const user = await UserModel.findOne({ _id: userId });
+  return user ? userObjMapper(user) : null;
 };
 
 export default {
   getAllUsers,
   getUserById,
-  createUser,
-  updateUserById,
-  findUserByFilter,
-  deleteUser,
 };

@@ -6,10 +6,11 @@ import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { ICreateUserBody } from '@/types/users/createUserBody';
 import UsersService from '@/services/users-service';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
-import UsersRepository from '@/repositories/users-repository';
 import { IBaseResponse } from '@/types/base-response';
-import { userObjMapper } from '@/util/mappers/userObjMapper';
 import { IUserView } from '@/types/users/user';
+import UsersRepositoryQuery from '@/repositories/users/users-repository-query';
+import { ErrorService } from '@/services/error-service';
+import { UsersErrorsList } from '@/errors/users-errors';
 
 const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: Response<IBaseResponse<IUserView>>, next: NextFunction) => {
   try {
@@ -20,7 +21,7 @@ const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: R
     const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
     const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    const { pageSize, page, pagesCount, totalCount, items } = await UsersRepository.getAllUsers({
+    const resp = await UsersRepositoryQuery.getAllUsers({
       searchLoginTerm,
       searchEmailTerm,
       sortBy,
@@ -29,7 +30,7 @@ const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: R
       pageSize: _pageSize,
     });
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ pageSize, page, pagesCount, totalCount, items: items.map(userObjMapper) });
+    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
   } catch (err) {
     next(err);
   }
@@ -39,9 +40,14 @@ const adminCreatesUser = async (req: Request<any, any, ICreateUserBody>, res: Re
   const newUser = req.body;
 
   try {
-    const user = await UsersService.createUser(newUser);
+    const userId = await UsersService.createUser(newUser);
+    const user = await UsersRepositoryQuery.getUserById(userId)
 
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(userObjMapper(user));
+    if (!user) {
+      throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(user);
   } catch (err: any) {
     if (err.field) {
       res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({

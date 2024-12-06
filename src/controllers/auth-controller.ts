@@ -3,7 +3,7 @@ import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { IAuthLoginPayload } from '@/types/auth/auth-login-payload';
 import AuthService from '@/services/auth-service';
 import { ObjectId, WithId } from 'mongodb';
-import UsersRepository from '@/repositories/users-repository';
+import UsersRepository from '@/repositories/users/users-repository-commands';
 import { ICreateUserBody } from '@/types/users/createUserBody';
 import { IUserDB } from '@/types/users/user';
 import { IChangeUserPasswordPayload } from '@/types/auth/auth-change-password-payload';
@@ -142,7 +142,7 @@ const getMe = async (req: Request, res: Response<{ email: string; login: string;
   try {
     const userId = req.userId!;
 
-    const { email, login, _id } = (await UsersRepository.findUserByFilter({ _id: userId})) as IUserDB;
+    const { email, login, _id } = (await UsersRepository.findUserByFilter({ _id: userId })) as IUserDB;
 
     res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ email, login, userId: _id });
   } catch (err) {

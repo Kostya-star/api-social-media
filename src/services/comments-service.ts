@@ -1,6 +1,6 @@
 import { ErrorService } from './error-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import UsersRepository from '@/repositories/users-repository';
+import UsersRepository from '@/repositories/users/users-repository-commands';
 import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { ObjectId } from 'mongodb';
 import { CommentsErrorsList } from '@/errors/comments-errors';
