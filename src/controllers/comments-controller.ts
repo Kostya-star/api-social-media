@@ -8,6 +8,8 @@ import { commentObjMapper } from '@/util/mappers/commentObjMapper';
 import CommentsService from '@/services/comments-service';
 import { ICommentView } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
+import { LikeStatus } from '@/const/likes/like-status';
+import LikesService from '@/services/likes-service';
 
 const getCommentById = async (req: Request<{ commentId: MongooseObjtId }>, res: Response<ICommentView>, next: NextFunction) => {
   try {
@@ -57,8 +59,24 @@ const deleteComment = async (req: Request<{ commentId: MongooseObjtId }, any>, r
   }
 };
 
+const handleCommentLike = async (req: Request<{ commentId: MongooseObjtId }, any, { likeStatus: LikeStatus }>, res: Response<void>, next: NextFunction) => {
+  const commentId = req.params.commentId;
+  const currentUserId = req.userId!;
+  const likeStatus = req.body.likeStatus;
+
+  try {
+    await LikesService.handleLike(commentId, likeStatus, currentUserId, 'isComment');
+
+    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 export default {
   getCommentById,
   updateComment,
   deleteComment,
+  handleCommentLike
 };
