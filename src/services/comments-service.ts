@@ -4,81 +4,85 @@ import UsersRepository from '@/repositories/users/users-repository-commands';
 import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { ObjectId } from 'mongodb';
 import { CommentsErrorsList } from '@/errors/comments-errors';
-import CommentsRepository from '@/repositories/comments/comments-repository-commands';
-import PostsRepository from '@/repositories/posts/posts-repository-commands';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { ICommentPayload } from '@/types/comments/commentPayload';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
+import { CommentsRepositoryCommands } from '@/repositories/comments/comments-repository-commands';
+import { PostsRepositoryCommands } from '@/repositories/posts/posts-repository-commands';
 
-const createCommentForPost = async (postId: MongooseObjtId, newComment: { content: string }, userId: MongooseObjtId): Promise<MongooseObjtId> => {
-  if (!ObjectId.isValid(postId)) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+export class CommentsService {
+  protected commentsRepository;
+  protected postsRepository;
+
+  constructor(commentsRepository: CommentsRepositoryCommands, postsRepository: PostsRepositoryCommands) {
+    this.commentsRepository = commentsRepository;
+    this.postsRepository = postsRepository;
   }
 
-  const post = await PostsRepository.getPostById(postId);
+  createCommentForPost = async (postId: MongooseObjtId, newComment: { content: string }, userId: MongooseObjtId): Promise<MongooseObjtId> => {
+    if (!ObjectId.isValid(postId)) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-  if (!post) {
-    throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
+    const post = await this.postsRepository.getPostById(postId);
 
-  const userInfo = await UsersRepository.findUserByFilter({ _id: userId });
+    if (!post) {
+      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-  const postComment: ICommentPayload & { postId: MongooseObjtId } = {
-    content: newComment.content,
-    postId,
-    commentatorInfo: {
-      userId,
-      userLogin: userInfo!.login,
-    },
+    const userInfo = await UsersRepository.findUserByFilter({ _id: userId });
+
+    const postComment: ICommentPayload & { postId: MongooseObjtId } = {
+      content: newComment.content,
+      postId,
+      commentatorInfo: {
+        userId,
+        userLogin: userInfo!.login,
+      },
+    };
+
+    return await this.commentsRepository.createComment(postComment);
   };
 
-  return await CommentsRepository.createComment(postComment);
-};
+  updateComment = async (commentId: MongooseObjtId, newComment: { content: string }, currentUserId: MongooseObjtId): Promise<void> => {
+    if (!ObjectId.isValid(commentId)) {
+      throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-const updateComment = async (commentId: MongooseObjtId, newComment: { content: string }, currentUserId: MongooseObjtId): Promise<void> => {
-  if (!ObjectId.isValid(commentId)) {
-    throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
+    const commentToUpdate = await this.commentsRepository.getCommentById(commentId);
 
-  const commentToUpdate = await CommentsRepository.getCommentById(commentId);
+    if (!commentToUpdate) {
+      throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-  if (!commentToUpdate) {
-    throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
+    // both .toString() ?
+    const isOwner = currentUserId.toString() === commentToUpdate.commentatorInfo.userId.toString();
 
-  // both .toString() ?
-  const isOwner = currentUserId.toString() === commentToUpdate.commentatorInfo.userId.toString();
+    if (!isOwner) {
+      throw ErrorService(HTTP_ERROR_MESSAGES.FORBIDDEN_403, HTTP_STATUS_CODES.FORBIDDEN_403);
+    }
 
-  if (!isOwner) {
-    throw ErrorService(HTTP_ERROR_MESSAGES.FORBIDDEN_403, HTTP_STATUS_CODES.FORBIDDEN_403);
-  }
+    await this.commentsRepository.updateComment(commentId, newComment);
+  };
 
-  await CommentsRepository.updateComment(commentId, newComment);
-};
+  deleteComment = async (commentId: MongooseObjtId, currentUserId: MongooseObjtId): Promise<void> => {
+    if (!ObjectId.isValid(commentId)) {
+      throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-const deleteComment = async (commentId: MongooseObjtId, currentUserId: MongooseObjtId): Promise<void> => {
-  if (!ObjectId.isValid(commentId)) {
-    throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
+    const commentToDelete = await this.commentsRepository.getCommentById(commentId);
 
-  const commentToDelete = await CommentsRepository.getCommentById(commentId);
+    if (!commentToDelete) {
+      throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-  if (!commentToDelete) {
-    throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-  }
+    // both .toString() ?
+    const isOwner = currentUserId.toString() === commentToDelete.commentatorInfo.userId.toString();
 
-  // both .toString() ?
-  const isOwner = currentUserId.toString() === commentToDelete.commentatorInfo.userId.toString();
+    if (!isOwner) {
+      throw ErrorService(HTTP_ERROR_MESSAGES.FORBIDDEN_403, HTTP_STATUS_CODES.FORBIDDEN_403);
+    }
 
-  if (!isOwner) {
-    throw ErrorService(HTTP_ERROR_MESSAGES.FORBIDDEN_403, HTTP_STATUS_CODES.FORBIDDEN_403);
-  }
-
-  await CommentsRepository.deleteComment(commentId);
-};
-
-export default {
-  createCommentForPost,
-  updateComment,
-  deleteComment,
-};
+    await this.commentsRepository.deleteComment(commentId);
+  };
+}

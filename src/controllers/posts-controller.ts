@@ -1,13 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import PostsService from '@/services/posts-service';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { IUpdatePostBody } from '@/types/posts/updatePostBody';
 import { ObjectId } from 'mongodb';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { IBaseQuery } from '@/types/base-query';
-import PostsRepository from '@/repositories/posts/posts-repository-commands';
 import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { IBaseResponse } from '@/types/base-response';
@@ -18,145 +16,140 @@ import { MongooseObjtId } from '@/types/mongoose-object-id';
 import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
 import CommentsRepositoryQuery from '@/repositories/comments/comments-repository-query';
 import { CommentsErrorsList } from '@/errors/comments-errors';
+import { PostsService } from '@/services/posts-service';
 
-const getAllPosts = async (req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) => {
-  try {
-    const sortBy = req.query.sortBy || 'createdAt';
-    const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
-    const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+export class PostsController {
+  protected postsService;
 
-    const resp = await PostsRepositoryQuery.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
-  } catch (err) {
-    next(err);
+  constructor(postsService: PostsService) {
+    this.postsService = postsService;
   }
-};
 
-const getPostById = async (req: Request<{ postId: MongooseObjtId }>, res: Response<IPostView>, next: NextFunction) => {
-  const { postId } = req.params;
+  async getAllPosts(req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) {
+    try {
+      const sortBy = req.query.sortBy || 'createdAt';
+      const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
+      const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
+      const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-  try {
-    if (!ObjectId.isValid(postId)) {
-      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      const resp = await PostsRepositoryQuery.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
+    } catch (err) {
+      next(err);
     }
-
-    const post = await PostsRepositoryQuery.getPostById(postId);
-
-    if (!post) {
-      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-    }
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(post);
-  } catch (err) {
-    next(err);
   }
-};
 
-const getCommentsForPost = async (
-  req: Request<{ postId: MongooseObjtId }, any, any, IBaseQuery<ICommentDB>>,
-  res: Response<IBaseResponse<ICommentView>>,
-  next: NextFunction
-) => {
-  try {
+  async getPostById(req: Request<{ postId: MongooseObjtId }>, res: Response<IPostView>, next: NextFunction) {
+    const { postId } = req.params;
+
+    try {
+      if (!ObjectId.isValid(postId)) {
+        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      const post = await PostsRepositoryQuery.getPostById(postId);
+
+      if (!post) {
+        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json(post);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getCommentsForPost(
+    req: Request<{ postId: MongooseObjtId }, any, any, IBaseQuery<ICommentDB>>,
+    res: Response<IBaseResponse<ICommentView>>,
+    next: NextFunction
+  ) {
+    try {
+      const postId = req.params.postId;
+      const userId = req.userId;
+
+      if (!ObjectId.isValid(postId)) {
+        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      const post = await PostsRepositoryQuery.getPostById(postId);
+
+      if (!post) {
+        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      const sortBy = req.query.sortBy || 'createdAt';
+      const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
+      const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
+      const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+
+      const resp = await CommentsRepositoryQuery.getCommentsForPost({ sortBy, sortDirection, pageNumber, pageSize }, postId, userId);
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async createPost(req: Request<any, any, ICreatePostBody>, res: Response<IPostView>, next: NextFunction) {
+    const newPost = req.body;
+
+    try {
+      const postId = await this.postsService.createPost(newPost);
+      const post = await PostsRepositoryQuery.getPostById(postId);
+
+      if (!post) {
+        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_201).json(post);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async createCommentForPost(req: Request<{ postId: MongooseObjtId }, any, { content: string }>, res: Response<ICommentView>, next: NextFunction) {
+    const newComment = req.body;
     const postId = req.params.postId;
-    const userId = req.userId;
+    const userId = req.userId!;
 
-    if (!ObjectId.isValid(postId)) {
-      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    try {
+      const commentId = await CommentsService.createCommentForPost(postId, newComment, userId);
+      const comment = await CommentsRepositoryQuery.getCommentById(commentId);
+
+      if (!comment) {
+        throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_201).json(comment);
+    } catch (err) {
+      next(err);
     }
+  }
 
-    const post = await PostsRepository.getPostById(postId);
+  async updatePost(req: Request<{ postId: MongooseObjtId }, any, IUpdatePostBody>, res: Response<void>, next: NextFunction) {
+    const postId = req.params.postId;
+    const newPost = req.body;
 
-    if (!post) {
-      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    try {
+      await this.postsService.updatePost(postId, newPost);
+
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err) {
+      next(err);
     }
-
-    const sortBy = req.query.sortBy || 'createdAt';
-    const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
-    const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
-
-    const resp = await CommentsRepositoryQuery.getCommentsForPost(
-      { sortBy, sortDirection, pageNumber, pageSize },
-      postId,
-      userId
-    );
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
-  } catch (err) {
-    next(err);
   }
-};
 
-const createPost = async (req: Request<any, any, ICreatePostBody>, res: Response<IPostView>, next: NextFunction) => {
-  const newPost = req.body;
+  async deletePost(req: Request<{ postId: MongooseObjtId }>, res: Response<void>, next: NextFunction) {
+    const postId = req.params.postId;
 
-  try {
-    const postId = await PostsService.createPost(newPost);
-    const post = await PostsRepositoryQuery.getPostById(postId);
+    try {
+      await this.postsService.deletePost(postId);
 
-    if (!post) {
-      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err) {
+      next(err);
     }
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(post);
-  } catch (err) {
-    next(err);
   }
-};
-
-const createCommentForPost = async (req: Request<{ postId: MongooseObjtId }, any, { content: string }>, res: Response<ICommentView>, next: NextFunction) => {
-  const newComment = req.body;
-  const postId = req.params.postId;
-  const userId = req.userId!;
-
-  try {
-    const commentId = await CommentsService.createCommentForPost(postId, newComment, userId);
-    const comment = await CommentsRepositoryQuery.getCommentById(commentId);
-
-    if (!comment) {
-      throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-    }
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(comment);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const updatePost = async (req: Request<{ postId: MongooseObjtId }, any, IUpdatePostBody>, res: Response<void>, next: NextFunction) => {
-  const postId = req.params.postId;
-  const newPost = req.body;
-
-  try {
-    await PostsService.updatePost(postId, newPost);
-
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
-  }
-};
-
-const deletePost = async (req: Request<{ postId: MongooseObjtId }>, res: Response<void>, next: NextFunction) => {
-  const postId = req.params.postId;
-
-  try {
-    await PostsService.deletePost(postId);
-
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
-  }
-};
-
-export default {
-  getAllPosts,
-  getCommentsForPost,
-  getPostById,
-  createPost,
-  createCommentForPost,
-  updatePost,
-  deletePost,
-};
+}

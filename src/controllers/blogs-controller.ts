@@ -3,7 +3,6 @@ import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { ObjectId } from 'mongodb';
-import PostsService from '@/services/posts-service';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { ErrorService } from '@/services/error-service';
@@ -18,12 +17,15 @@ import BlogsRepositoryQuery from '@/repositories/blogs/blogs-repository-query';
 import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { BlogsService } from '@/services/blogs-service';
+import { PostsService } from '@/services/posts-service';
 
 export class BlogsController {
   protected blogsService;
+  protected postsService;
 
-  constructor(blogsService: BlogsService) {
+  constructor(blogsService: BlogsService, postsService: PostsService) {
     this.blogsService = blogsService;
+    this.postsService = postsService;
   }
 
   async getAllBlogs(req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlogView>>, next: NextFunction) {
@@ -132,7 +134,7 @@ export class BlogsController {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const postId = await PostsService.createPost(newPost);
+      const postId = await this.postsService.createPost(newPost);
       const post = await PostsRepositoryQuery.getPostById(postId);
 
       if (!post) {

@@ -1,20 +1,20 @@
 import { Router } from 'express';
-import postsControllers from '@/controllers/posts-controller';
 import { checkBasicAuth } from '@/middlewares/check-basic-auth';
 import { validateCreatePostFields } from '@/middlewares/posts/validate-create-post-fields';
 import { APP_ROUTES } from '@/routing';
 import { checkBearerAuth } from '@/middlewares/check-bearer-auth';
 import { validateCommentFields } from '@/middlewares/comments/validate-comment-fields';
 import { attachAccessTokenToReq } from '@/middlewares/attach-access-token-to-req';
+import { postsController } from '@/composition-api';
 
 export const postsRoutes = Router();
 
-postsRoutes.get('/', postsControllers.getAllPosts);
-postsRoutes.get('/:postId', postsControllers.getPostById);
-postsRoutes.post('/', checkBasicAuth, validateCreatePostFields, postsControllers.createPost);
+postsRoutes.get('/', postsController.getAllPosts.bind(postsController));
+postsRoutes.get('/:postId', postsController.getPostById.bind(postsController));
+postsRoutes.post('/', checkBasicAuth, validateCreatePostFields, postsController.createPost.bind(postsController));
 
-postsRoutes.get(`/:postId${APP_ROUTES.COMMENTS}`, attachAccessTokenToReq, postsControllers.getCommentsForPost);
-postsRoutes.post(`/:postId${APP_ROUTES.COMMENTS}`, checkBearerAuth, validateCommentFields, postsControllers.createCommentForPost);
+postsRoutes.get(`/:postId${APP_ROUTES.COMMENTS}`, attachAccessTokenToReq, postsController.getCommentsForPost.bind(postsController));
+postsRoutes.post(`/:postId${APP_ROUTES.COMMENTS}`, checkBearerAuth, validateCommentFields, postsController.createCommentForPost.bind(postsController));
 
-postsRoutes.put('/:postId', checkBasicAuth, validateCreatePostFields, postsControllers.updatePost);
-postsRoutes.delete('/:postId', checkBasicAuth, postsControllers.deletePost);
+postsRoutes.put('/:postId', checkBasicAuth, validateCreatePostFields, postsController.updatePost.bind(postsController));
+postsRoutes.delete('/:postId', checkBasicAuth, postsController.deletePost.bind(postsController));
