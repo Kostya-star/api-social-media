@@ -9,7 +9,6 @@ import { IBaseQuery } from '@/types/base-query';
 import { ErrorService } from '@/services/error-service';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { IBaseResponse } from '@/types/base-response';
-import CommentsService from '@/services/comments-service';
 import { IPostDB, IPostView } from '@/types/posts/post';
 import { ICommentDB, ICommentView } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
@@ -17,12 +16,15 @@ import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
 import CommentsRepositoryQuery from '@/repositories/comments/comments-repository-query';
 import { CommentsErrorsList } from '@/errors/comments-errors';
 import { PostsService } from '@/services/posts-service';
+import { CommentsService } from '@/services/comments-service';
 
 export class PostsController {
   protected postsService;
+  protected commentsService;
 
-  constructor(postsService: PostsService) {
+  constructor(postsService: PostsService, commentsService: CommentsService) {
     this.postsService = postsService;
+    this.commentsService = commentsService;
   }
 
   async getAllPosts(req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) {
@@ -115,7 +117,7 @@ export class PostsController {
     const userId = req.userId!;
 
     try {
-      const commentId = await CommentsService.createCommentForPost(postId, newComment, userId);
+      const commentId = await this.commentsService.createCommentForPost(postId, newComment, userId);
       const comment = await CommentsRepositoryQuery.getCommentById(commentId);
 
       if (!comment) {

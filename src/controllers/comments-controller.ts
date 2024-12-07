@@ -6,15 +6,17 @@ import { CommentsErrorsList } from '@/errors/comments-errors';
 import { ICommentView } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import CommentsRepositoryQuery from '@/repositories/comments/comments-repository-query';
-import LikesService from '@/services/likes-service';
 import { LikeStatus } from '@/const/likes/like-status';
 import { CommentsService } from '@/services/comments-service';
+import { LikesService } from '@/services/likes-service';
 
 export class CommentsController {
   protected commentsService;
+  protected likesService;
 
-  constructor(commentsService: CommentsService) {
+  constructor(commentsService: CommentsService, likesService: LikesService) {
     this.commentsService = commentsService;
+    this.likesService = likesService;
   }
 
   async getCommentById(req: Request<{ commentId: MongooseObjtId }>, res: Response<ICommentView>, next: NextFunction) {
@@ -72,7 +74,7 @@ export class CommentsController {
     const likeStatus = req.body.likeStatus;
 
     try {
-      await LikesService.handleLike(commentId, likeStatus, currentUserId, 'isComment');
+      await this.likesService.handleLike(commentId, likeStatus, currentUserId, 'isComment');
 
       res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
     } catch (err) {
