@@ -1,47 +1,48 @@
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { ObjectId } from 'mongodb';
-import BlogsRepository from '@/repositories/blogs/blogs-repository-commands';
 import { ErrorService } from './error-service';
 import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import { IBlogDB } from '@/types/blogs/blog';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
+import { BlogsRepositoryCommands } from '@/repositories/blogs/blogs-repository-commands';
 
-const createBlog = async (blog: ICreateBlogPayload): Promise<MongooseObjtId> => {
-  return await BlogsRepository.createBlog(blog);
-};
+export class BlogsService {
+  protected blogsRepository;
 
-const updateBlog = async (blogId: MongooseObjtId, newBlog: IUpdateBlogPayload): Promise<void> => {
-  if (!ObjectId.isValid(blogId)) {
-    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  constructor(blogsRepository: BlogsRepositoryCommands) {
+    this.blogsRepository = blogsRepository;
   }
 
-  const blogToUpdate = await BlogsRepository.getBlogById(blogId);
-
-  if (!blogToUpdate) {
-    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+  async createBlog(blog: ICreateBlogPayload): Promise<MongooseObjtId> {
+    return await this.blogsRepository.createBlog(blog);
   }
 
-  await BlogsRepository.updateBlog(blogId, newBlog);
-};
+  async updateBlog(blogId: MongooseObjtId, newBlog: IUpdateBlogPayload): Promise<void> {
+    if (!ObjectId.isValid(blogId)) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-const deleteBlog = async (blogId: MongooseObjtId): Promise<void> => {
-  if (!ObjectId.isValid(blogId)) {
-    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    const blogToUpdate = await this.blogsRepository.getBlogById(blogId);
+
+    if (!blogToUpdate) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    await this.blogsRepository.updateBlog(blogId, newBlog);
   }
 
-  const blogToDelete = await BlogsRepository.getBlogById(blogId);
+  async deleteBlog(blogId: MongooseObjtId): Promise<void> {
+    if (!ObjectId.isValid(blogId)) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-  if (!blogToDelete) {
-    throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    const blogToDelete = await this.blogsRepository.getBlogById(blogId);
+
+    if (!blogToDelete) {
+      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+
+    await this.blogsRepository.deleteBlog(blogId);
   }
-
-  await BlogsRepository.deleteBlog(blogId);
-};
-
-export default {
-  createBlog,
-  updateBlog,
-  deleteBlog,
-};
+}

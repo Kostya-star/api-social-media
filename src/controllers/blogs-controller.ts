@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import BlogsService from '@/services/blogs-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
@@ -13,167 +12,161 @@ import { IBaseQuery } from '@/types/base-query';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { IBaseResponse } from '@/types/base-response';
-import { postObjMapper } from '@/util/mappers/postObjMapper';
 import { IBlogView } from '@/types/blogs/blog';
 import { IPostDB, IPostView } from '@/types/posts/post';
 import BlogsRepositoryQuery from '@/repositories/blogs/blogs-repository-query';
 import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
 import { PostsErrorsList } from '@/errors/posts-errors';
+import { BlogsService } from '@/services/blogs-service';
 
-const getAllBlogs = async (req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlogView>>, next: NextFunction) => {
-  try {
-    const searchNameTerm = req.query.searchNameTerm || null;
-    const sortBy = req.query.sortBy || 'createdAt';
-    const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
-    const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+export class BlogsController {
+  protected blogsService;
 
-    const resp = await BlogsRepositoryQuery.getAllBlogs({
-      searchNameTerm,
-      sortBy,
-      sortDirection,
-      pageNumber,
-      pageSize,
-    });
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
-  } catch (err) {
-    next(err);
+  constructor(blogsService: BlogsService) {
+    this.blogsService = blogsService;
   }
-};
 
-const getBlogById = async (req: Request<{ blogId: ObjectId }>, res: Response<IBlogView>, next: NextFunction) => {
-  const { blogId } = req.params;
+  async getAllBlogs(req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlogView>>, next: NextFunction) {
+    try {
+      const searchNameTerm = req.query.searchNameTerm || null;
+      const sortBy = req.query.sortBy || 'createdAt';
+      const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
+      const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
+      const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-  try {
-    if (!ObjectId.isValid(blogId)) {
-      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      const resp = await BlogsRepositoryQuery.getAllBlogs({
+        searchNameTerm,
+        sortBy,
+        sortDirection,
+        pageNumber,
+        pageSize,
+      });
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
+    } catch (err) {
+      next(err);
     }
-
-    const blog = await BlogsRepositoryQuery.getBlogById(blogId);
-
-    if (!blog) {
-      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-    }
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blog);
-  } catch (err) {
-    next(err);
   }
-};
 
-const getPostsForBlog = async (
-  req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPostDB>>,
-  res: Response<IBaseResponse<IPostView>>,
-  next: NextFunction
-) => {
-  const { blogId } = req.params;
+  async getBlogById(req: Request<{ blogId: ObjectId }>, res: Response<IBlogView>, next: NextFunction) {
+    const { blogId } = req.params;
 
-  try {
-    const sortBy = req.query.sortBy || 'createdAt';
-    const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
-    const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+    try {
+      if (!ObjectId.isValid(blogId)) {
+        throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
 
-    if (!ObjectId.isValid(blogId)) {
-      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+
+      if (!blog) {
+        throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json(blog);
+    } catch (err) {
+      next(err);
     }
-
-    const blog = await BlogsRepositoryQuery.getBlogById(blogId);
-
-    if (!blog) {
-      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-    }
-
-    const resp = await PostsRepositoryQuery.getPostsForBlog(blogId, {
-      sortBy,
-      sortDirection,
-      pageNumber,
-      pageSize,
-    });
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
-  } catch (err) {
-    next(err);
   }
-};
 
-const createBlog = async (req: Request<any, any, ICreateBlogPayload>, res: Response<IBlogView>, next: NextFunction) => {
-  const newBlog = req.body;
+  async getPostsForBlog(req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) {
+    const { blogId } = req.params;
 
-  try {
-    const blogId = await BlogsService.createBlog(newBlog);
-    const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+    try {
+      const sortBy = req.query.sortBy || 'createdAt';
+      const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
+      const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
+      const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-    if (!blog) {
-      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      if (!ObjectId.isValid(blogId)) {
+        throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+
+      if (!blog) {
+        throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      const resp = await PostsRepositoryQuery.getPostsForBlog(blogId, {
+        sortBy,
+        sortDirection,
+        pageNumber,
+        pageSize,
+      });
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
+    } catch (err) {
+      next(err);
     }
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(blog);
-  } catch (err) {
-    next(err);
   }
-};
 
-const createPostForBlog = async (req: Request<{ blogId: ObjectId }, any, Omit<ICreatePostBody, 'blogId'>>, res: Response<IPostView>, next: NextFunction) => {
-  const blogId = req.params.blogId;
-  const newPost = { ...req.body, blogId };
+  async createBlog(req: Request<any, any, ICreateBlogPayload>, res: Response<IBlogView>, next: NextFunction) {
+    const newBlog = req.body;
 
-  try {
-    if (!ObjectId.isValid(blogId)) {
-      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    try {
+      const blogId = await this.blogsService.createBlog(newBlog);
+      const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+
+      if (!blog) {
+        throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_201).json(blog);
+    } catch (err) {
+      next(err);
     }
+  }
 
-    const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+  async createPostForBlog(req: Request<{ blogId: ObjectId }, any, Omit<ICreatePostBody, 'blogId'>>, res: Response<IPostView>, next: NextFunction) {
+    const blogId = req.params.blogId;
+    const newPost = { ...req.body, blogId };
 
-    if (!blog) {
-      throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    try {
+      if (!ObjectId.isValid(blogId)) {
+        throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+
+      if (!blog) {
+        throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      const postId = await PostsService.createPost(newPost);
+      const post = await PostsRepositoryQuery.getPostById(postId);
+
+      if (!post) {
+        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_201).json(post);
+    } catch (err) {
+      next(err);
     }
+  }
 
-    const postId = await PostsService.createPost(newPost);
-    const post = await PostsRepositoryQuery.getPostById(postId);
+  async updateBlog(req: Request<{ blogId: ObjectId }, any, IUpdateBlogPayload>, res: Response<void>, next: NextFunction) {
+    const blogId = req.params.blogId;
+    const newBlog = req.body;
 
-    if (!post) {
-      throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+    try {
+      await this.blogsService.updateBlog(blogId, newBlog);
+
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err) {
+      next(err);
     }
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(post);
-  } catch (err) {
-    next(err);
   }
-};
 
-const updateBlog = async (req: Request<{ blogId: ObjectId }, any, IUpdateBlogPayload>, res: Response<void>, next: NextFunction) => {
-  const blogId = req.params.blogId;
-  const newBlog = req.body;
+  async deleteBlog(req: Request<{ blogId: ObjectId }>, res: Response<void>, next: NextFunction) {
+    const blogId = req.params.blogId;
 
-  try {
-    await BlogsService.updateBlog(blogId, newBlog);
+    try {
+      await this.blogsService.deleteBlog(blogId);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err) {
+      next(err);
+    }
   }
-};
-
-const deleteBlog = async (req: Request<{ blogId: ObjectId }>, res: Response<void>, next: NextFunction) => {
-  const blogId = req.params.blogId;
-
-  try {
-    await BlogsService.deleteBlog(blogId);
-
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
-  }
-};
-
-export default {
-  getAllBlogs,
-  getBlogById,
-  getPostsForBlog,
-  createBlog,
-  createPostForBlog,
-  updateBlog,
-  deleteBlog,
-};
+}
