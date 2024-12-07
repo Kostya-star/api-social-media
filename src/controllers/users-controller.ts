@@ -4,81 +4,83 @@ import { ObjectId } from 'mongodb';
 import { SORT_DIRECTIONS } from '@/const/sort-directions';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { ICreateUserBody } from '@/types/users/createUserBody';
-import UsersService from '@/services/users-service';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
 import { IBaseResponse } from '@/types/base-response';
 import { IUserView } from '@/types/users/user';
 import UsersRepositoryQuery from '@/repositories/users/users-repository-query';
 import { ErrorService } from '@/services/error-service';
 import { UsersErrorsList } from '@/errors/users-errors';
+import { UsersService } from '@/services/users-service';
 
-const getAllUsers = async (req: Request<any, any, any, GetAllUsersQuery>, res: Response<IBaseResponse<IUserView>>, next: NextFunction) => {
-  try {
-    const searchLoginTerm = req.query.searchLoginTerm || null;
-    const searchEmailTerm = req.query.searchEmailTerm || null;
-    const sortBy = req.query.sortBy || 'createdAt';
-    const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
-    const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
-    const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+export class UsersController {
+  protected usersService;
 
-    const resp = await UsersRepositoryQuery.getAllUsers({
-      searchLoginTerm,
-      searchEmailTerm,
-      sortBy,
-      sortDirection,
-      pageNumber,
-      pageSize: _pageSize,
-    });
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
-  } catch (err) {
-    next(err);
+  constructor(usersService: UsersService) {
+    this.usersService = usersService;
   }
-};
 
-const adminCreatesUser = async (req: Request<any, any, ICreateUserBody>, res: Response<IUserView | unknown>, next: NextFunction) => {
-  const newUser = req.body;
+  async getAllUsers(req: Request<any, any, any, GetAllUsersQuery>, res: Response<IBaseResponse<IUserView>>, next: NextFunction) {
+    try {
+      const searchLoginTerm = req.query.searchLoginTerm || null;
+      const searchEmailTerm = req.query.searchEmailTerm || null;
+      const sortBy = req.query.sortBy || 'createdAt';
+      const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
+      const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
+      const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-  try {
-    const userId = await UsersService.createUser(newUser);
-    const user = await UsersRepositoryQuery.getUserById(userId)
-
-    if (!user) {
-      throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-    }
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_201).json(user);
-  } catch (err: any) {
-    if (err.field) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
-        errorsMessages: [
-          {
-            field: err.field,
-            message: err.message,
-          },
-        ],
+      const resp = await UsersRepositoryQuery.getAllUsers({
+        searchLoginTerm,
+        searchEmailTerm,
+        sortBy,
+        sortDirection,
+        pageNumber,
+        pageSize: _pageSize,
       });
-      return;
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
+    } catch (err) {
+      next(err);
     }
-
-    next(err);
   }
-};
 
-const deleteUser = async (req: Request<{ userId: ObjectId }>, res: Response<void>, next: NextFunction) => {
-  const userId = req.params.userId;
+  async adminCreatesUser(req: Request<any, any, ICreateUserBody>, res: Response<IUserView | unknown>, next: NextFunction) {
+    const newUser = req.body;
 
-  try {
-    await UsersService.deleteUser(userId);
+    try {
+      const userId = await this.usersService.createUser(newUser);
+      const user = await UsersRepositoryQuery.getUserById(userId);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
+      if (!user) {
+        throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_201).json(user);
+    } catch (err: any) {
+      if (err.field) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
+          errorsMessages: [
+            {
+              field: err.field,
+              message: err.message,
+            },
+          ],
+        });
+        return;
+      }
+
+      next(err);
+    }
   }
-};
 
-export default {
-  getAllUsers,
-  adminCreatesUser,
-  deleteUser,
-};
+  async deleteUser(req: Request<{ userId: ObjectId }>, res: Response<void>, next: NextFunction) {
+    const userId = req.params.userId;
+
+    try {
+      await this.usersService.deleteUser(userId);
+
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err) {
+      next(err);
+    }
+  }
+}

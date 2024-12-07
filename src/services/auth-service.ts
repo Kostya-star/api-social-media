@@ -13,8 +13,6 @@ import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 import MailService from './mail-service';
 import { AuthErrorsList } from '@/errors/auth-errors';
 import { ACCESS_TOKEN_EXP_TIME, REFRESH_TOKEN_EXP_TIME } from '@/const/tokens-exp-time';
-import SessionsService from './sessions-service';
-import SessionsRepository from '@/repositories/sessions/sessions-repository-commands';
 import { IRefreshTokenDecodedPayload } from '@/types/refresh-token-decoded-payload';
 import { getISOFromUnixSeconds } from '@/util/get-iso-from-unix-secs';
 import { IChangeUserPasswordPayload } from '@/types/auth/auth-change-password-payload';
