@@ -1,6 +1,5 @@
 import { ErrorService } from './error-service';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
-import UsersRepository from '@/repositories/users/users-repository-commands';
 import { HTTP_ERROR_MESSAGES } from '@/const/http-error-messages';
 import { ObjectId } from 'mongodb';
 import { CommentsErrorsList } from '@/errors/comments-errors';
@@ -9,14 +8,17 @@ import { ICommentPayload } from '@/types/comments/commentPayload';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { CommentsRepositoryCommands } from '@/repositories/comments/comments-repository-commands';
 import { PostsRepositoryCommands } from '@/repositories/posts/posts-repository-commands';
+import { UsersRepositoryCommands } from '@/repositories/users/users-repository-commands';
 
 export class CommentsService {
   protected commentsRepository;
   protected postsRepository;
+  protected usersRepository;
 
-  constructor(commentsRepository: CommentsRepositoryCommands, postsRepository: PostsRepositoryCommands) {
+  constructor(commentsRepository: CommentsRepositoryCommands, postsRepository: PostsRepositoryCommands, usersRepository: UsersRepositoryCommands) {
     this.commentsRepository = commentsRepository;
     this.postsRepository = postsRepository;
+    this.usersRepository = usersRepository;
   }
 
   createCommentForPost = async (postId: MongooseObjtId, newComment: { content: string }, userId: MongooseObjtId): Promise<MongooseObjtId> => {
@@ -30,7 +32,7 @@ export class CommentsService {
       throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    const userInfo = await UsersRepository.findUserByFilter({ _id: userId });
+    const userInfo = await this.usersRepository.findUserByFilter({ _id: userId });
 
     const postComment: ICommentPayload & { postId: MongooseObjtId } = {
       content: newComment.content,

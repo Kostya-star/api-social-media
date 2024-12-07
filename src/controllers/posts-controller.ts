@@ -12,19 +12,28 @@ import { IBaseResponse } from '@/types/base-response';
 import { IPostDB, IPostView } from '@/types/posts/post';
 import { ICommentDB, ICommentView } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
-import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
-import CommentsRepositoryQuery from '@/repositories/comments/comments-repository-query';
 import { CommentsErrorsList } from '@/errors/comments-errors';
 import { PostsService } from '@/services/posts-service';
 import { CommentsService } from '@/services/comments-service';
+import { PostsRepositoryQuery } from '@/repositories/posts/posts-repository-query';
+import { CommentsRepositoryQuery } from '@/repositories/comments/comments-repository-query';
 
 export class PostsController {
   protected postsService;
   protected commentsService;
+  protected postsRepositoryQuery;
+  protected commentsRepositoryQuery;
 
-  constructor(postsService: PostsService, commentsService: CommentsService) {
+  constructor(
+    postsService: PostsService,
+    commentsService: CommentsService,
+    postsRepositoryQuery: PostsRepositoryQuery,
+    commentsRepositoryQuery: CommentsRepositoryQuery
+  ) {
     this.postsService = postsService;
     this.commentsService = commentsService;
+    this.postsRepositoryQuery = postsRepositoryQuery;
+    this.commentsRepositoryQuery = commentsRepositoryQuery;
   }
 
   async getAllPosts(req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) {
@@ -34,7 +43,7 @@ export class PostsController {
       const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
       const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-      const resp = await PostsRepositoryQuery.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
+      const resp = await this.postsRepositoryQuery.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
 
       res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
     } catch (err) {
@@ -50,7 +59,7 @@ export class PostsController {
         throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const post = await PostsRepositoryQuery.getPostById(postId);
+      const post = await this.postsRepositoryQuery.getPostById(postId);
 
       if (!post) {
         throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -75,7 +84,7 @@ export class PostsController {
         throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const post = await PostsRepositoryQuery.getPostById(postId);
+      const post = await this.postsRepositoryQuery.getPostById(postId);
 
       if (!post) {
         throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -86,7 +95,7 @@ export class PostsController {
       const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
       const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-      const resp = await CommentsRepositoryQuery.getCommentsForPost({ sortBy, sortDirection, pageNumber, pageSize }, postId, userId);
+      const resp = await this.commentsRepositoryQuery.getCommentsForPost({ sortBy, sortDirection, pageNumber, pageSize }, postId, userId);
 
       res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
     } catch (err) {
@@ -99,7 +108,7 @@ export class PostsController {
 
     try {
       const postId = await this.postsService.createPost(newPost);
-      const post = await PostsRepositoryQuery.getPostById(postId);
+      const post = await this.postsRepositoryQuery.getPostById(postId);
 
       if (!post) {
         throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -118,7 +127,7 @@ export class PostsController {
 
     try {
       const commentId = await this.commentsService.createCommentForPost(postId, newComment, userId);
-      const comment = await CommentsRepositoryQuery.getCommentById(commentId);
+      const comment = await this.commentsRepositoryQuery.getCommentById(commentId);
 
       if (!comment) {
         throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

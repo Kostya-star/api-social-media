@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { LikeStatus } from '@/const/likes/like-status';
 import { CommentsErrorsList } from '@/errors/comments-errors';
-import { LikesRepositoryCommands } from '@/repositories/likes/likes-repository-commands';
+import { LikesRepositoryCommands } from '@/repositories/likes-repository-commands';
 import { CommentsRepositoryCommands } from '@/repositories/comments/comments-repository-commands';
 
 export class LikesService {

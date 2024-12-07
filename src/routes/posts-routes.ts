@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { checkBasicAuth } from '@/middlewares/check-basic-auth';
-import { validateCreatePostFields } from '@/middlewares/posts/validate-create-post-fields';
 import { APP_ROUTES } from '@/routing';
 import { checkBearerAuth } from '@/middlewares/check-bearer-auth';
 import { validateCommentFields } from '@/middlewares/comments/validate-comment-fields';
 import { attachAccessTokenToReq } from '@/middlewares/attach-access-token-to-req';
 import { postsController } from '@/composition-api';
+import { validateCreatePostFields } from '@/middlewares/posts/validate-create-post-fields';
 
 export const postsRoutes = Router();
 

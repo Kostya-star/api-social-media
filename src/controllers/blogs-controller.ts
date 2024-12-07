@@ -13,19 +13,23 @@ import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@/const/query-defaults';
 import { IBaseResponse } from '@/types/base-response';
 import { IBlogView } from '@/types/blogs/blog';
 import { IPostDB, IPostView } from '@/types/posts/post';
-import BlogsRepositoryQuery from '@/repositories/blogs/blogs-repository-query';
-import PostsRepositoryQuery from '@/repositories/posts/posts-repository-query';
 import { PostsErrorsList } from '@/errors/posts-errors';
 import { BlogsService } from '@/services/blogs-service';
 import { PostsService } from '@/services/posts-service';
+import { BlogsRepositoryQuery } from '@/repositories/blogs/blogs-repository-query';
+import { PostsRepositoryQuery } from '@/repositories/posts/posts-repository-query';
 
 export class BlogsController {
   protected blogsService;
   protected postsService;
+  protected blogsRepositoryQuery;
+  protected postsRepositoryQuery;
 
-  constructor(blogsService: BlogsService, postsService: PostsService) {
+  constructor(blogsService: BlogsService, postsService: PostsService, blogsRepositoryQuery: BlogsRepositoryQuery, postsRepositoryQuery: PostsRepositoryQuery) {
     this.blogsService = blogsService;
     this.postsService = postsService;
+    this.blogsRepositoryQuery = blogsRepositoryQuery;
+    this.postsRepositoryQuery = postsRepositoryQuery;
   }
 
   async getAllBlogs(req: Request<any, any, any, GetAllBlogsQuery>, res: Response<IBaseResponse<IBlogView>>, next: NextFunction) {
@@ -36,7 +40,7 @@ export class BlogsController {
       const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
       const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-      const resp = await BlogsRepositoryQuery.getAllBlogs({
+      const resp = await this.blogsRepositoryQuery.getAllBlogs({
         searchNameTerm,
         sortBy,
         sortDirection,
@@ -58,7 +62,7 @@ export class BlogsController {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+      const blog = await this.blogsRepositoryQuery.getBlogById(blogId);
 
       if (!blog) {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -83,13 +87,13 @@ export class BlogsController {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+      const blog = await this.blogsRepositoryQuery.getBlogById(blogId);
 
       if (!blog) {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const resp = await PostsRepositoryQuery.getPostsForBlog(blogId, {
+      const resp = await this.postsRepositoryQuery.getPostsForBlog(blogId, {
         sortBy,
         sortDirection,
         pageNumber,
@@ -107,7 +111,7 @@ export class BlogsController {
 
     try {
       const blogId = await this.blogsService.createBlog(newBlog);
-      const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+      const blog = await this.blogsRepositoryQuery.getBlogById(blogId);
 
       if (!blog) {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -128,14 +132,14 @@ export class BlogsController {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const blog = await BlogsRepositoryQuery.getBlogById(blogId);
+      const blog = await this.blogsRepositoryQuery.getBlogById(blogId);
 
       if (!blog) {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
       const postId = await this.postsService.createPost(newPost);
-      const post = await PostsRepositoryQuery.getPostById(postId);
+      const post = await this.postsRepositoryQuery.getPostById(postId);
 
       if (!post) {
         throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

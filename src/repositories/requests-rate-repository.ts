@@ -7,20 +7,18 @@ interface ICreateReqRatePayload {
   url: string;
 }
 
-export const getUpdatedRate = async ({ ip, url }: ICreateReqRatePayload, newTimestamp: number): Promise<WithId<IReqRateLimiter> | null> => {
-  await ReqRateModel.updateOne(
-    { ip, url },
-    { $pull: { timestamps: { $lt: newTimestamp - 10 } } }, // Remove timestamps older than 10 seconds
-    { upsert: true }
-  );
+export class RequestsRateRepositoryCommands {
+  async getUpdatedRate({ ip, url }: ICreateReqRatePayload, newTimestamp: number): Promise<WithId<IReqRateLimiter> | null> {
+    await ReqRateModel.updateOne(
+      { ip, url },
+      { $pull: { timestamps: { $lt: newTimestamp - 10 } } }, // Remove timestamps older than 10 seconds
+      { upsert: true }
+    );
 
-  return await ReqRateModel.findOneAndUpdate(
-    { ip, url },
-    { $push: { timestamps: newTimestamp } }, // Add the current timestamp
-    { upsert: true, returnDocument: 'after' } // Return the updated document
-  );
-};
-
-export default {
-  getUpdatedRate,
-};
+    return await ReqRateModel.findOneAndUpdate(
+      { ip, url },
+      { $push: { timestamps: newTimestamp } }, // Add the current timestamp
+      { upsert: true, returnDocument: 'after' } // Return the updated document
+    );
+  }
+}

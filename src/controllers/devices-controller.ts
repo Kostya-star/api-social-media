@@ -1,21 +1,23 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ISessionView } from '@/types/sessions/session';
-import SessionsRepositoryQuery from '@/repositories/sessions/sessions-repository-query';
 import { SessionsService } from '@/services/sessions-service';
+import { SessionsRepositoryQuery } from '@/repositories/sessions/sessions-repository-query';
 
 export class DevicesController {
   protected sessionsService;
+  protected sessionsRepositoryQuery;
 
-  constructor(sessionsService: SessionsService) {
-    this.sessionsService = sessionsService
+  constructor(sessionsService: SessionsService, sessionsRepositoryQuery: SessionsRepositoryQuery) {
+    this.sessionsService = sessionsService;
+    this.sessionsRepositoryQuery = sessionsRepositoryQuery;
   }
 
   async getUserDevices(req: Request, res: Response<ISessionView[]>, next: NextFunction) {
     try {
       const { userId } = req.refresh_token_decoded_payload;
 
-      const devices = await SessionsRepositoryQuery.findUserSessions(userId);
+      const devices = await this.sessionsRepositoryQuery.findUserSessions(userId);
 
       res.status(HTTP_STATUS_CODES.SUCCESS_200).json(devices);
     } catch (err) {

@@ -5,18 +5,20 @@ import { ErrorService } from '@/services/error-service';
 import { CommentsErrorsList } from '@/errors/comments-errors';
 import { ICommentView } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
-import CommentsRepositoryQuery from '@/repositories/comments/comments-repository-query';
 import { LikeStatus } from '@/const/likes/like-status';
 import { CommentsService } from '@/services/comments-service';
 import { LikesService } from '@/services/likes-service';
+import { CommentsRepositoryQuery } from '@/repositories/comments/comments-repository-query';
 
 export class CommentsController {
   protected commentsService;
   protected likesService;
+  protected commentsRepositoryQuery;
 
-  constructor(commentsService: CommentsService, likesService: LikesService) {
+  constructor(commentsService: CommentsService, likesService: LikesService, commentsRepositoryQuery: CommentsRepositoryQuery) {
     this.commentsService = commentsService;
     this.likesService = likesService;
+    this.commentsRepositoryQuery = commentsRepositoryQuery;
   }
 
   async getCommentById(req: Request<{ commentId: MongooseObjtId }>, res: Response<ICommentView>, next: NextFunction) {
@@ -28,7 +30,7 @@ export class CommentsController {
         throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const comment = await CommentsRepositoryQuery.getCommentById(commentId, userId);
+      const comment = await this.commentsRepositoryQuery.getCommentById(commentId, userId);
 
       if (!comment) {
         throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

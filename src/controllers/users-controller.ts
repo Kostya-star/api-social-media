@@ -7,16 +7,18 @@ import { ICreateUserBody } from '@/types/users/createUserBody';
 import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
 import { IBaseResponse } from '@/types/base-response';
 import { IUserView } from '@/types/users/user';
-import UsersRepositoryQuery from '@/repositories/users/users-repository-query';
 import { ErrorService } from '@/services/error-service';
 import { UsersErrorsList } from '@/errors/users-errors';
 import { UsersService } from '@/services/users-service';
+import { UsersRepositoryQuery } from '@/repositories/users/users-repository-query';
 
 export class UsersController {
   protected usersService;
+  protected usersRepositoryQuery;
 
-  constructor(usersService: UsersService) {
+  constructor(usersService: UsersService, usersRepositoryQuery: UsersRepositoryQuery) {
     this.usersService = usersService;
+    this.usersRepositoryQuery = usersRepositoryQuery;
   }
 
   async getAllUsers(req: Request<any, any, any, GetAllUsersQuery>, res: Response<IBaseResponse<IUserView>>, next: NextFunction) {
@@ -28,7 +30,7 @@ export class UsersController {
       const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
       const _pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
 
-      const resp = await UsersRepositoryQuery.getAllUsers({
+      const resp = await this.usersRepositoryQuery.getAllUsers({
         searchLoginTerm,
         searchEmailTerm,
         sortBy,
@@ -48,7 +50,7 @@ export class UsersController {
 
     try {
       const userId = await this.usersService.createUser(newUser);
-      const user = await UsersRepositoryQuery.getUserById(userId);
+      const user = await this.usersRepositoryQuery.getUserById(userId);
 
       if (!user) {
         throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

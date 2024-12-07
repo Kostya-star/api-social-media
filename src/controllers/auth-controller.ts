@@ -6,13 +6,15 @@ import { ICreateUserBody } from '@/types/users/createUserBody';
 import { IUserView } from '@/types/users/user';
 import { IChangeUserPasswordPayload } from '@/types/auth/auth-change-password-payload';
 import { AuthService } from '@/services/auth-service';
-import usersRepositoryQuery from '@/repositories/users/users-repository-query';
+import { UsersRepositoryQuery } from '@/repositories/users/users-repository-query';
 
 export class AuthController {
   protected authService;
+  protected usersRepositoryQuery;
 
-  constructor(authService: AuthService) {
+  constructor(authService: AuthService, usersRepositoryQuery: UsersRepositoryQuery) {
     this.authService = authService;
+    this.usersRepositoryQuery = usersRepositoryQuery;
   }
 
   // user registers themselves without admin
@@ -149,7 +151,7 @@ export class AuthController {
     try {
       const userId = req.userId!;
 
-      const { email, login, id } = (await usersRepositoryQuery.getUserById(userId)) as IUserView;
+      const { email, login, id } = (await this.usersRepositoryQuery.getUserById(userId)) as IUserView;
 
       res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ email, login, userId: id });
     } catch (err) {
