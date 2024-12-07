@@ -1,174 +1,170 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { IAuthLoginPayload } from '@/types/auth/auth-login-payload';
-import AuthService from '@/services/auth-service';
-import { ObjectId, WithId } from 'mongodb';
-import UsersRepository from '@/repositories/users/users-repository-commands';
+import { ObjectId } from 'mongodb';
 import { ICreateUserBody } from '@/types/users/createUserBody';
-import { IUserDB } from '@/types/users/user';
+import { IUserView } from '@/types/users/user';
 import { IChangeUserPasswordPayload } from '@/types/auth/auth-change-password-payload';
+import { AuthService } from '@/services/auth-service';
+import usersRepositoryQuery from '@/repositories/users/users-repository-query';
 
-// user registers themselves without admin
-const selfRegistration = async (req: Request<any, any, ICreateUserBody>, res: Response, next: NextFunction) => {
-  try {
-    const newUser = req.body;
+export class AuthController {
+  protected authService;
 
-    await AuthService.selfRegistration(newUser);
+  constructor(authService: AuthService) {
+    this.authService = authService;
+  }
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err: any) {
-    if (err.field) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
-        errorsMessages: [
-          {
-            field: err.field,
-            message: err.message,
-          },
-        ],
-      });
-      return;
+  // user registers themselves without admin
+  async selfRegistration(req: Request<any, any, ICreateUserBody>, res: Response, next: NextFunction) {
+    try {
+      const newUser = req.body;
+
+      await this.authService.selfRegistration(newUser);
+
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err: any) {
+      if (err.field) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
+          errorsMessages: [
+            {
+              field: err.field,
+              message: err.message,
+            },
+          ],
+        });
+        return;
+      }
+
+      next(err);
     }
-
-    next(err);
   }
-};
 
-const registrationConfirmation = async (req: Request<any, any, { code: string }>, res: Response, next: NextFunction) => {
-  try {
-    const code = req.body.code;
+  async registrationConfirmation(req: Request<any, any, { code: string }>, res: Response, next: NextFunction) {
+    try {
+      const code = req.body.code;
 
-    await AuthService.confirmRegistration(code);
+      await this.authService.confirmRegistration(code);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err: any) {
-    if (err.field) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
-        errorsMessages: [
-          {
-            field: err.field,
-            message: err.message,
-          },
-        ],
-      });
-      return;
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err: any) {
+      if (err.field) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
+          errorsMessages: [
+            {
+              field: err.field,
+              message: err.message,
+            },
+          ],
+        });
+        return;
+      }
+
+      next(err);
     }
-
-    next(err);
   }
-};
 
-const registrationEmailCodeResending = async (req: Request<any, any, { email: string }>, res: Response, next: NextFunction) => {
-  try {
-    const email = req.body.email;
+  async registrationEmailCodeResending(req: Request<any, any, { email: string }>, res: Response, next: NextFunction) {
+    try {
+      const email = req.body.email;
 
-    await AuthService.resendCode(email);
+      await this.authService.resendCode(email);
 
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err: any) {
-    if (err.field) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
-        errorsMessages: [
-          {
-            field: err.field,
-            message: err.message,
-          },
-        ],
-      });
-      return;
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err: any) {
+      if (err.field) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
+          errorsMessages: [
+            {
+              field: err.field,
+              message: err.message,
+            },
+          ],
+        });
+        return;
+      }
+
+      next(err);
     }
-
-    next(err);
   }
-};
 
-const login = async (req: Request<any, any, IAuthLoginPayload>, res: Response<{ accessToken: string }>, next: NextFunction) => {
-  try {
-    const userAgent = req.headers['user-agent'] || 'Unknown device';
-    const ipAddress = req.ip;
+  async login(req: Request<any, any, IAuthLoginPayload>, res: Response<{ accessToken: string }>, next: NextFunction) {
+    try {
+      const userAgent = req.headers['user-agent'] || 'Unknown device';
+      const ipAddress = req.ip;
 
-    const { accessToken, refreshToken } = await AuthService.login(req.body, userAgent, ipAddress!);
+      const { accessToken, refreshToken } = await this.authService.login(req.body, userAgent, ipAddress!);
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const refreshToken = async (req: Request, res: Response<{ accessToken: string }>, next: NextFunction) => {
-  try {
-    const { accessToken, refreshToken } = await AuthService.refreshToken(req.refresh_token_decoded_payload);
-
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const recoverPassword = async (req: Request<any, any, { email: string }>, res: Response<void>, next: NextFunction) => {
-  try {
-    await AuthService.recoverPassword(req.body.email);
-
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
-  }
-};
-
-const changePassword = async (req: Request<any, any, IChangeUserPasswordPayload>, res: Response, next: NextFunction) => {
-  try {
-    await AuthService.changePassword(req.body);
-
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err: any) {
-    if (err.field) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
-        errorsMessages: [
-          {
-            field: err.field,
-            message: err.message,
-          },
-        ],
-      });
-      return;
+      res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken });
+    } catch (err) {
+      next(err);
     }
-
-    next(err);
   }
-};
 
-const getMe = async (req: Request, res: Response<{ email: string; login: string; userId: ObjectId }>, next: NextFunction) => {
-  try {
-    const userId = req.userId!;
+  async refreshToken(req: Request, res: Response<{ accessToken: string }>, next: NextFunction) {
+    try {
+      const { accessToken, refreshToken } = await this.authService.refreshToken(req.refresh_token_decoded_payload);
 
-    const { email, login, _id } = (await UsersRepository.findUserByFilter({ _id: userId })) as IUserDB;
-
-    res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ email, login, userId: _id });
-  } catch (err) {
-    next(err);
+      res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ accessToken });
+    } catch (err) {
+      next(err);
+    }
   }
-};
 
-const logout = async (req: Request, res: Response<void>, next: NextFunction) => {
-  try {
-    await AuthService.logout(req.refresh_token_decoded_payload);
+  async recoverPassword(req: Request<any, any, { email: string }>, res: Response<void>, next: NextFunction) {
+    try {
+      await this.authService.recoverPassword(req.body.email);
 
-    res.clearCookie('refreshToken');
-    res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
-  } catch (err) {
-    next(err);
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err) {
+      next(err);
+    }
   }
-};
 
-export default {
-  selfRegistration,
-  registrationConfirmation,
-  registrationEmailCodeResending,
-  login,
-  refreshToken,
-  recoverPassword,
-  changePassword,
-  getMe,
-  logout,
-};
+  async changePassword(req: Request<any, any, IChangeUserPasswordPayload>, res: Response, next: NextFunction) {
+    try {
+      await this.authService.changePassword(req.body);
+
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err: any) {
+      if (err.field) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
+          errorsMessages: [
+            {
+              field: err.field,
+              message: err.message,
+            },
+          ],
+        });
+        return;
+      }
+
+      next(err);
+    }
+  }
+
+  async getMe(req: Request, res: Response<{ email: string; login: string; userId: ObjectId }>, next: NextFunction) {
+    try {
+      const userId = req.userId!;
+
+      const { email, login, id } = (await usersRepositoryQuery.getUserById(userId)) as IUserView;
+
+      res.status(HTTP_STATUS_CODES.SUCCESS_200).json({ email, login, userId: id });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async logout(req: Request, res: Response<void>, next: NextFunction) {
+    try {
+      await this.authService.logout(req.refresh_token_decoded_payload);
+
+      res.clearCookie('refreshToken');
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err) {
+      next(err);
+    }
+  }
+}
