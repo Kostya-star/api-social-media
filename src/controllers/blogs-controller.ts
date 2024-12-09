@@ -76,6 +76,7 @@ export class BlogsController {
 
   async getPostsForBlog(req: Request<{ blogId: ObjectId }, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) {
     const { blogId } = req.params;
+    const userId = req.userId;
 
     try {
       const sortBy = req.query.sortBy || 'createdAt';
@@ -93,12 +94,16 @@ export class BlogsController {
         throw ErrorService(BlogsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const resp = await this.postsRepositoryQuery.getPostsForBlog(blogId, {
-        sortBy,
-        sortDirection,
-        pageNumber,
-        pageSize,
-      });
+      const resp = await this.postsRepositoryQuery.getPostsForBlog(
+        blogId,
+        {
+          sortBy,
+          sortDirection,
+          pageNumber,
+          pageSize,
+        },
+        userId
+      );
 
       res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
     } catch (err) {

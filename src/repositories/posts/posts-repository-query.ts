@@ -20,7 +20,6 @@ export class PostsRepositoryQuery {
     const postIds = posts.map((post) => post._id);
     const likes = await LikeModel.find({ likedEntityId: { $in: postIds } }).sort({ updatedAt: -1 }).lean();
 
-    // TODO: refactor?
     const postsLikesInfo = postIds.map((postId) => {
       const allPostLikes = likes.filter((like) => like.likedEntityId.equals(postId));
       const postLikes = allPostLikes.filter((like) => like.status === LikeStatus.Like)
@@ -76,7 +75,8 @@ export class PostsRepositoryQuery {
 
   async getPostsForBlog(
     blogId: MongooseObjtId,
-    { pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPostDB>>
+    { pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPostDB>>,
+    currentUserId?: MongooseObjtId
   ): Promise<IBaseResponse<IPostView>> {
     const { sortOptions, skip, limit } = buildQuery<IPostDB>({ pageNumber, pageSize, sortBy, sortDirection });
 
@@ -85,12 +85,42 @@ export class PostsRepositoryQuery {
     const totalCount = await PostModel.countDocuments({ blogId });
     const pagesCount = Math.ceil(totalCount / pageSize);
 
+    
+    const postIds = posts.map((post) => post._id);
+    const likes = await LikeModel.find({ likedEntityId: { $in: postIds } }).sort({ updatedAt: -1 }).lean();
+
+    const postsLikesInfo = postIds.map((postId) => {
+      const allPostLikes = likes.filter((like) => like.likedEntityId.equals(postId));
+      const postLikes = allPostLikes.filter((like) => like.status === LikeStatus.Like)
+
+      const likesCount = postLikes.length;
+      const dislikesCount = allPostLikes.filter((like) => like.status === LikeStatus.Dislike).length;
+      const myStatus = allPostLikes.find((like) => currentUserId?.toString() === like.userId.toString())?.status ?? LikeStatus.None;
+      const newestLikes = postLikes.slice(0, 3);
+
+      return {
+        postId,
+        likesCount,
+        dislikesCount,
+        myStatus,
+        newestLikes
+      };
+    });
+
+    const finalItems = posts.map((basePost) => {
+      const { likesCount, dislikesCount, myStatus, newestLikes } = postsLikesInfo.find((post) => post.postId.equals(basePost._id))!;
+      return {
+        ...basePost,
+        extendedLikesInfo: { likesCount, dislikesCount, myStatus, newestLikes },
+      };
+    });
+
     return {
       pagesCount,
       page: pageNumber,
       pageSize,
       totalCount,
-      items: posts.map(postObjMapper),
+      items: finalItems.map(postObjMapper),
     };
   }
 }
