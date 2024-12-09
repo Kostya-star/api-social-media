@@ -1,4 +1,4 @@
-import { IExtendedLikesInfoView, ILikeBaseView, ILikeDB } from '@/types/likes/like';
+import { IExtendedLikesInfoView, ILikeDB } from '@/types/likes/like';
 import { IPostDB, IPostView } from '@/types/posts/post';
 
 interface IPostDBWIthExtendedLikesInfo extends IPostDB, IExtendedLikesInfoView<ILikeDB> {}

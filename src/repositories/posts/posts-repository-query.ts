@@ -7,9 +7,13 @@ import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { postObjMapper } from '@/util/mappers/postObjMapper';
 import { LikeModel } from '@/DB/models/likes-model';
 import { LikeStatus } from '@/const/likes/like-status';
+import { getLikesInfo } from '@/util/get-likes-info';
 
 export class PostsRepositoryQuery {
-  async getAllPosts({ pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPostDB>>, currentUserId?: MongooseObjtId): Promise<IBaseResponse<IPostView>> {
+  async getAllPosts(
+    { pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPostDB>>,
+    currentUserId?: MongooseObjtId
+  ): Promise<IBaseResponse<IPostView>> {
     const { sortOptions, skip, limit } = buildQuery<IPostDB>({ pageNumber, pageSize, sortBy, sortDirection });
 
     const posts = await PostModel.find({}).sort(sortOptions).skip(skip).limit(limit).lean();
@@ -18,24 +22,15 @@ export class PostsRepositoryQuery {
     const pagesCount = Math.ceil(totalCount / pageSize);
 
     const postIds = posts.map((post) => post._id);
-    const likes = await LikeModel.find({ likedEntityId: { $in: postIds } }).sort({ updatedAt: -1 }).lean();
+    const likes = await LikeModel.find({ likedEntityId: { $in: postIds } })
+      .sort({ updatedAt: -1 })
+      .lean();
 
     const postsLikesInfo = postIds.map((postId) => {
       const allPostLikes = likes.filter((like) => like.likedEntityId.equals(postId));
-      const postLikes = allPostLikes.filter((like) => like.status === LikeStatus.Like)
+      const likesInfo = getLikesInfo(allPostLikes, currentUserId);
 
-      const likesCount = postLikes.length;
-      const dislikesCount = allPostLikes.filter((like) => like.status === LikeStatus.Dislike).length;
-      const myStatus = allPostLikes.find((like) => currentUserId?.toString() === like.userId.toString())?.status ?? LikeStatus.None;
-      const newestLikes = postLikes.slice(0, 3);
-
-      return {
-        postId,
-        likesCount,
-        dislikesCount,
-        myStatus,
-        newestLikes
-      };
+      return { postId, ...likesInfo };
     });
 
     const finalItems = posts.map((basePost) => {
@@ -46,31 +41,18 @@ export class PostsRepositoryQuery {
       };
     });
 
-    return {
-      pagesCount,
-      page: pageNumber,
-      pageSize,
-      totalCount,
-      items: finalItems.map(postObjMapper),
-    };
+    return { pagesCount, page: pageNumber, pageSize, totalCount, items: finalItems.map(postObjMapper) };
   }
 
   async getPostById(postId: MongooseObjtId, currentUserId?: MongooseObjtId): Promise<IPostView | null> {
     const post = await PostModel.findOne({ _id: postId }).lean();
     if (!post) return null;
 
-    const allPostLikes = await LikeModel.find({ likedEntityId: postId }).sort({ updatedAt: -1 }).lean();
+    const allLikes = await LikeModel.find({ likedEntityId: postId }).sort({ updatedAt: -1 }).lean();
 
-    const likes = allPostLikes.filter(like => like.status === LikeStatus.Like)
-    const dislikes = allPostLikes.filter(like => like.status === LikeStatus.Dislike);
-    const myStatus = allPostLikes.find((like) => currentUserId?.toString() === like.userId.toString())?.status ?? LikeStatus.None;
-    const newestLikes = likes.slice(0, 3);
+    const extendedLikesInfo = getLikesInfo(allLikes, currentUserId);
 
-    return postObjMapper({
-      ...post,
-      extendedLikesInfo: { likesCount: likes.length, dislikesCount: dislikes.length, myStatus, newestLikes },
-    });
-
+    return postObjMapper({ ...post, extendedLikesInfo });
   }
 
   async getPostsForBlog(
@@ -80,31 +62,21 @@ export class PostsRepositoryQuery {
   ): Promise<IBaseResponse<IPostView>> {
     const { sortOptions, skip, limit } = buildQuery<IPostDB>({ pageNumber, pageSize, sortBy, sortDirection });
 
-    const posts = await PostModel.find({ blogId }).sort(sortOptions).skip(skip).limit(limit);
+    const posts = await PostModel.find({ blogId }).sort(sortOptions).skip(skip).limit(limit).lean();
 
     const totalCount = await PostModel.countDocuments({ blogId });
     const pagesCount = Math.ceil(totalCount / pageSize);
 
-    
     const postIds = posts.map((post) => post._id);
-    const likes = await LikeModel.find({ likedEntityId: { $in: postIds } }).sort({ updatedAt: -1 }).lean();
+    const likes = await LikeModel.find({ likedEntityId: { $in: postIds } })
+      .sort({ updatedAt: -1 })
+      .lean();
 
     const postsLikesInfo = postIds.map((postId) => {
       const allPostLikes = likes.filter((like) => like.likedEntityId.equals(postId));
-      const postLikes = allPostLikes.filter((like) => like.status === LikeStatus.Like)
+      const likesInfo = getLikesInfo(allPostLikes, currentUserId);
 
-      const likesCount = postLikes.length;
-      const dislikesCount = allPostLikes.filter((like) => like.status === LikeStatus.Dislike).length;
-      const myStatus = allPostLikes.find((like) => currentUserId?.toString() === like.userId.toString())?.status ?? LikeStatus.None;
-      const newestLikes = postLikes.slice(0, 3);
-
-      return {
-        postId,
-        likesCount,
-        dislikesCount,
-        myStatus,
-        newestLikes
-      };
+      return { postId, ...likesInfo };
     });
 
     const finalItems = posts.map((basePost) => {
@@ -115,12 +87,6 @@ export class PostsRepositoryQuery {
       };
     });
 
-    return {
-      pagesCount,
-      page: pageNumber,
-      pageSize,
-      totalCount,
-      items: finalItems.map(postObjMapper),
-    };
+    return { pagesCount, page: pageNumber, pageSize, totalCount, items: finalItems.map(postObjMapper) };
   }
 }

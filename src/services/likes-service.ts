@@ -29,6 +29,7 @@ export class LikesService {
     this.usersRepository = usersRepository;
   }
 
+  // ideally its best to have two separate services for likes-post & likes-comments
   async handleLike(likedEntityId: MongooseObjtId, likeStatus: LikeStatus, currentUserId: MongooseObjtId, entityType: 'isComment' | 'isPost'): Promise<void> {
     const user = await this.usersRepository.getUserById(currentUserId);
 
@@ -36,26 +37,19 @@ export class LikesService {
       throw ErrorService(UsersErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
-    if (entityType === 'isComment') {
-      if (!ObjectId.isValid(likedEntityId)) {
-        throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-      }
+    const errorMessage = entityType === 'isComment' ? CommentsErrorsList.NOT_FOUND : PostsErrorsList.NOT_FOUND;
 
-      const comment = await this.commentsRepository.getCommentById(likedEntityId);
+    if (!ObjectId.isValid(likedEntityId)) {
+      throw ErrorService(errorMessage, HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
 
-      if (!comment) {
-        throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-      }
-    } else if (entityType === 'isPost') {
-      if (!ObjectId.isValid(likedEntityId)) {
-        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-      }
+    let item = null;
 
-      const post = await this.postsRepository.getPostById(likedEntityId);
+    if (entityType === 'isComment') item = await this.commentsRepository.getCommentById(likedEntityId);
+    if (entityType === 'isPost') item = await this.postsRepository.getPostById(likedEntityId);
 
-      if (!post) {
-        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
-      }
+    if (!item) {
+      throw ErrorService(errorMessage, HTTP_STATUS_CODES.NOT_FOUND_404);
     }
 
     await this.likesRepository.updateLike(likedEntityId, likeStatus, currentUserId, user.login);

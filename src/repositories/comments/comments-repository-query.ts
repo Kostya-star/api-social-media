@@ -6,6 +6,7 @@ import { IBaseResponse } from '@/types/base-response';
 import { ICommentDB, ICommentView } from '@/types/comments/comment';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { buildQuery } from '@/util/buildQuery';
+import { getLikesInfo } from '@/util/get-likes-info';
 import { commentObjMapper } from '@/util/mappers/commentObjMapper';
 
 export class CommentsRepositoryQuery {
@@ -26,17 +27,9 @@ export class CommentsRepositoryQuery {
 
     const commentsLikesInfo = commentIds.map((commentId) => {
       const commentLikes = likes.filter((like) => like.likedEntityId.equals(commentId));
+      const likesInfo = getLikesInfo(commentLikes, currentUserId);
 
-      const likesCount = commentLikes.filter((like) => like.status === LikeStatus.Like).length;
-      const dislikesCount = commentLikes.filter((like) => like.status === LikeStatus.Dislike).length;
-
-      const myStatus = commentLikes.find((like) => currentUserId?.toString() === like.userId.toString())?.status ?? LikeStatus.None;
-      return {
-        commentId,
-        likesCount,
-        dislikesCount,
-        myStatus,
-      };
+      return { commentId, ...likesInfo };
     });
 
     const finalItems = items.map((baseComm) => {
@@ -47,26 +40,17 @@ export class CommentsRepositoryQuery {
       };
     });
 
-    return {
-      pagesCount,
-      page: query.pageNumber,
-      pageSize: query.pageSize,
-      totalCount,
-      items: finalItems.map(commentObjMapper),
-    };
+    return { pagesCount, page: query.pageNumber, pageSize: query.pageSize, totalCount, items: finalItems.map(commentObjMapper) };
   }
 
   async getCommentById(commentId: MongooseObjtId, currentUserId?: MongooseObjtId): Promise<ICommentView | null> {
     const comment = await CommentModel.findOne({ _id: commentId }).lean();
     if (!comment) return null;
 
-    const likesCount = await LikeModel.countDocuments({ likedEntityId: commentId, status: LikeStatus.Like });
-    const dislikesCount = await LikeModel.countDocuments({ likedEntityId: commentId, status: LikeStatus.Dislike });
-    const myStatus = (await LikeModel.findOne({ likedEntityId: commentId, userId: currentUserId }).lean())?.status ?? LikeStatus.None;
+    const commentLikes = await LikeModel.find({ likedEntityId: commentId }).lean();
 
-    return commentObjMapper({
-      ...comment,
-      likesInfo: { likesCount, dislikesCount, myStatus },
-    });
+    const { newestLikes, ...likesInfo } = getLikesInfo(commentLikes, currentUserId);
+
+    return commentObjMapper({ ...comment, likesInfo });
   }
 }
