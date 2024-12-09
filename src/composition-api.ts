@@ -47,7 +47,7 @@ const requestsRateRepositoryCommands = new RequestsRateRepositoryCommands();
 const blogsService = new BlogsService(blogsRepositoryCommands);
 const postsService = new PostsService(postsRepositoryCommands, blogsRepositoryCommands);
 const commentsService = new CommentsService(commentsRepositoryCommands, postsRepositoryCommands, usersRepositoryCommands);
-const likesService = new LikesService(likesRepositoryCommands, commentsRepositoryCommands);
+const likesService = new LikesService(likesRepositoryCommands, commentsRepositoryCommands, postsRepositoryCommands);
 const usersService = new UsersService(usersRepositoryCommands);
 const sessionsService = new SessionsService(sessionsRepositoryCommands);
 const mailService = new MailService();
@@ -55,7 +55,7 @@ const authService = new AuthService(usersRepositoryCommands, mailService, usersS
 
 // controllers
 export const blogsController = new BlogsController(blogsService, postsService, blogsRepositoryQuery, postsRepositoryQuery);
-export const postsController = new PostsController(postsService, commentsService, postsRepositoryQuery, commentsRepositoryQuery);
+export const postsController = new PostsController(postsService, commentsService, postsRepositoryQuery, commentsRepositoryQuery, likesService);
 export const commentsController = new CommentsController(commentsService, likesService, commentsRepositoryQuery);
 export const devicesController = new DevicesController(sessionsService, sessionsRepositoryQuery);
 export const usersController = new UsersController(usersService, usersRepositoryQuery);

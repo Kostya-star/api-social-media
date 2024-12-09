@@ -17,23 +17,28 @@ import { PostsService } from '@/services/posts-service';
 import { CommentsService } from '@/services/comments-service';
 import { PostsRepositoryQuery } from '@/repositories/posts/posts-repository-query';
 import { CommentsRepositoryQuery } from '@/repositories/comments/comments-repository-query';
+import { LikeStatus } from '@/const/likes/like-status';
+import { LikesService } from '@/services/likes-service';
 
 export class PostsController {
   protected postsService;
   protected commentsService;
   protected postsRepositoryQuery;
   protected commentsRepositoryQuery;
+  protected likesService;
 
   constructor(
     postsService: PostsService,
     commentsService: CommentsService,
     postsRepositoryQuery: PostsRepositoryQuery,
-    commentsRepositoryQuery: CommentsRepositoryQuery
+    commentsRepositoryQuery: CommentsRepositoryQuery,
+    likesService: LikesService
   ) {
     this.postsService = postsService;
     this.commentsService = commentsService;
     this.postsRepositoryQuery = postsRepositoryQuery;
     this.commentsRepositoryQuery = commentsRepositoryQuery;
+    this.likesService = likesService;
   }
 
   async getAllPosts(req: Request<any, any, any, IBaseQuery<IPostDB>>, res: Response<IBaseResponse<IPostView>>, next: NextFunction) {
@@ -163,4 +168,19 @@ export class PostsController {
       next(err);
     }
   }
+
+  async handlePostLike(req: Request<{ postId: MongooseObjtId }, any, { likeStatus: LikeStatus }>, res: Response<void>, next: NextFunction) {
+    const postId = req.params.postId;
+    const currentUserId = req.userId!;
+    const likeStatus = req.body.likeStatus;
+
+    try {
+      await this.likesService.handleLike(postId, likeStatus, currentUserId, 'isPost');
+
+      res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
+    } catch (err) {
+      next(err);
+    }
+  }
+
 }

@@ -6,6 +6,7 @@ import { validateCommentFields } from '@/middlewares/comments/validate-comment-f
 import { attachAccessTokenToReq } from '@/middlewares/attach-access-token-to-req';
 import { postsController } from '@/composition-api';
 import { validateCreatePostFields } from '@/middlewares/posts/validate-create-post-fields';
+import { validateLikeStatus } from '@/middlewares/likes/validate-like-status';
 
 export const postsRoutes = Router();
 
@@ -17,4 +18,6 @@ postsRoutes.get(`/:postId${APP_ROUTES.COMMENTS}`, attachAccessTokenToReq, postsC
 postsRoutes.post(`/:postId${APP_ROUTES.COMMENTS}`, checkBearerAuth, validateCommentFields, postsController.createCommentForPost.bind(postsController));
 
 postsRoutes.put('/:postId', checkBasicAuth, validateCreatePostFields, postsController.updatePost.bind(postsController));
+postsRoutes.put('/:postId/like-status', checkBearerAuth, validateLikeStatus, postsController.handlePostLike.bind(postsController));
+
 postsRoutes.delete('/:postId', checkBasicAuth, postsController.deletePost.bind(postsController));

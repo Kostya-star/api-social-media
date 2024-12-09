@@ -6,6 +6,7 @@ import { UserModel } from '@/DB/models/users-model';
 import { SessionModel } from '@/DB/models/devices-model';
 import { CommentModel } from '@/DB/models/comments-model';
 import { ReqRateModel } from '@/DB/models/req-rate-model';
+import { LikeModel } from '@/DB/models/likes-model';
 
 export class TestingController {
   async deleteAllData(req: Request, res: Response, next: NextFunction) {
@@ -16,6 +17,7 @@ export class TestingController {
       await SessionModel.deleteMany({});
       await CommentModel.deleteMany({});
       await ReqRateModel.deleteMany({});
+      await LikeModel.deleteMany({});
 
       res.status(HTTP_STATUS_CODES.NO_CONTENT_204).end();
     } catch (err) {

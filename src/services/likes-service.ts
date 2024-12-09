@@ -6,17 +6,21 @@ import { LikeStatus } from '@/const/likes/like-status';
 import { CommentsErrorsList } from '@/errors/comments-errors';
 import { LikesRepositoryCommands } from '@/repositories/likes-repository-commands';
 import { CommentsRepositoryCommands } from '@/repositories/comments/comments-repository-commands';
+import { PostsErrorsList } from '@/errors/posts-errors';
+import { PostsRepositoryCommands } from '@/repositories/posts/posts-repository-commands';
 
 export class LikesService {
   protected likesRepository;
   protected commentsRepository;
+  protected postsRepository;
 
-  constructor(likesRepository: LikesRepositoryCommands, commentsRepository: CommentsRepositoryCommands) {
+  constructor(likesRepository: LikesRepositoryCommands, commentsRepository: CommentsRepositoryCommands, postsRepository: PostsRepositoryCommands) {
     this.likesRepository = likesRepository;
     this.commentsRepository = commentsRepository;
+    this.postsRepository = postsRepository;
   }
 
-  async handleLike(likedEntityId: MongooseObjtId, likeStatus: LikeStatus, currentUserId: MongooseObjtId, entityType: 'isComment'): Promise<void> {
+  async handleLike(likedEntityId: MongooseObjtId, likeStatus: LikeStatus, currentUserId: MongooseObjtId, entityType: 'isComment' | 'isPost'): Promise<void> {
     if (entityType === 'isComment') {
       if (!ObjectId.isValid(likedEntityId)) {
         throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -27,7 +31,17 @@ export class LikesService {
       if (!comment) {
         throw ErrorService(CommentsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
-    } // else if (entityType === 'isPost')
+    } else if (entityType === 'isPost') {
+      if (!ObjectId.isValid(likedEntityId)) {
+        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+
+      const post = await this.postsRepository.getPostById(likedEntityId);
+
+      if (!post) {
+        throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
+      }
+    }
 
     await this.likesRepository.updateLike(likedEntityId, likeStatus, currentUserId);
   }
