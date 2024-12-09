@@ -3,7 +3,7 @@ import { LikeModel } from '@/DB/models/likes-model';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 
 export class LikesRepositoryCommands {
-  async updateLike(likedEntityId: MongooseObjtId, status: LikeStatus, userId: MongooseObjtId): Promise<void> {
-    await LikeModel.findOneAndUpdate({ userId, likedEntityId }, { likedEntityId, userId, status }, { upsert: true });
+  async updateLike(likedEntityId: MongooseObjtId, status: LikeStatus, userId: MongooseObjtId, userLogin: string): Promise<void> {
+    await LikeModel.findOneAndUpdate({ userId, likedEntityId, userLogin }, { likedEntityId, userId, status, userLogin }, { upsert: true });
   }
 }

@@ -10,8 +10,8 @@ import { validateLikeStatus } from '@/middlewares/likes/validate-like-status';
 
 export const postsRoutes = Router();
 
-postsRoutes.get('/', postsController.getAllPosts.bind(postsController));
-postsRoutes.get('/:postId', postsController.getPostById.bind(postsController));
+postsRoutes.get('/', attachAccessTokenToReq, postsController.getAllPosts.bind(postsController));
+postsRoutes.get('/:postId', attachAccessTokenToReq, postsController.getPostById.bind(postsController));
 postsRoutes.post('/', checkBasicAuth, validateCreatePostFields, postsController.createPost.bind(postsController));
 
 postsRoutes.get(`/:postId${APP_ROUTES.COMMENTS}`, attachAccessTokenToReq, postsController.getCommentsForPost.bind(postsController));

@@ -1,6 +1,9 @@
+import { IExtendedLikesInfoView, ILikeBaseView, ILikeDB } from '@/types/likes/like';
 import { IPostDB, IPostView } from '@/types/posts/post';
 
-export function postObjMapper(post: IPostDB): IPostView {
+interface IPostDBWIthExtendedLikesInfo extends IPostDB, IExtendedLikesInfoView<ILikeDB> {}
+
+export function postObjMapper(post: IPostDBWIthExtendedLikesInfo): IPostView {
   return {
     id: post._id,
     title: post.title,
@@ -9,5 +12,15 @@ export function postObjMapper(post: IPostDB): IPostView {
     blogId: post.blogId,
     blogName: post.blogName,
     createdAt: post.createdAt,
+    extendedLikesInfo: {
+      likesCount: post.extendedLikesInfo.likesCount,
+      dislikesCount: post.extendedLikesInfo.dislikesCount,
+      myStatus: post.extendedLikesInfo.myStatus,
+      newestLikes: post.extendedLikesInfo.newestLikes.map((like) => ({
+        addedAt: like.updatedAt,
+        userId: like.userId,
+        login: like.userLogin,
+      })),
+    },
   };
 }

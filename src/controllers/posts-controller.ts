@@ -47,8 +47,10 @@ export class PostsController {
       const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
       const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
       const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
+      
+      const userId = req.userId;
 
-      const resp = await this.postsRepositoryQuery.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize });
+      const resp = await this.postsRepositoryQuery.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize }, userId);
 
       res.status(HTTP_STATUS_CODES.SUCCESS_200).json(resp);
     } catch (err) {
@@ -58,13 +60,14 @@ export class PostsController {
 
   async getPostById(req: Request<{ postId: MongooseObjtId }>, res: Response<IPostView>, next: NextFunction) {
     const { postId } = req.params;
+    const userId = req.userId;
 
     try {
       if (!ObjectId.isValid(postId)) {
         throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);
       }
 
-      const post = await this.postsRepositoryQuery.getPostById(postId);
+      const post = await this.postsRepositoryQuery.getPostById(postId, userId);
 
       if (!post) {
         throw ErrorService(PostsErrorsList.NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND_404);

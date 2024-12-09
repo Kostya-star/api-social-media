@@ -6,14 +6,29 @@ export interface ILikeDB {
   status: LikeStatus;
   userId: MongooseObjtId;
   likedEntityId: MongooseObjtId;
+  userLogin: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export interface ILikeBaseView {
+  likesCount: number;
+  dislikesCount: number;
+  myStatus: LikeStatus;
+}
+
 export interface ILikesInfoView {
-  likesInfo: {
-    likesCount: number;
-    dislikesCount: number;
-    myStatus: LikeStatus;
+  likesInfo: ILikeBaseView;
+}
+
+export interface INewestLikesView {
+  addedAt: Date; // ISO Date
+  userId: MongooseObjtId;
+  login: string;
+}
+
+export interface IExtendedLikesInfoView<T> {
+  extendedLikesInfo: ILikeBaseView & {
+    newestLikes: T[];
   };
 }

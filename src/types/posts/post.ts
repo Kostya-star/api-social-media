@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { IExtendedLikesInfoView, INewestLikesView } from '../likes/like';
 
 export interface IPostDB {
   _id: Types.ObjectId;
@@ -11,6 +12,6 @@ export interface IPostDB {
   updatedAt: Date;
 }
 
-export interface IPostView extends Omit<IPostDB, '_id' | 'updatedAt'> {
+export interface IPostView extends Omit<IPostDB, '_id' | 'updatedAt'>, IExtendedLikesInfoView<INewestLikesView> {
   id: Types.ObjectId;
 }

@@ -7,6 +7,7 @@ const likesSchema = new Schema<ILikeDB>(
     status: { type: String, enum: LikeStatus, required: true },
     userId: { type: Schema.Types.ObjectId, required: true },
     likedEntityId: { type: Schema.Types.ObjectId, required: true },
+    userLogin: { type: String, required: true },
   },
   {
     timestamps: true,
