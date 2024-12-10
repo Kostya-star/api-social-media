@@ -3,7 +3,9 @@ import { IBlogDB } from '@/types/blogs/blog';
 import { ICreateBlogPayload } from '@/types/blogs/createBlogBody';
 import { IUpdateBlogPayload } from '@/types/blogs/updateBlogBody';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
+import { injectable } from 'inversify';
 
+@injectable()
 export class BlogsRepositoryCommands {
   async getBlogById(blogId: MongooseObjtId): Promise<IBlogDB | null> {
     // return await BlogModel.findOne({ _id: blogId});

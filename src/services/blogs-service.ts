@@ -6,11 +6,14 @@ import { BlogsErrorsList } from '@/errors/blogs-errors';
 import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { BlogsRepositoryCommands } from '@/repositories/blogs/blogs-repository-commands';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class BlogsService {
-  protected blogsRepository;
+  protected blogsRepository: BlogsRepositoryCommands;
 
-  constructor(blogsRepository: BlogsRepositoryCommands) {
+  constructor(@inject(TYPES.blogsRepositoryCommands) blogsRepository: BlogsRepositoryCommands) {
     this.blogsRepository = blogsRepository;
   }
 

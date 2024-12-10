@@ -4,14 +4,17 @@ import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ICreateSessionPayload } from '@/types/sessions/create-session-payload';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { SessionsRepositoryCommands } from '@/repositories/sessions/sessions-repository-commands';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class SessionsService {
   protected sessionsRepository;
 
-  constructor(sessionsRepository: SessionsRepositoryCommands) {
+  constructor(@inject(TYPES.sessionsRepositoryCommands) sessionsRepository: SessionsRepositoryCommands) {
     this.sessionsRepository = sessionsRepository;
   }
-  
+
   createSession = async (session: ICreateSessionPayload): Promise<MongooseObjtId> => {
     return await this.sessionsRepository.createSession(session);
   };

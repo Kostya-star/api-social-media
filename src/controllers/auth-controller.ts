@@ -7,12 +7,15 @@ import { IUserView } from '@/types/users/user';
 import { IChangeUserPasswordPayload } from '@/types/auth/auth-change-password-payload';
 import { AuthService } from '@/services/auth-service';
 import { UsersRepositoryQuery } from '@/repositories/users/users-repository-query';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class AuthController {
   protected authService;
   protected usersRepositoryQuery;
 
-  constructor(authService: AuthService, usersRepositoryQuery: UsersRepositoryQuery) {
+  constructor(@inject(TYPES.authService) authService: AuthService, @inject(TYPES.usersRepositoryQuery) usersRepositoryQuery: UsersRepositoryQuery) {
     this.authService = authService;
     this.usersRepositoryQuery = usersRepositoryQuery;
   }

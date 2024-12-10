@@ -5,7 +5,9 @@ import { GetAllUsersQuery } from '@/types/users/getAllUsersQuery';
 import { IUserDB, IUserView } from '@/types/users/user';
 import { buildQuery } from '@/util/buildQuery';
 import { userObjMapper } from '@/util/mappers/userObjMapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class UsersRepositoryQuery {
   async getAllUsers(query: Required<GetAllUsersQuery>): Promise<IBaseResponse<IUserView>> {
     const { searchEmailTerm, searchLoginTerm, pageNumber, pageSize, sortBy, sortDirection } = query;

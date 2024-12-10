@@ -7,7 +7,9 @@ import { SessionModel } from '@/DB/models/devices-model';
 import { CommentModel } from '@/DB/models/comments-model';
 import { ReqRateModel } from '@/DB/models/req-rate-model';
 import { LikeModel } from '@/DB/models/likes-model';
+import { injectable } from 'inversify';
 
+@injectable()
 export class TestingController {
   async deleteAllData(req: Request, res: Response, next: NextFunction) {
     try {

@@ -10,7 +10,10 @@ import { PostsErrorsList } from '@/errors/posts-errors';
 import { PostsRepositoryCommands } from '@/repositories/posts/posts-repository-commands';
 import { UsersRepositoryCommands } from '@/repositories/users/users-repository-commands';
 import { UsersErrorsList } from '@/errors/users-errors';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class LikesService {
   protected likesRepository;
   protected commentsRepository;
@@ -18,10 +21,10 @@ export class LikesService {
   protected usersRepository;
 
   constructor(
-    likesRepository: LikesRepositoryCommands,
-    commentsRepository: CommentsRepositoryCommands,
-    postsRepository: PostsRepositoryCommands,
-    usersRepository: UsersRepositoryCommands
+    @inject(TYPES.likesRepositoryCommands) likesRepository: LikesRepositoryCommands,
+    @inject(TYPES.commentsRepositoryCommands) commentsRepository: CommentsRepositoryCommands,
+    @inject(TYPES.postsRepositoryCommands) postsRepository: PostsRepositoryCommands,
+    @inject(TYPES.usersRepositoryCommands) usersRepository: UsersRepositoryCommands
   ) {
     this.likesRepository = likesRepository;
     this.commentsRepository = commentsRepository;

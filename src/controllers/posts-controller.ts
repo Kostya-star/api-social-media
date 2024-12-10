@@ -19,20 +19,23 @@ import { PostsRepositoryQuery } from '@/repositories/posts/posts-repository-quer
 import { CommentsRepositoryQuery } from '@/repositories/comments/comments-repository-query';
 import { LikeStatus } from '@/const/likes/like-status';
 import { LikesService } from '@/services/likes-service';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class PostsController {
-  protected postsService;
+  protected postsService: PostsService;
   protected commentsService;
   protected postsRepositoryQuery;
   protected commentsRepositoryQuery;
   protected likesService;
 
   constructor(
-    postsService: PostsService,
-    commentsService: CommentsService,
-    postsRepositoryQuery: PostsRepositoryQuery,
-    commentsRepositoryQuery: CommentsRepositoryQuery,
-    likesService: LikesService
+    @inject(TYPES.postsService) postsService: PostsService,
+    @inject(TYPES.commentsService) commentsService: CommentsService,
+    @inject(TYPES.postsRepositoryQuery) postsRepositoryQuery: PostsRepositoryQuery,
+    @inject(TYPES.commentsRepositoryQuery) commentsRepositoryQuery: CommentsRepositoryQuery,
+    @inject(TYPES.likesService) likesService: LikesService
   ) {
     this.postsService = postsService;
     this.commentsService = commentsService;
@@ -47,7 +50,7 @@ export class PostsController {
       const sortDirection = req.query.sortDirection || SORT_DIRECTIONS.DESC;
       const pageNumber = parseInt(String(req.query.pageNumber)) || DEFAULT_PAGE_NUMBER;
       const pageSize = parseInt(String(req.query.pageSize)) || DEFAULT_PAGE_SIZE;
-      
+
       const userId = req.userId;
 
       const resp = await this.postsRepositoryQuery.getAllPosts({ sortBy, sortDirection, pageNumber, pageSize }, userId);
@@ -185,5 +188,4 @@ export class PostsController {
       next(err);
     }
   }
-
 }

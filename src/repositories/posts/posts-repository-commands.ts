@@ -3,7 +3,9 @@ import { IPostDB } from '@/types/posts/post';
 import { PostModel } from '@/DB/models/posts-model';
 import { ICreatePostBody } from '@/types/posts/createPostBody';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
+import { injectable } from 'inversify';
 
+@injectable()
 export class PostsRepositoryCommands {
   async getPostById(postId: MongooseObjtId): Promise<IPostDB | null> {
     return await PostModel.findOne({ _id: postId });

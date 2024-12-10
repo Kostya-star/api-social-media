@@ -3,12 +3,18 @@ import { HTTP_STATUS_CODES } from '@/const/http-status-codes';
 import { ISessionView } from '@/types/sessions/session';
 import { SessionsService } from '@/services/sessions-service';
 import { SessionsRepositoryQuery } from '@/repositories/sessions/sessions-repository-query';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class DevicesController {
   protected sessionsService;
   protected sessionsRepositoryQuery;
 
-  constructor(sessionsService: SessionsService, sessionsRepositoryQuery: SessionsRepositoryQuery) {
+  constructor(
+    @inject(TYPES.sessionsService) sessionsService: SessionsService,
+    @inject(TYPES.sessionsRepositoryQuery) sessionsRepositoryQuery: SessionsRepositoryQuery
+  ) {
     this.sessionsService = sessionsService;
     this.sessionsRepositoryQuery = sessionsRepositoryQuery;
   }

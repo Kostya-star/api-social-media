@@ -18,14 +18,22 @@ import { BlogsService } from '@/services/blogs-service';
 import { PostsService } from '@/services/posts-service';
 import { BlogsRepositoryQuery } from '@/repositories/blogs/blogs-repository-query';
 import { PostsRepositoryQuery } from '@/repositories/posts/posts-repository-query';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class BlogsController {
   protected blogsService;
   protected postsService;
   protected blogsRepositoryQuery;
   protected postsRepositoryQuery;
 
-  constructor(blogsService: BlogsService, postsService: PostsService, blogsRepositoryQuery: BlogsRepositoryQuery, postsRepositoryQuery: PostsRepositoryQuery) {
+  constructor(
+    @inject(TYPES.blogsService) blogsService: BlogsService,
+    @inject(TYPES.postsService) postsService: PostsService,
+    @inject(TYPES.blogsRepositoryQuery) blogsRepositoryQuery: BlogsRepositoryQuery,
+    @inject(TYPES.postsRepositoryQuery) postsRepositoryQuery: PostsRepositoryQuery
+  ) {
     this.blogsService = blogsService;
     this.postsService = postsService;
     this.blogsRepositoryQuery = blogsRepositoryQuery;

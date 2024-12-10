@@ -1,5 +1,7 @@
+import { injectable } from 'inversify';
 import nodemailer from 'nodemailer';
 
+@injectable()
 export class MailService {
   transport = nodemailer.createTransport({
     service: 'Mail.ru',

@@ -3,7 +3,7 @@ import { checkBearerAuth } from '@/middlewares/check-bearer-auth';
 import { validateCommentFields } from '@/middlewares/comments/validate-comment-fields';
 import { validateLikeStatus } from '@/middlewares/likes/validate-like-status';
 import { attachAccessTokenToReq } from '@/middlewares/attach-access-token-to-req';
-import { commentsController } from '@/composition-api';
+import { commentsController } from '@/composition-root';
 
 export const commentsRoutes = Router();
 

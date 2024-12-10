@@ -7,14 +7,20 @@ import { ObjectId } from 'mongodb';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { PostsRepositoryCommands } from '@/repositories/posts/posts-repository-commands';
 import { BlogsRepositoryCommands } from '@/repositories/blogs/blogs-repository-commands';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class PostsService {
-  protected postsRepository;
-  protected blogsRepository;
+  protected postsRepository: PostsRepositoryCommands;
+  protected blogsRepository: BlogsRepositoryCommands;
 
-  constructor(postsRepository: PostsRepositoryCommands, blogsRepository: BlogsRepositoryCommands) {
-    this.postsRepository = postsRepository
-    this.blogsRepository = blogsRepository
+  constructor(
+    @inject(TYPES.postsRepositoryCommands) postsRepository: PostsRepositoryCommands,
+    @inject(TYPES.blogsRepositoryCommands) blogsRepository: BlogsRepositoryCommands
+  ) {
+    this.postsRepository = postsRepository;
+    this.blogsRepository = blogsRepository;
   }
 
   async createPost(post: ICreatePostBody): Promise<MongooseObjtId> {

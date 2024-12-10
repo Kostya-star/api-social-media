@@ -5,7 +5,9 @@ import { GetAllBlogsQuery } from '@/types/blogs/getAllBlogsQuery';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { buildQuery } from '@/util/buildQuery';
 import { blogObjMapper } from '@/util/mappers/blogObjMapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class BlogsRepositoryQuery {
   async getAllBlogs({ pageNumber, pageSize, searchNameTerm, sortBy, sortDirection }: Required<GetAllBlogsQuery>): Promise<IBaseResponse<IBlogView>> {
     const { sortOptions, skip, limit } = buildQuery<IBlogDB>({ pageNumber, pageSize, sortBy, sortDirection });

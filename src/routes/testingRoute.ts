@@ -1,4 +1,4 @@
-import { testingController } from '@/composition-api';
+import { testingController } from '@/composition-root';
 import { Router } from 'express';
 
 export const testingRoute = Router();

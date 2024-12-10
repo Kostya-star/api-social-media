@@ -8,11 +8,14 @@ import { UsersErrorsList } from '@/errors/users-errors';
 import { IEmailConfirmationBody } from '@/types/users/email-confirmation-body';
 import { IUserDB } from '@/types/users/user';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class UsersService {
-  protected usersRepository;
+  protected usersRepository: UsersRepositoryCommands;
 
-  constructor(usersRepository: UsersRepositoryCommands) {
+  constructor(@inject(TYPES.usersRepositoryCommands) usersRepository: UsersRepositoryCommands) {
     this.usersRepository = usersRepository;
   }
 

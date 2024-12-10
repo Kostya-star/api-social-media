@@ -11,12 +11,15 @@ import { ErrorService } from '@/services/error-service';
 import { UsersErrorsList } from '@/errors/users-errors';
 import { UsersService } from '@/services/users-service';
 import { UsersRepositoryQuery } from '@/repositories/users/users-repository-query';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class UsersController {
   protected usersService;
   protected usersRepositoryQuery;
 
-  constructor(usersService: UsersService, usersRepositoryQuery: UsersRepositoryQuery) {
+  constructor(@inject(TYPES.usersService) usersService: UsersService, @inject(TYPES.usersRepositoryQuery) usersRepositoryQuery: UsersRepositoryQuery) {
     this.usersService = usersService;
     this.usersRepositoryQuery = usersRepositoryQuery;
   }

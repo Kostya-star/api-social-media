@@ -1,8 +1,10 @@
 import { UserModel } from '@/DB/models/users-model';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { IUserDB } from '@/types/users/user';
+import { injectable } from 'inversify';
 import { RootFilterQuery } from 'mongoose';
 
+@injectable()
 export class UsersRepositoryCommands {
   async getUserById(userId: MongooseObjtId): Promise<IUserDB | null> {
     return await UserModel.findOne({ _id: userId });

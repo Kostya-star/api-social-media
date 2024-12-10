@@ -4,9 +4,9 @@ import { APP_ROUTES } from '@/routing';
 import { checkBearerAuth } from '@/middlewares/check-bearer-auth';
 import { validateCommentFields } from '@/middlewares/comments/validate-comment-fields';
 import { attachAccessTokenToReq } from '@/middlewares/attach-access-token-to-req';
-import { postsController } from '@/composition-api';
 import { validateCreatePostFields } from '@/middlewares/posts/validate-create-post-fields';
 import { validateLikeStatus } from '@/middlewares/likes/validate-like-status';
+import { postsController } from '@/composition-root';
 
 export const postsRoutes = Router();
 

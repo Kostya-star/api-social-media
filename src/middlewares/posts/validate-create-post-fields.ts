@@ -8,7 +8,7 @@ import { validateDescription } from './validate-description';
 import { validateTitle } from './validate-title';
 import { checkFor400Error } from '../check-for-400-error';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
-import { blogsRepositoryQuery } from '@/composition-api';
+import { blogsRepositoryQuery } from '@/composition-root';
 
 export const validateCreatePostFields = [
   validateTitle(),

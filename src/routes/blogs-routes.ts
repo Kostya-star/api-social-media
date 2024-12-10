@@ -3,8 +3,8 @@ import { checkBasicAuth } from '@/middlewares/check-basic-auth';
 import { validateBlogFields } from '@/middlewares/blogs/validate-blog-fields';
 import { APP_ROUTES } from '@/routing';
 import { validateCreatePostForBlogFields } from '@/middlewares/posts/validate-create-post-for-blog-fields';
-import { blogsController } from '@/composition-api';
 import { attachAccessTokenToReq } from '@/middlewares/attach-access-token-to-req';
+import { blogsController } from '@/composition-root';
 
 export const blogsRoutes = Router();
 

@@ -9,13 +9,20 @@ import { LikeStatus } from '@/const/likes/like-status';
 import { CommentsService } from '@/services/comments-service';
 import { LikesService } from '@/services/likes-service';
 import { CommentsRepositoryQuery } from '@/repositories/comments/comments-repository-query';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class CommentsController {
   protected commentsService;
   protected likesService;
   protected commentsRepositoryQuery;
 
-  constructor(commentsService: CommentsService, likesService: LikesService, commentsRepositoryQuery: CommentsRepositoryQuery) {
+  constructor(
+    @inject(TYPES.commentsService) commentsService: CommentsService,
+    @inject(TYPES.likesService) likesService: LikesService,
+    @inject(TYPES.commentsRepositoryQuery) commentsRepositoryQuery: CommentsRepositoryQuery
+  ) {
     this.commentsService = commentsService;
     this.likesService = likesService;
     this.commentsRepositoryQuery = commentsRepositoryQuery;

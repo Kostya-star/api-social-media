@@ -9,13 +9,20 @@ import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { CommentsRepositoryCommands } from '@/repositories/comments/comments-repository-commands';
 import { PostsRepositoryCommands } from '@/repositories/posts/posts-repository-commands';
 import { UsersRepositoryCommands } from '@/repositories/users/users-repository-commands';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class CommentsService {
   protected commentsRepository;
   protected postsRepository;
   protected usersRepository;
 
-  constructor(commentsRepository: CommentsRepositoryCommands, postsRepository: PostsRepositoryCommands, usersRepository: UsersRepositoryCommands) {
+  constructor(
+    @inject(TYPES.commentsRepositoryCommands) commentsRepository: CommentsRepositoryCommands,
+    @inject(TYPES.postsRepositoryCommands) postsRepository: PostsRepositoryCommands,
+    @inject(TYPES.usersRepositoryCommands) usersRepository: UsersRepositoryCommands
+  ) {
     this.commentsRepository = commentsRepository;
     this.postsRepository = postsRepository;
     this.usersRepository = usersRepository;

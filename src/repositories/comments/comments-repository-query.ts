@@ -8,7 +8,9 @@ import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { buildQuery } from '@/util/buildQuery';
 import { getLikesInfo } from '@/util/get-likes-info';
 import { commentObjMapper } from '@/util/mappers/commentObjMapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class CommentsRepositoryQuery {
   async getCommentsForPost(
     query: Required<IBaseQuery<ICommentDB>>,

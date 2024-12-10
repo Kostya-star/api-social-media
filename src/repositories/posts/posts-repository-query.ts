@@ -6,9 +6,10 @@ import { PostModel } from '@/DB/models/posts-model';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { postObjMapper } from '@/util/mappers/postObjMapper';
 import { LikeModel } from '@/DB/models/likes-model';
-import { LikeStatus } from '@/const/likes/like-status';
 import { getLikesInfo } from '@/util/get-likes-info';
+import { injectable } from 'inversify';
 
+@injectable()
 export class PostsRepositoryQuery {
   async getAllPosts(
     { pageNumber, pageSize, sortBy, sortDirection }: Required<IBaseQuery<IPostDB>>,

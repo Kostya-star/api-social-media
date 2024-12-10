@@ -2,7 +2,9 @@ import { SessionModel } from '@/DB/models/devices-model';
 import { MongooseObjtId } from '@/types/mongoose-object-id';
 import { ICreateSessionPayload } from '@/types/sessions/create-session-payload';
 import { ISessionDB } from '@/types/sessions/session';
+import { injectable } from 'inversify';
 
+@injectable()
 export class SessionsRepositoryCommands {
   async findSessionById(deviceId: string): Promise<ISessionDB | null> {
     return await SessionModel.findOne({ deviceId });

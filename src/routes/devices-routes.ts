@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { checkRefreshToken } from '@/middlewares/auth/checkRefreshToken';
-import { devicesController } from '@/composition-api';
+import { devicesController } from '@/composition-root';
 
 export const devicesRoutes = Router();
 

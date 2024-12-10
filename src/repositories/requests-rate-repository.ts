@@ -1,5 +1,6 @@
 import { ReqRateModel } from '@/DB/models/req-rate-model';
 import { IReqRateLimiter } from '@/types/req-rate-limiter';
+import { injectable } from 'inversify';
 import { WithId } from 'mongodb';
 
 interface ICreateReqRatePayload {
@@ -7,6 +8,7 @@ interface ICreateReqRatePayload {
   url: string;
 }
 
+@injectable()
 export class RequestsRateRepositoryCommands {
   async getUpdatedRate({ ip, url }: ICreateReqRatePayload, newTimestamp: number): Promise<WithId<IReqRateLimiter> | null> {
     await ReqRateModel.updateOne(

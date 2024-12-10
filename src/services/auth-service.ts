@@ -19,20 +19,23 @@ import { SessionsService } from './sessions-service';
 import { SessionsRepositoryCommands } from '@/repositories/sessions/sessions-repository-commands';
 import { UsersRepositoryCommands } from '@/repositories/users/users-repository-commands';
 import { MailService } from './mail-service';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/composition-root-types';
 
+@injectable()
 export class AuthService {
-  protected usersRepository;
-  protected mailService;
-  protected usersService;
-  protected sessionsService;
-  protected sessionsRepository;
+  protected usersRepository: UsersRepositoryCommands;
+  protected mailService: MailService;
+  protected usersService: UsersService;
+  protected sessionsService: SessionsService;
+  protected sessionsRepository: SessionsRepositoryCommands;
 
   constructor(
-    usersRepository: UsersRepositoryCommands,
-    mailService: MailService,
-    usersService: UsersService,
-    sessionsService: SessionsService,
-    sessionsRepository: SessionsRepositoryCommands
+    @inject(TYPES.usersRepositoryCommands) usersRepository: UsersRepositoryCommands,
+    @inject(TYPES.mailService) mailService: MailService,
+    @inject(TYPES.usersService) usersService: UsersService,
+    @inject(TYPES.sessionsService) sessionsService: SessionsService,
+    @inject(TYPES.sessionsRepositoryCommands) sessionsRepository: SessionsRepositoryCommands
   ) {
     this.usersRepository = usersRepository;
     this.mailService = mailService;

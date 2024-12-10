@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { checkBasicAuth } from '@/middlewares/check-basic-auth';
 import { validateUserRegistrationFields } from '@/middlewares/auth/validate-user-registration-fields';
-import { usersController } from '@/composition-api';
+import { usersController } from '@/composition-root';
 
 export const usersRoutes = Router();
 
